@@ -1,4 +1,4 @@
-import { ReactNode, useState } from "react";
+import { ReactNode, useState, useEffect } from "react";
 import { AdminSidebar } from "./AdminSidebar";
 import { User, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -10,18 +10,28 @@ interface AdminLayoutProps {
 export function AdminLayout({ children }: AdminLayoutProps) {
   const [isOpen, setIsOpen] = useState(false);
 
-  // Sidebar yopish funksiyasi
+  // Katta ekranda sidebar avtomatik yopilsin
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) setIsOpen(false);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Link bosilganda sidebar yopilishi
   const closeSidebar = () => setIsOpen(false);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* HEADER: Eng ustda - z-50 */}
+      {/* HEADER - z-50 */}
       <header className="fixed top-0 left-0 right-0 z-50 h-16 border-b border-border bg-background/95 backdrop-blur-sm">
-        <div className="h-full px-4 flex items-center justify-between">
+        <div className="h-full px-4 lg:px-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
+            {/* Mobile Menu Button - faqat mobilda */}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="p-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-all focus:outline-none active:scale-95"
+              className="lg:hidden p-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-all focus:outline-none active:scale-95"
               aria-label={isOpen ? "Close menu" : "Open menu"}
             >
               {isOpen ? <X size={22} /> : <Menu size={22} />}
@@ -30,7 +40,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center shadow-lg">
               <span className="text-primary-foreground font-bold text-xl">J</span>
             </div>
-            <h1 className="font-semibold text-lg hidden xs:block tracking-tight italic text-primary">
+            <h1 className="font-semibold text-lg hidden sm:block tracking-tight italic text-primary">
               Portfolio Admin
             </h1>
           </div>
@@ -51,7 +61,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         </div>
       </header>
 
-      {/* OVERLAY: Sidebar ochiq bo'lganda - z-40 */}
+      {/* OVERLAY - faqat mobilda - z-40 */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -59,23 +69,23 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={closeSidebar}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+            className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
           />
         )}
       </AnimatePresence>
 
-      {/* SIDEBAR: Header ostida - z-45 */}
+      {/* SIDEBAR - z-45 (header ostida) */}
       <motion.aside
         initial={false}
-        animate={{ x: isOpen ? 0 : -288 }}
+        animate={{ x: isOpen ? 0 : "-100%" }}
         transition={{ type: "spring", damping: 25, stiffness: 200 }}
-        className="fixed top-0 left-0 bottom-0 w-72 z-45 bg-sidebar border-r border-sidebar-border shadow-2xl"
+        className="lg:translate-x-0 fixed top-0 left-0 bottom-0 w-72 z-45 bg-sidebar border-r border-sidebar-border shadow-2xl lg:z-10"
       >
         <AdminSidebar onLinkClick={closeSidebar} />
       </motion.aside>
 
       {/* MAIN CONTENT */}
-      <main className="pt-16 min-h-screen p-4 sm:p-6 lg:p-8">
+      <main className="pt-16 min-h-screen lg:ml-72 p-4 sm:p-6 lg:p-8">
         <div className="max-w-7xl mx-auto">
           {children}
         </div>

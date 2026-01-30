@@ -1,17 +1,23 @@
 import { Link, useRouter } from "../../lib/router";
-import { 
-  LayoutDashboard, 
-  Folder, 
-  Code, 
-  Briefcase, 
-  FileText, 
-  Inbox, 
-  Settings, 
-  LogOut, 
-  ExternalLink 
+import {
+  LayoutDashboard,
+  Folder,
+  Code,
+  Briefcase,
+  FileText,
+  Inbox,
+  Settings,
+  LogOut,
+  ExternalLink,
 } from "lucide-react";
 
-const navItems = [
+interface NavItem {
+  name: string;
+  path: string;
+  icon: any;
+}
+
+const navItems: NavItem[] = [
   { name: "Dashboard", path: "/admin", icon: LayoutDashboard },
   { name: "Projects", path: "/admin/projects", icon: Folder },
   { name: "Skills", path: "/admin/skills", icon: Code },
@@ -41,19 +47,29 @@ export function AdminSidebar({ onLinkClick }: AdminSidebarProps) {
   };
 
   const handleLinkClick = () => {
-    if (onLinkClick) {
-      onLinkClick();
-    }
+    if (onLinkClick) onLinkClick();
   };
 
   return (
     <div className="flex flex-col h-full bg-sidebar">
-      {/* Header uchun bo'sh joy - header balandligi h-16 */}
-      <div className="h-16 shrink-0" />
+      {/* Header uchun bo'sh joy */}
+      <div className="h-16 shrink-0 border-b border-sidebar-border flex items-center px-6">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-md">
+            <span className="text-white font-bold">J</span>
+          </div>
+          <div>
+            <h2 className="font-bold text-sm text-sidebar-foreground">Admin Panel</h2>
+            <p className="text-[9px] uppercase tracking-wider text-sidebar-foreground/50">
+              Portfolio CMS
+            </p>
+          </div>
+        </div>
+      </div>
 
-      {/* Navigation Menu */}
+      {/* Navigation */}
       <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto scrollbar-thin scrollbar-thumb-muted">
-        <div className="px-3 mb-4">
+        <div className="px-3 mb-3">
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">
             Main Menu
           </p>
@@ -74,27 +90,27 @@ export function AdminSidebar({ onLinkClick }: AdminSidebarProps) {
               size={20} 
               className={`transition-transform duration-200 group-hover:scale-110 ${
                 isActive(item.path) ? "text-primary-foreground" : "text-muted-foreground"
-              }`} 
+              }`}
             />
             <span className="font-medium">{item.name}</span>
           </Link>
         ))}
       </nav>
 
-      {/* Footer: View Site va Sign Out */}
-      <div className="p-4 border-t border-sidebar-border space-y-1 bg-sidebar/50 backdrop-blur-sm shrink-0">
-        <Link 
-          href="/" 
+      {/* Footer */}
+      <div className="p-4 border-t border-sidebar-border space-y-1.5 bg-sidebar/50 backdrop-blur-sm shrink-0">
+        <Link
+          href="/"
           onClick={handleLinkClick}
-          className="flex items-center gap-3 px-4 py-3 rounded-xl text-sidebar-foreground/70 hover:bg-sidebar-accent transition-colors group"
+          className="flex items-center gap-3 px-4 py-3 rounded-xl text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors group"
         >
           <ExternalLink size={20} className="group-hover:text-primary transition-colors" />
           <span className="font-medium">View Site</span>
         </Link>
-        
+
         <button 
-          onClick={handleLogout} 
-          className="flex items-center gap-3 px-4 py-3 rounded-xl text-destructive/80 hover:bg-destructive/10 hover:text-destructive transition-all w-full group text-left"
+          onClick={handleLogout}
+          className="flex items-center gap-3 px-4 py-3 rounded-xl w-full text-left text-destructive/80 hover:bg-destructive/10 hover:text-destructive transition-colors group"
         >
           <LogOut size={20} className="group-hover:-translate-x-1 transition-transform" />
           <span className="font-medium">Sign Out</span>
