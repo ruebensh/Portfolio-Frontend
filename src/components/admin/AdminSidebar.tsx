@@ -40,9 +40,19 @@ export function AdminSidebar({ onLinkClick }: AdminSidebarProps) {
     }
   };
 
+  const handleLinkClick = () => {
+    if (onLinkClick) {
+      onLinkClick();
+    }
+  };
+
   return (
     <div className="flex flex-col h-full bg-sidebar">
-      <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto mt-16 scrollbar-thin scrollbar-thumb-muted">
+      {/* Header uchun bo'sh joy - header balandligi h-16 */}
+      <div className="h-16 shrink-0" />
+
+      {/* Navigation Menu */}
+      <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto scrollbar-thin scrollbar-thumb-muted">
         <div className="px-3 mb-4">
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">
             Main Menu
@@ -53,7 +63,7 @@ export function AdminSidebar({ onLinkClick }: AdminSidebarProps) {
           <Link
             key={item.path}
             href={item.path}
-            onClick={onLinkClick}
+            onClick={handleLinkClick}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
               isActive(item.path)
                 ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
@@ -71,10 +81,11 @@ export function AdminSidebar({ onLinkClick }: AdminSidebarProps) {
         ))}
       </nav>
 
-      <div className="p-4 border-t border-sidebar-border space-y-1 bg-sidebar/50 backdrop-blur-sm">
+      {/* Footer: View Site va Sign Out */}
+      <div className="p-4 border-t border-sidebar-border space-y-1 bg-sidebar/50 backdrop-blur-sm shrink-0">
         <Link 
           href="/" 
-          onClick={onLinkClick}
+          onClick={handleLinkClick}
           className="flex items-center gap-3 px-4 py-3 rounded-xl text-sidebar-foreground/70 hover:bg-sidebar-accent transition-colors group"
         >
           <ExternalLink size={20} className="group-hover:text-primary transition-colors" />
@@ -83,7 +94,7 @@ export function AdminSidebar({ onLinkClick }: AdminSidebarProps) {
         
         <button 
           onClick={handleLogout} 
-          className="flex items-center gap-3 px-4 py-3 rounded-xl text-destructive/80 hover:bg-destructive/10 hover:text-destructive transition-all w-full group"
+          className="flex items-center gap-3 px-4 py-3 rounded-xl text-destructive/80 hover:bg-destructive/10 hover:text-destructive transition-all w-full group text-left"
         >
           <LogOut size={20} className="group-hover:-translate-x-1 transition-transform" />
           <span className="font-medium">Sign Out</span>

@@ -1,4 +1,4 @@
-import { ReactNode, useState, useEffect } from "react";
+import { ReactNode, useState } from "react";
 import { AdminSidebar } from "./AdminSidebar";
 import { User, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -10,36 +10,13 @@ interface AdminLayoutProps {
 export function AdminLayout({ children }: AdminLayoutProps) {
   const [isOpen, setIsOpen] = useState(false);
 
-  // Link bosilganda sidebar yopilishi
+  // Sidebar yopish funksiyasi
   const closeSidebar = () => setIsOpen(false);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* OVERLAY: Sidebar ochiq bo'lganda */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={closeSidebar}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
-          />
-        )}
-      </AnimatePresence>
-
-      {/* SIDEBAR: z-50 ga o'zgartirildi */}
-      <motion.aside
-        initial={false}
-        animate={{ x: isOpen ? 0 : -288 }} // 288px = w-72 (18rem)
-        transition={{ type: "spring", damping: 25, stiffness: 200 }}
-        className="fixed top-0 left-0 bottom-0 w-72 z-50 bg-sidebar border-r border-sidebar-border shadow-2xl"
-      >
-        <AdminSidebar onLinkClick={closeSidebar} />
-      </motion.aside>
-
-      {/* HEADER: z-30 ga tushirildi */}
-      <header className="fixed top-0 left-0 right-0 z-30 h-16 border-b border-border bg-background/95 backdrop-blur-sm">
+      {/* HEADER: Eng ustda - z-50 */}
+      <header className="fixed top-0 left-0 right-0 z-50 h-16 border-b border-border bg-background/95 backdrop-blur-sm">
         <div className="h-full px-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
@@ -73,6 +50,29 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           </div>
         </div>
       </header>
+
+      {/* OVERLAY: Sidebar ochiq bo'lganda - z-40 */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={closeSidebar}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+          />
+        )}
+      </AnimatePresence>
+
+      {/* SIDEBAR: Header ostida - z-45 */}
+      <motion.aside
+        initial={false}
+        animate={{ x: isOpen ? 0 : -288 }}
+        transition={{ type: "spring", damping: 25, stiffness: 200 }}
+        className="fixed top-0 left-0 bottom-0 w-72 z-45 bg-sidebar border-r border-sidebar-border shadow-2xl"
+      >
+        <AdminSidebar onLinkClick={closeSidebar} />
+      </motion.aside>
 
       {/* MAIN CONTENT */}
       <main className="pt-16 min-h-screen p-4 sm:p-6 lg:p-8">
