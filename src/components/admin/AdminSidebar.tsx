@@ -44,28 +44,19 @@ export function AdminSidebar() {
   };
 
   return (
-    <div className="flex flex-col h-full bg-sidebar border-r border-sidebar-border shadow-xl">
-      {}
-      <div className="hidden lg:flex p-6 border-b border-sidebar-border items-center gap-3">
-        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-lg">
-          <span className="text-white font-bold text-xl">J</span>
-        </div>
-        <div>
-          <h2 className="font-bold text-sidebar-foreground">Admin Panel</h2>
-          <p className="text-[10px] uppercase tracking-wider text-sidebar-foreground/50">Portfolio CMS</p>
-        </div>
-      </div>
-
-      {}
-      <nav className="flex-1 p-4 space-y-1 overflow-y-auto mt-16 lg:mt-0">
+    <div className="flex flex-col h-full bg-sidebar border-r border-sidebar-border shadow-2xl">
+      {/* NAVIGATSIYA QISMI:
+        mt-16 qo'shildi - Header (h-16) bilan ustma-ust tushib qolmasligi uchun.
+      */}
+      <nav className="flex-1 p-4 space-y-2 overflow-y-auto mt-16 pt-4">
         {navItems.map((item) => (
           <Link
             key={item.path}
             href={item.path}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
               isActive(item.path)
-                ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
-                : "text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-[1.02]"
+                : "text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground hover:translate-x-1"
             }`}
           >
             <item.icon size={20} strokeWidth={isActive(item.path) ? 2.5 : 2} />
@@ -74,19 +65,19 @@ export function AdminSidebar() {
         ))}
       </nav>
 
-      {}
-      <div className="p-4 border-t border-sidebar-border space-y-2 mb-4">
+      {/* PASTKI QISM */}
+      <div className="p-4 border-t border-sidebar-border space-y-2 mb-4 bg-sidebar/80 backdrop-blur-md">
         <Link
           href="/"
-          className="flex items-center gap-3 px-4 py-3 rounded-xl w-full text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
+          className="flex items-center gap-3 px-4 py-3 rounded-xl w-full text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-all group"
         >
-          <ExternalLink size={20} />
+          <ExternalLink size={20} className="group-hover:rotate-12 transition-transform" />
           <span className="font-medium">View Site</span>
         </Link>
 
         <button 
           onClick={handleLogout}
-          className="flex items-center gap-3 px-4 py-3 rounded-xl w-full text-destructive hover:bg-destructive/10 transition-colors group"
+          className="flex items-center gap-3 px-4 py-3 rounded-xl w-full text-destructive hover:bg-destructive/10 transition-all group"
         >
           <LogOut size={20} className="group-hover:translate-x-1 transition-transform" />
           <span className="font-medium">Sign Out</span>
