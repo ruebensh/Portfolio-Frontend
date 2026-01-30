@@ -21,7 +21,11 @@ const navItems = [
   { name: "Settings", path: "/admin/settings", icon: Settings },
 ];
 
-export function AdminSidebar() {
+interface AdminSidebarProps {
+  onLinkClick?: () => void;
+}
+
+export function AdminSidebar({ onLinkClick }: AdminSidebarProps) {
   const { currentPath } = useRouter();
 
   const isActive = (path: string) => {
@@ -38,9 +42,6 @@ export function AdminSidebar() {
 
   return (
     <div className="flex flex-col h-full bg-sidebar">
-      {/* Header balandligi 16 (h-16) bo'lgani uchun mt-16 berildi. 
-         Bu menyular Header ostida yashirinib qolmasligini ta'minlaydi.
-      */}
       <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto mt-16 scrollbar-thin scrollbar-thumb-muted">
         <div className="px-3 mb-4">
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">
@@ -52,6 +53,7 @@ export function AdminSidebar() {
           <Link
             key={item.path}
             href={item.path}
+            onClick={onLinkClick}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
               isActive(item.path)
                 ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
@@ -69,10 +71,10 @@ export function AdminSidebar() {
         ))}
       </nav>
 
-      {/* Pastki qism: Saytga qaytish va Chiqish */}
       <div className="p-4 border-t border-sidebar-border space-y-1 bg-sidebar/50 backdrop-blur-sm">
         <Link 
           href="/" 
+          onClick={onLinkClick}
           className="flex items-center gap-3 px-4 py-3 rounded-xl text-sidebar-foreground/70 hover:bg-sidebar-accent transition-colors group"
         >
           <ExternalLink size={20} className="group-hover:text-primary transition-colors" />
