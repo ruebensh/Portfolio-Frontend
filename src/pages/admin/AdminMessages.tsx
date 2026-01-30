@@ -5,7 +5,7 @@ import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Search, Mail, MailOpen, Trash2, Loader2, RefreshCw, Send } from "lucide-react";
 
-const API_URL = "http://localhost:3000";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export function AdminMessages() {
   const [messages, setMessages] = useState<any[]>([]);

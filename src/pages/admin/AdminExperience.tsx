@@ -4,7 +4,7 @@ import { AdminLayout } from "../../components/admin/AdminLayout";
 import { Button } from "../../components/ui/button";
 import { Plus, Trash2, Calendar, Save, Loader2 } from "lucide-react";
 
-const API_URL = "http://localhost:3000";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export function AdminExperience() {
   const [expData, setExpData] = useState<any[]>([]);

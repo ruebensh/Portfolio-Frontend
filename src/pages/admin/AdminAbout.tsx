@@ -6,7 +6,7 @@ import { Textarea } from "../../components/ui/textarea";
 import { Input } from "../../components/ui/input";
 import { Save, Plus, Trash2, Loader2, GraduationCap, Award, Lightbulb, BookOpen, Briefcase } from "lucide-react";
 
-const API_URL = "http://localhost:3000";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 const TOKEN = localStorage.getItem("token") || ""; 
 
 export function AdminAbout() {

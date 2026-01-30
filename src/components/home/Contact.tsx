@@ -7,6 +7,7 @@ import {
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 interface ContactProps {
   data: any;
@@ -26,7 +27,7 @@ export function Contact({ data }: ContactProps) {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("http://localhost:3000/messages", {
+      const response = await fetch(`${API_URL}/messages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
 

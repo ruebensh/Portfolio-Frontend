@@ -14,7 +14,7 @@ import { AdminMessages } from "./pages/admin/AdminMessages";
 import { AdminSettings } from "./pages/admin/AdminSettings";
 import { useEffect, useState } from "react";
 
-const API_URL = "http://localhost:3000";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 function AppContent() {
   const { currentPath } = useRouter();

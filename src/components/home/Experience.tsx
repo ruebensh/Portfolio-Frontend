@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Calendar, Loader2 } from "lucide-react";
 
-const API_URL = "http://localhost:3000";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export function Experience() {
   const [experienceData, setExperienceData] = useState<any[]>([]);

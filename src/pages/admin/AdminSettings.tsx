@@ -9,7 +9,7 @@ import {
   BarChart3, Github, Linkedin, Send, Instagram, Phone, Mail, FileText 
 } from "lucide-react";
 
-const API_URL = "http://localhost:3000";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 const TOKEN = localStorage.getItem("portfolio_admin_access"); 
 
 export function AdminSettings() {

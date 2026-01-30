@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { GraduationCap, Award, Heart, Code, BookOpen, Loader2 } from "lucide-react";
 
-const API_URL = "http://localhost:3000";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export function AboutPage() {
   const [data, setData] = useState<any>(null);

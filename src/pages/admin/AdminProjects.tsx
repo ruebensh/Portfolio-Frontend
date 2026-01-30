@@ -5,7 +5,7 @@ import { Input } from "../../components/ui/input";
 import { Textarea } from "../../components/ui/textarea";
 import { Plus, Trash2, Loader2, X, Image as ImageIcon } from "lucide-react";
 
-const API_URL = "http://localhost:3000";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export function AdminProjects() {
   const [localProjects, setLocalProjects] = useState<any[]>([]);

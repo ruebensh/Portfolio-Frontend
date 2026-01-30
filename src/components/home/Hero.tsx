@@ -2,7 +2,7 @@ import { Link } from "../../lib/router";
 import { ArrowRight, Sparkles, FileText } from "lucide-react"; // FileText qo'shdik CV uchun
 import { motion } from "motion/react";
 
-const API_URL = "http://localhost:3000";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export function Hero({ data }: { data: any }) {
   return (

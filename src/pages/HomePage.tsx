@@ -5,7 +5,7 @@ import { Skills } from "../components/home/Skills";
 import { Experience } from "../components/home/Experience";
 import { Contact } from "../components/home/Contact";
 
-const API_URL = "http://localhost:3000";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export function HomePage() {
   const [settings, setSettings] = useState<any>(null);
