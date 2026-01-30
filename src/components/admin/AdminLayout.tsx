@@ -10,42 +10,42 @@ interface AdminLayoutProps {
 export function AdminLayout({ children }: AdminLayoutProps) {
   const [isOpen, setIsOpen] = useState(false);
 
-  // Sahifa o'zgarishini kuzatish uchun
-  useEffect(() => {
-    const handleRouteChange = () => {
-      setIsOpen(false);
-    };
-    
-    // Har safar location o'zgarganda
-    window.addEventListener('popstate', handleRouteChange);
-    
-    return () => {
-      window.removeEventListener('popstate', handleRouteChange);
-    };
-  }, []);
-
-  // Ekran o'lchami o'zgarganda katta ekranda sidebar yopilishi
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 1024 && isOpen) {
-        setIsOpen(false);
-      }
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [isOpen]);
+  // Link bosilganda sidebar yopilishi
+  const closeSidebar = () => setIsOpen(false);
 
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
-      {/* HEADER */}
-      <header className="fixed top-0 left-0 right-0 z-[100] h-16 border-b border-border bg-background/95 backdrop-blur-sm">
+    <div className="min-h-screen bg-background text-foreground">
+      {/* OVERLAY: Sidebar ochiq bo'lganda */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={closeSidebar}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+          />
+        )}
+      </AnimatePresence>
+
+      {/* SIDEBAR: z-50 ga o'zgartirildi */}
+      <motion.aside
+        initial={false}
+        animate={{ x: isOpen ? 0 : -288 }} // 288px = w-72 (18rem)
+        transition={{ type: "spring", damping: 25, stiffness: 200 }}
+        className="fixed top-0 left-0 bottom-0 w-72 z-50 bg-sidebar border-r border-sidebar-border shadow-2xl"
+      >
+        <AdminSidebar onLinkClick={closeSidebar} />
+      </motion.aside>
+
+      {/* HEADER: z-30 ga tushirildi */}
+      <header className="fixed top-0 left-0 right-0 z-30 h-16 border-b border-border bg-background/95 backdrop-blur-sm">
         <div className="h-full px-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="p-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-all focus:outline-none active:scale-95"
-              aria-label="Toggle sidebar"
+              aria-label={isOpen ? "Close menu" : "Open menu"}
             >
               {isOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
@@ -53,7 +53,9 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center shadow-lg">
               <span className="text-primary-foreground font-bold text-xl">J</span>
             </div>
-            <h1 className="font-semibold text-lg hidden xs:block tracking-tight italic text-primary">Portfolio Admin</h1>
+            <h1 className="font-semibold text-lg hidden xs:block tracking-tight italic text-primary">
+              Portfolio Admin
+            </h1>
           </div>
           
           <div className="flex items-center gap-4">
@@ -63,39 +65,17 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               </div>
               <div className="hidden sm:block leading-none text-right">
                 <div className="text-sm font-medium">Jaloliddin</div>
-                <div className="text-[10px] text-muted-foreground mt-0.5 uppercase tracking-tighter font-bold">Admin Panel</div>
+                <div className="text-[10px] text-muted-foreground mt-0.5 uppercase tracking-tighter font-bold">
+                  Admin Panel
+                </div>
               </div>
             </div>
           </div>
         </div>
       </header>
 
-      {/* OVERLAY */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setIsOpen(false)}
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[80] lg:hidden"
-          />
-        )}
-      </AnimatePresence>
-
-      {/* SIDEBAR */}
-      <aside 
-        className={`fixed inset-y-0 left-0 z-[90] w-72 transform transition-transform duration-300 ease-in-out bg-sidebar border-r border-sidebar-border shadow-2xl ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
-        <AdminSidebar onLinkClick={() => setIsOpen(false)} />
-      </aside>
-
       {/* MAIN CONTENT */}
-      <main className={`pt-16 min-h-screen transition-all duration-300 p-4 sm:p-6 lg:p-8 ${
-        isOpen ? "blur-sm opacity-60 scale-[0.99] pointer-events-none lg:blur-0 lg:opacity-100 lg:scale-100 lg:pointer-events-auto" : "opacity-100"
-      }`}>
+      <main className="pt-16 min-h-screen p-4 sm:p-6 lg:p-8">
         <div className="max-w-7xl mx-auto">
           {children}
         </div>
