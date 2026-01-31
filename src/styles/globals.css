@@ -182,3 +182,28 @@
 html {
   font-size: var(--font-size);
 }
+@layer utilities {
+  /* Shisha effekti - yanada shaffofroq va professional */
+  .premium-glass {
+    background: rgba(255, 255, 255, 0.01);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+  }
+
+  /* Matn uchun chiroyli gradient */
+  .text-reveal {
+    background: linear-gradient(to bottom, #fff 30%, rgba(255,255,255,0.4) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* "Floating" animatsiyasi */
+  .float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+}
