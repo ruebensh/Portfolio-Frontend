@@ -14,12 +14,8 @@ export function Header({ data }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [progress, setProgress] = useState(0);
-
-  // Ma'lumotlar
   const authorName = data?.author || "Jaloliddin"; 
   const avatarSrc = data?.avatarUrl ? `${API_URL}${data.avatarUrl}` : null;
-
-  // Faqat kerakli bo'limlar
   const navLinks = [
     { name: "Home", path: "/" },
     { name: "Projects", path: "/projects" },
@@ -31,7 +27,6 @@ export function Header({ data }: HeaderProps) {
     return currentPath.startsWith(path);
   };
 
-  // Scroll kuzatuvchisi
   useEffect(() => {
     const onScroll = () => {
       const y = window.scrollY;
@@ -45,7 +40,7 @@ export function Header({ data }: HeaderProps) {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50">
-      {/* Progress Bar */}
+      {}
       <motion.div
         className="h-[2px] bg-gradient-to-r from-primary via-purple-500 to-pink-500 origin-left"
         style={{ scaleX: progress }}
@@ -60,7 +55,7 @@ export function Header({ data }: HeaderProps) {
       >
         <div className="max-w-7xl mx-auto px-6 lg:px-8 flex items-center justify-between">
           
-          {/* Logo & Avatar */}
+          {}
           <Link href="/" className="flex items-center gap-3 group">
             <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-white/10 shadow-2xl bg-primary/20 flex items-center justify-center transition-transform group-hover:scale-110">
               {avatarSrc ? (
@@ -79,7 +74,7 @@ export function Header({ data }: HeaderProps) {
             </div>
           </Link>
 
-          {/* Desktop Nav */}
+          {}
           <nav className="hidden md:flex items-center gap-1 bg-white/5 border border-white/10 p-1 rounded-full backdrop-blur-md">
             {navLinks.map((link) => (
               <Link
@@ -96,7 +91,7 @@ export function Header({ data }: HeaderProps) {
             ))}
           </nav>
 
-          {/* Admin Panel (Desktop) */}
+          {}
           <div className="flex items-center gap-4">
             <Link
               href="/admin"
@@ -107,7 +102,7 @@ export function Header({ data }: HeaderProps) {
               Admin
             </Link>
 
-            {/* Mobile Menu Toggle */}
+            {}
             <button
               className="md:hidden p-2.5 rounded-xl border border-white/10 bg-white/5 text-foreground"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -118,7 +113,7 @@ export function Header({ data }: HeaderProps) {
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
@@ -143,7 +138,7 @@ export function Header({ data }: HeaderProps) {
               
               <hr className="my-2 border-white/5" />
               
-              {/* Admin Panel (Mobile) */}
+              {}
               <Link
                 href="/admin"
                 onClick={() => setMobileMenuOpen(false)}

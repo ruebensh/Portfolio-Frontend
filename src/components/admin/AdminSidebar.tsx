@@ -50,7 +50,7 @@ export function AdminSidebar() {
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full bg-sidebar">
-      {/* Logo/Header */}
+      {}
       <div className="p-6 border-b border-sidebar-border shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-lg">
@@ -65,7 +65,7 @@ export function AdminSidebar() {
         </div>
       </div>
 
-      {/* Navigation */}
+      {}
       <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto scrollbar-thin scrollbar-thumb-muted">
         <div className="px-3 mb-3">
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">
@@ -94,7 +94,7 @@ export function AdminSidebar() {
         ))}
       </nav>
 
-      {/* Footer */}
+      {}
       <div className="p-4 border-t border-sidebar-border space-y-1.5 shrink-0">
         <Link
           href="/"
@@ -118,7 +118,7 @@ export function AdminSidebar() {
 
   return (
     <>
-      {/* Mobile Toggle Button */}
+      {}
       <button
         onClick={() => setMobileOpen(!mobileOpen)}
         className="lg:hidden fixed top-4 left-4 z-[60] p-2.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 shadow-lg backdrop-blur-sm"
@@ -127,12 +127,12 @@ export function AdminSidebar() {
         {mobileOpen ? <X size={22} /> : <Menu size={22} />}
       </button>
 
-      {/* Desktop Sidebar - doimiy ochiq */}
+      {}
       <aside className="hidden lg:block w-72 bg-sidebar border-r border-sidebar-border fixed left-0 top-0 bottom-0 z-40">
         <SidebarContent />
       </aside>
 
-      {/* Mobile Sidebar - toggle bilan */}
+      {}
       <AnimatePresence>
         {mobileOpen && (
           <>

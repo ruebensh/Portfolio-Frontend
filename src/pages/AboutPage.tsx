@@ -12,7 +12,6 @@ import {
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-/** ===== Soft cosmic background (subtle, not distracting) ===== */
 function SoftAboutBackground() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const mouseRef = useRef({ x: 0, y: 0, tx: 0, ty: 0 });
@@ -93,7 +92,6 @@ function SoftAboutBackground() {
       m.tx += (m.x - m.tx) * 0.06;
       m.ty += (m.y - m.ty) * 0.06;
 
-      // subtle glow wash
       const bg = ctx.createRadialGradient(
         w * 0.55 + m.tx * 70,
         h * 0.22 + m.ty * 55,
@@ -285,7 +283,7 @@ export function AboutPage() {
       <SoftAboutBackground />
 
       <div className="max-w-5xl mx-auto px-6 lg:px-8">
-        {/* Header / Intro */}
+        {}
         <motion.div
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
@@ -310,7 +308,7 @@ export function AboutPage() {
           </div>
         </motion.div>
 
-        {/* Avatar + Story */}
+        {}
         <motion.div
           variants={sectionWrap}
           initial="hidden"
@@ -319,7 +317,7 @@ export function AboutPage() {
         >
           <motion.div variants={sectionItem} className="ab-glass rounded-3xl p-8 md:p-10">
             <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
-              {/* Avatar */}
+              {}
               <div className="relative shrink-0">
                 <div className="absolute -inset-6 rounded-[28px] bg-gradient-to-br from-primary/25 via-purple-500/10 to-sky-400/10 blur-2xl opacity-80" />
                 <motion.img
@@ -332,7 +330,7 @@ export function AboutPage() {
                 />
               </div>
 
-              {/* Story */}
+              {}
               <div className="flex-1 w-full">
                 <div className="text-center md:text-left">
                   <h2 className="text-2xl md:text-3xl font-bold mb-3">
@@ -367,9 +365,9 @@ export function AboutPage() {
           </motion.div>
         </motion.div>
 
-        {/* Sections */}
+        {}
         <div className="space-y-8">
-          {/* Education */}
+          {}
           <motion.section variants={sectionWrap} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-90px" }}>
             <motion.div variants={sectionItem} className="ab-glass rounded-3xl p-8 md:p-10">
               <div className="flex items-center gap-3 mb-6">
@@ -402,7 +400,7 @@ export function AboutPage() {
             </motion.div>
           </motion.section>
 
-          {/* Certificates */}
+          {}
           <motion.section variants={sectionWrap} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-90px" }}>
             <motion.div variants={sectionItem} className="ab-glass rounded-3xl p-8 md:p-10">
               <div className="flex items-center gap-3 mb-6">
@@ -437,7 +435,7 @@ export function AboutPage() {
             </motion.div>
           </motion.section>
 
-          {/* Values */}
+          {}
           <motion.section variants={sectionWrap} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-90px" }}>
             <motion.div variants={sectionItem} className="ab-glass rounded-3xl p-8 md:p-10">
               <div className="flex items-center gap-3 mb-6">
@@ -468,7 +466,7 @@ export function AboutPage() {
             </motion.div>
           </motion.section>
 
-          {/* Learning & Working */}
+          {}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <motion.section variants={sectionWrap} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-90px" }}>
               <motion.div variants={sectionItem} className="ab-glass rounded-3xl p-8 md:p-10 h-full">

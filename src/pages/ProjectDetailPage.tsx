@@ -13,7 +13,6 @@ import { Button } from "../components/ui/button";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-/** ===== Soft Premium Background (subtle cosmic) ===== */
 function SoftProjectBackground() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const mouseRef = useRef({ x: 0, y: 0, tx: 0, ty: 0 });
@@ -88,7 +87,6 @@ function SoftProjectBackground() {
       m.tx += (m.x - m.tx) * 0.06;
       m.ty += (m.y - m.ty) * 0.06;
 
-      // Very subtle vignette glow
       const bg = ctx.createRadialGradient(
         w * 0.55 + m.tx * 60,
         h * 0.25 + m.ty * 40,
@@ -102,7 +100,6 @@ function SoftProjectBackground() {
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, w, h);
 
-      // Stars (slow drift)
       for (const st of stars) {
         if (!prefersReduced) {
           st.y += (0.02 + st.z * 0.08) * 0.55;
@@ -214,7 +211,6 @@ function SoftProjectBackground() {
   );
 }
 
-/** Fancy reveal wrapper */
 function Reveal({
   children,
   delay = 0,
@@ -244,8 +240,6 @@ export function ProjectDetailPage() {
       try {
         const response = await fetch(`${API_URL}/projects`);
         const data = await response.json();
-
-        // Backend id-ni number yoki string qaytarishi mumkin, shuning uchun String() ishlatamiz
         const found = data.find(
           (p: any) => String(p.id) === params.slug || String(p.id) === params.id
         );
@@ -295,12 +289,8 @@ export function ProjectDetailPage() {
     );
   }
 
-  // Backenddan keladigan liveUrl-ni tekshirish
   const projectLink = project.liveUrl || project.link;
-
-  // optional repo url (backend o'zgarmaydi — bo'lsa ishlatamiz)
   const repoLink = project.githubUrl || project.repoUrl || project.github || null;
-
   const safeHttp = (url: string) => (url.startsWith("http") ? url : `https://${url}`);
 
   return (
@@ -308,7 +298,7 @@ export function ProjectDetailPage() {
       <SoftProjectBackground />
 
       <div className="max-w-6xl mx-auto px-6 lg:px-8">
-        {/* Back */}
+        {}
         <motion.div
           initial={{ opacity: 0, x: -16 }}
           animate={{ opacity: 1, x: 0 }}
@@ -323,7 +313,7 @@ export function ProjectDetailPage() {
           </Link>
         </motion.div>
 
-        {/* Hero block */}
+        {}
         <Reveal>
           <div className="pd-glass rounded-3xl p-8 md:p-10">
             <div className="flex flex-wrap items-center gap-3 mb-6">
@@ -388,7 +378,7 @@ export function ProjectDetailPage() {
           </div>
         </Reveal>
 
-        {/* Image */}
+        {}
         <Reveal delay={0.06}>
           <div className="mt-10">
             <motion.div
@@ -397,7 +387,7 @@ export function ProjectDetailPage() {
               transition={{ duration: 0.9, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
               className="relative rounded-[28px] overflow-hidden border border-white/10 bg-white/5 shadow-[0_30px_120px_rgba(0,0,0,.55)]"
             >
-              {/* subtle top sheen */}
+              {}
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/[0.06] via-transparent to-black/[0.35]" />
 
               <div className="relative aspect-video flex items-center justify-center">
@@ -427,7 +417,7 @@ export function ProjectDetailPage() {
           </div>
         </Reveal>
 
-        {/* Info grid */}
+        {}
         <Reveal delay={0.08}>
           <div className="mt-10 pd-glass rounded-3xl p-7 md:p-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

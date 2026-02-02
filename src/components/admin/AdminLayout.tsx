@@ -9,7 +9,7 @@ interface AdminLayoutProps {
 export function AdminLayout({ children }: AdminLayoutProps) {
   return (
     <div className="min-h-screen bg-background">
-      {/* HEADER - faqat desktopda */}
+      {}
       <header className="hidden lg:block fixed top-0 left-0 right-0 z-40 h-16 border-b border-border bg-background/95 backdrop-blur-sm lg:ml-72">
         <div className="h-full px-6 flex items-center justify-end">
           <div className="flex items-center gap-3 px-3 py-1.5 rounded-lg bg-muted/50 border border-border">
@@ -24,10 +24,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         </div>
       </header>
 
-      {/* SIDEBAR - o'z toggle bilan */}
+      {}
       <AdminSidebar />
 
-      {/* MAIN CONTENT */}
+      {}
       <main className="pt-0 lg:pt-16 min-h-screen lg:ml-72 p-6 lg:p-8">
         <div className="max-w-7xl mx-auto">
           {children}

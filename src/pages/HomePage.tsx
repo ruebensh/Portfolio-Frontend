@@ -10,7 +10,6 @@ import { Contact } from "../components/home/Contact";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-/** ===== Background (CSS + JS animations) ===== */
 function PageBackground() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const mouseRef = useRef({ x: 0, y: 0, tx: 0, ty: 0 });
@@ -47,7 +46,7 @@ function PageBackground() {
     type Star = {
       x: number;
       y: number;
-      z: number; // depth 0..1
+      z: number;
       r: number;
       tw: number;
       p: number;
@@ -60,14 +59,13 @@ function PageBackground() {
       vy: number;
       life: number;
       maxLife: number;
-      w: number; // trail length base
-      z: number; // 0..1 depth (0 = far, 1 = near)
-      r: number; // head radius
-      hue: number; // subtle hue variance
-      fadeIn: number; // ✅ frames to fade in (prevents "teleport")
+      w: number;
+      z: number;
+      r: number;
+      hue: number;
+      fadeIn: number;
     };
 
-    // ===== Stars =====
     const starCount = Math.floor(Math.min(700, Math.max(320, (w * h) / 2200)));
     const stars: Star[] = Array.from({ length: starCount }, () => ({
       x: Math.random() * w,
@@ -78,47 +76,32 @@ function PageBackground() {
       p: Math.random() * Math.PI * 2,
     }));
 
-    // ===== Meteors =====
     const meteors: Meteor[] = [];
 
     const spawnMeteor = () => {
       if (prefersReduced) return;
 
-      // ✅ ko'proq meteor (0.02 kamroq, 0.03 ko'proq)
       if (Math.random() > 0.028) return;
 
-      // ✅ depth: 85% far, 15% near
       const z =
         Math.random() < 0.15
           ? 0.75 + Math.random() * 0.25
           : Math.pow(Math.random(), 2.2);
 
-      // direction: diagonal + jitter
-      const baseAngle = (Math.PI * 7) / 6; // down-left
+      const baseAngle = (Math.PI * 7) / 6;
       const angleJitter = 0.22 + (1 - z) * 0.18;
       const angle = baseAngle + (Math.random() - 0.5) * angleJitter;
-
       const speed = (10 + Math.random() * 6) * (0.65 + z * 1.25);
       const vx = Math.cos(angle) * speed;
       const vy = Math.sin(angle) * speed;
-
       const trail = (210 + Math.random() * 260) * (0.55 + z * 1.15);
       const maxLife = (38 + Math.random() * 38) * (0.7 + z * 0.85);
       const r = (0.9 + Math.random() * 1.5) * (0.55 + z * 1.35);
       const hue = 200 + Math.random() * 40;
-
-      // ✅ fade-in duration (near meteors slightly slower to appear)
       const fadeIn = Math.floor(6 + Math.random() * 10 + z * 6);
-
-      // ✅ OFF-SCREEN SPAWN:
-      // First choose an "entry point" inside the visible top region,
-      // then place the start point behind it along (-vx, -vy) direction.
       const entryX = Math.random() * w * 0.9 + w * 0.05;
       const entryY = Math.random() * h * 0.30 + h * 0.02;
-
-      const margin = 220 + z * 220; // near meteors start further away
-
-      // Move back by (vx,vy) in "normalized-ish" space
+      const margin = 220 + z * 220;
       const startX = entryX - vx * (margin / 10);
       const startY = entryY - vy * (margin / 10);
 
@@ -136,7 +119,6 @@ function PageBackground() {
         fadeIn,
       });
 
-      // ✅ cap meteor count
       if (meteors.length > 8) meteors.shift();
     };
 
@@ -176,20 +158,13 @@ function PageBackground() {
 
       ctx.globalCompositeOperation = "source-over";
 
-      // smooth mouse
       const m = mouseRef.current;
       m.tx += (m.x - m.tx) * 0.06;
       m.ty += (m.y - m.ty) * 0.06;
-
-      // smooth scroll
       const s = scrollRef.current;
       s.ty += (s.y - s.ty) * 0.14;
-
-      // ✅ Parallax strength
-      const parallaxBase = 0.2; // 0.12 mild ... 0.25 strong
+      const parallaxBase = 0.2;
       const parallax = s.ty * parallaxBase;
-
-      // subtle background glow
       const bg = ctx.createRadialGradient(
         w * 0.5 + m.tx * 60,
         h * 0.35 + m.ty * 40,
@@ -203,7 +178,6 @@ function PageBackground() {
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, w, h);
 
-      // ===== Stars =====
       for (const st of stars) {
         if (!prefersReduced) {
           const starFall = 1.85;
@@ -241,10 +215,8 @@ function PageBackground() {
         }
       }
 
-      // ===== Meteors =====
       if (!prefersReduced) spawnMeteor();
 
-      // add glow
       ctx.globalCompositeOperation = "lighter";
 
       for (let i = meteors.length - 1; i >= 0; i--) {
@@ -254,22 +226,13 @@ function PageBackground() {
         mt.y += mt.vy;
 
         const k = 1 - mt.life / mt.maxLife;
-
-        // ✅ smooth appear (0..1) — prevents sudden pop
         const appear = Math.min(1, mt.life / mt.fadeIn);
-
         const baseA = 0.1 + mt.z * 0.3;
         const a = Math.max(0, Math.min(0.42, k * baseA)) * appear;
-
-        // near thicker + also ease in a bit
         const lw = (1.0 + mt.z * 2.2) * (0.85 + 0.15 * appear);
-
-        // ✅ trail grows during fade-in (very important for realism)
         const trailGrow = 0.15 + 0.85 * appear;
-
         const tx = mt.x - mt.vx * (mt.w / 12) * trailGrow;
         const ty = mt.y - mt.vy * (mt.w / 12) * trailGrow;
-
         const grad = ctx.createLinearGradient(mt.x, mt.y, tx, ty);
         grad.addColorStop(0, `hsla(${mt.hue}, 95%, 92%, ${a})`);
         grad.addColorStop(0.25, `hsla(${mt.hue}, 90%, 85%, ${a * 0.55})`);
@@ -282,10 +245,8 @@ function PageBackground() {
         ctx.lineTo(tx, ty);
         ctx.stroke();
 
-        // head glow also fades in
         drawGlowStar(mt.x, mt.y, mt.r, a * (1.2 + mt.z));
 
-        // subtle spark only for near meteors, also respect appear
         if (!prefersReduced && mt.z > 0.78 && k > 0.25 && Math.random() < 0.22 * appear) {
           drawGlowStar(
             mt.x + (Math.random() - 0.5) * 6,
@@ -454,7 +415,6 @@ function PageBackground() {
   );
 }
 
-/** Premium reveal wrapper (clean + cinematic) */
 function Reveal({
   children,
   delay = 0,
@@ -477,12 +437,9 @@ function Reveal({
 export function HomePage() {
   const [settings, setSettings] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
-
-  // Contact reference + pulse effect
   const contactSectionRef = useRef<HTMLElement | null>(null);
   const pulseTimer = useRef<number | null>(null);
   const [pulseContact, setPulseContact] = useState(false);
-
   const scrollToContact = () => {
     const el = contactSectionRef.current;
     if (!el) return;
@@ -529,7 +486,7 @@ export function HomePage() {
     <main className="relative min-h-screen bg-[#020202] selection:bg-primary/30 overflow-x-hidden">
       <PageBackground />
 
-      {/* HERO */}
+      {}
       <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
         <div className="relative max-w-7xl mx-auto px-6 lg:px-8 py-32 text-center">
           <motion.div
@@ -599,7 +556,7 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* Sections with cinematic reveal */}
+      {}
       <section className="py-24">
         <Reveal>
           <ProfileCard data={settings} />
@@ -618,7 +575,7 @@ export function HomePage() {
         </Reveal>
       </section>
 
-      {/* Contact with pulse highlight */}
+      {}
       <section
         id="contact"
         ref={(el) => (contactSectionRef.current = el)}

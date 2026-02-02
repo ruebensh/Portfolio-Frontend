@@ -13,7 +13,6 @@ const projectImages = [
   "https://images.unsplash.com/photo-1737114666907-4b2c8591398e?q=80&w=1080",
 ];
 
-/** ===== Subtle premium background (cosmic but soft) ===== */
 function SoftProjectsBackground() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const mouseRef = useRef({ x: 0, y: 0, tx: 0, ty: 0 });
@@ -86,7 +85,6 @@ function SoftProjectsBackground() {
       m.tx += (m.x - m.tx) * 0.06;
       m.ty += (m.y - m.ty) * 0.06;
 
-      // gentle glow
       const bg = ctx.createRadialGradient(
         w * 0.55 + m.tx * 70,
         h * 0.25 + m.ty * 55,
@@ -265,7 +263,7 @@ export function ProjectsPage() {
       <SoftProjectsBackground />
 
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        {/* Header */}
+        {}
         <motion.div
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
@@ -288,7 +286,7 @@ export function ProjectsPage() {
               Proyektlar bilan tanishib chiqishingiz mumkin
             </p>
 
-            {/* Filters only */}
+            {}
             <div className="mt-8 flex gap-2 overflow-x-auto pb-2">
               {categories.map((cat) => {
                 const active = selectedCategory === cat;
@@ -318,7 +316,7 @@ export function ProjectsPage() {
           </div>
         </motion.div>
 
-        {/* Grid */}
+        {}
         <motion.div
           variants={container}
           initial="hidden"
@@ -343,7 +341,7 @@ export function ProjectsPage() {
                 >
                   <Link href={`/project/${project.id}`}>
                     <div className="group h-full rounded-3xl overflow-hidden border border-white/10 bg-white/5 hover:bg-white/7 transition-all duration-300 shadow-[0_18px_80px_rgba(0,0,0,.40)]">
-                      {/* Media */}
+                      {}
                       <div className="relative aspect-video overflow-hidden">
                         <img
                           src={img}
@@ -357,7 +355,7 @@ export function ProjectsPage() {
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
 
-                        {/* Status */}
+                        {}
                         <div className="absolute top-4 right-4">
                           <div
                             className={`px-3 py-1 rounded-full text-xs font-medium border backdrop-blur-md ${getStatusClass(
@@ -369,7 +367,7 @@ export function ProjectsPage() {
                         </div>
                       </div>
 
-                      {/* Content */}
+                      {}
                       <div className="p-6">
                         <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
                           {project.title}

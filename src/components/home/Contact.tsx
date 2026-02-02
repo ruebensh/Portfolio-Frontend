@@ -28,8 +28,6 @@ export function Contact({ data }: ContactProps) {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-
-  // ---- Helpers (avoid "none", normalize links) ----
   const isRealValue = (v: any) =>
     typeof v === "string" && v.trim() !== "" && v.trim().toLowerCase() !== "none";
 
@@ -56,12 +54,9 @@ export function Contact({ data }: ContactProps) {
   const safeMailTo = (v: any) => (isRealValue(v) ? `mailto:${v.trim()}` : undefined);
   const safeTel = (v: any) => {
     if (!isRealValue(v)) return undefined;
-    // keep only + and digits
     const cleaned = v.trim().replace(/[^\d+]/g, "");
     return `tel:${cleaned}`;
   };
-
-  // ---- Submit ----
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmitting) return;
@@ -84,7 +79,6 @@ export function Contact({ data }: ContactProps) {
           const errorData = await response.json();
           msg = errorData?.message || msg;
         } catch {
-          // ignore JSON parse errors
         }
         throw new Error(msg);
       }
@@ -116,14 +110,14 @@ export function Contact({ data }: ContactProps) {
       </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-        {/* Left cards */}
+        {}
         <motion.div
           initial={{ opacity: 0, x: -30 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6"
         >
-          {/* Email */}
+          {}
           <div className="p-6 rounded-2xl border border-border/40 bg-card/50 backdrop-blur-sm group hover:border-primary/50 transition-colors">
             <div className="flex items-center gap-4 text-white">
               <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
@@ -144,7 +138,7 @@ export function Contact({ data }: ContactProps) {
             </div>
           </div>
 
-          {/* Phone */}
+          {}
           <div className="p-6 rounded-2xl border border-border/40 bg-card/50 backdrop-blur-sm group hover:border-green-500/50 transition-colors">
             <div className="flex items-center gap-4 text-white">
               <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center text-green-500 group-hover:bg-green-500 group-hover:text-white transition-all">
@@ -165,7 +159,7 @@ export function Contact({ data }: ContactProps) {
             </div>
           </div>
 
-          {/* Socials */}
+          {}
           <div className="p-6 rounded-2xl border border-border/40 bg-card/50 backdrop-blur-sm">
             <p className="text-xs uppercase tracking-widest text-muted-foreground font-bold mb-4">
               Ijtimoiy tarmoqlar
@@ -227,7 +221,7 @@ export function Contact({ data }: ContactProps) {
           </div>
         </motion.div>
 
-        {/* Right form */}
+        {}
         <motion.div
           initial={{ opacity: 0, x: 30 }}
           whileInView={{ opacity: 1, x: 0 }}
