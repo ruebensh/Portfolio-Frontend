@@ -49,7 +49,7 @@ export function Experience() {
       >
         <h2 className="text-3xl lg:text-4xl font-bold mb-4">Experience</h2>
         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-          My professional journey and key contributions
+          IT dunyosiga sayohatimning asosiy bosqichlari
         </p>
       </motion.div>
 

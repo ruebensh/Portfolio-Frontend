@@ -88,7 +88,7 @@ export function AdminProjects() {
         },
         body: JSON.stringify({ 
           title, 
-          link, 
+          liveUrl: link, 
           imageUrl: uploadedImageUrl,
           description,
           status: "Live",
@@ -187,7 +187,7 @@ export function AdminProjects() {
                       </div>
                     </td>
                     <td className="p-4 font-medium">{p.title}</td>
-                    <td className="p-4 text-blue-400 truncate max-w-[200px]">{p.link}</td>
+                    <td className="p-4 text-blue-400 truncate max-w-[200px]">{p.liveUrl}</td>
                     <td className="p-4 text-right">
                       <button onClick={() => handleDelete(p.id)} className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg">
                         <Trash2 size={18} />

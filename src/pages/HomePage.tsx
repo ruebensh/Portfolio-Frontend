@@ -44,45 +44,108 @@ function PageBackground() {
     resize();
     window.addEventListener("resize", resize);
 
-    type Star = { x: number; y: number; z: number; r: number; tw: number; p: number };
-    type Meteor = { x: number; y: number; vx: number; vy: number; life: number; maxLife: number; w: number };
+    type Star = {
+      x: number;
+      y: number;
+      z: number; // depth 0..1
+      r: number;
+      tw: number;
+      p: number;
+    };
 
-    const starCount = Math.floor(Math.min(560, Math.max(260, (w * h) / 2400)));
+    type Meteor = {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      life: number;
+      maxLife: number;
+      w: number; // trail length base
+      z: number; // 0..1 depth (0 = far, 1 = near)
+      r: number; // head radius
+      hue: number; // subtle hue variance
+      fadeIn: number; // ✅ frames to fade in (prevents "teleport")
+    };
+
+    // ===== Stars =====
+    const starCount = Math.floor(Math.min(700, Math.max(320, (w * h) / 2200)));
     const stars: Star[] = Array.from({ length: starCount }, () => ({
       x: Math.random() * w,
       y: Math.random() * h,
       z: Math.pow(Math.random(), 1.9),
-      r: 0.3 + Math.random() * 1.15,
+      r: 0.28 + Math.random() * 1.05,
       tw: 0.25 + Math.random() * 0.95,
       p: Math.random() * Math.PI * 2,
     }));
 
+    // ===== Meteors =====
     const meteors: Meteor[] = [];
 
     const spawnMeteor = () => {
       if (prefersReduced) return;
-      if (Math.random() > 0.012) return;
-      const startX = Math.random() * w * 0.8 + w * 0.1;
-      const startY = Math.random() * h * 0.35 + h * 0.05;
-      const speed = 9 + Math.random() * 5;
-      const angle = (Math.PI * 7) / 6 + Math.random() * 0.25;
+
+      // ✅ ko'proq meteor (0.02 kamroq, 0.03 ko'proq)
+      if (Math.random() > 0.028) return;
+
+      // ✅ depth: 85% far, 15% near
+      const z =
+        Math.random() < 0.15
+          ? 0.75 + Math.random() * 0.25
+          : Math.pow(Math.random(), 2.2);
+
+      // direction: diagonal + jitter
+      const baseAngle = (Math.PI * 7) / 6; // down-left
+      const angleJitter = 0.22 + (1 - z) * 0.18;
+      const angle = baseAngle + (Math.random() - 0.5) * angleJitter;
+
+      const speed = (10 + Math.random() * 6) * (0.65 + z * 1.25);
+      const vx = Math.cos(angle) * speed;
+      const vy = Math.sin(angle) * speed;
+
+      const trail = (210 + Math.random() * 260) * (0.55 + z * 1.15);
+      const maxLife = (38 + Math.random() * 38) * (0.7 + z * 0.85);
+      const r = (0.9 + Math.random() * 1.5) * (0.55 + z * 1.35);
+      const hue = 200 + Math.random() * 40;
+
+      // ✅ fade-in duration (near meteors slightly slower to appear)
+      const fadeIn = Math.floor(6 + Math.random() * 10 + z * 6);
+
+      // ✅ OFF-SCREEN SPAWN:
+      // First choose an "entry point" inside the visible top region,
+      // then place the start point behind it along (-vx, -vy) direction.
+      const entryX = Math.random() * w * 0.9 + w * 0.05;
+      const entryY = Math.random() * h * 0.30 + h * 0.02;
+
+      const margin = 220 + z * 220; // near meteors start further away
+
+      // Move back by (vx,vy) in "normalized-ish" space
+      const startX = entryX - vx * (margin / 10);
+      const startY = entryY - vy * (margin / 10);
+
       meteors.push({
         x: startX,
         y: startY,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed,
+        vx,
+        vy,
         life: 0,
-        maxLife: 40 + Math.random() * 25,
-        w: 180 + Math.random() * 140,
+        maxLife,
+        w: trail,
+        z,
+        r,
+        hue,
+        fadeIn,
       });
-      if (meteors.length > 3) meteors.shift();
+
+      // ✅ cap meteor count
+      if (meteors.length > 8) meteors.shift();
     };
 
     const drawGlowStar = (x: number, y: number, radius: number, alpha: number) => {
       const g = ctx.createRadialGradient(x, y, 0, x, y, radius * 6);
       g.addColorStop(0, `rgba(255,255,255,${alpha})`);
-      g.addColorStop(0.25, `rgba(255,255,255,${alpha * 0.30})`);
+      g.addColorStop(0.25, `rgba(255,255,255,${alpha * 0.3})`);
       g.addColorStop(1, `rgba(255,255,255,0)`);
+
       ctx.fillStyle = g;
       ctx.beginPath();
       ctx.arc(x, y, radius * 6, 0, Math.PI * 2);
@@ -111,17 +174,26 @@ function PageBackground() {
     const tick = (t: number) => {
       ctx.clearRect(0, 0, w, h);
 
+      ctx.globalCompositeOperation = "source-over";
+
+      // smooth mouse
       const m = mouseRef.current;
       m.tx += (m.x - m.tx) * 0.06;
       m.ty += (m.y - m.ty) * 0.06;
 
+      // smooth scroll
       const s = scrollRef.current;
-      s.ty += (s.y - s.ty) * 0.08;
+      s.ty += (s.y - s.ty) * 0.14;
 
+      // ✅ Parallax strength
+      const parallaxBase = 0.2; // 0.12 mild ... 0.25 strong
+      const parallax = s.ty * parallaxBase;
+
+      // subtle background glow
       const bg = ctx.createRadialGradient(
-        w * 0.5 + m.tx * 50,
-        h * 0.35 + m.ty * 32,
-        Math.min(w, h) * 0.14,
+        w * 0.5 + m.tx * 60,
+        h * 0.35 + m.ty * 40,
+        Math.min(w, h) * 0.12,
         w * 0.5,
         h * 0.5,
         Math.max(w, h) * 0.95
@@ -131,23 +203,31 @@ function PageBackground() {
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, w, h);
 
+      // ===== Stars =====
       for (const st of stars) {
         if (!prefersReduced) {
-          st.y += (0.02 + st.z * 0.12) * 0.6;
+          const starFall = 1.85;
+          st.y += (0.02 + st.z * 0.12) * 0.6 * starFall;
           if (st.y > h + 40) st.y = -40;
         }
 
         const depth = 0.22 + st.z * 0.85;
-        const twinkle = prefersReduced ? 1 : 0.80 + 0.20 * Math.sin(t * 0.0011 * st.tw + st.p);
-        const alpha = Math.min(0.70, depth * 0.55 * twinkle);
+        const twinkle = prefersReduced
+          ? 1
+          : 0.8 + 0.2 * Math.sin(t * 0.0011 * st.tw + st.p);
+
+        const alpha = Math.min(0.7, depth * 0.55 * twinkle);
         const radius = st.r * (0.75 + st.z * 1.0);
 
         const px = st.x + m.tx * (st.z - 0.2) * 14;
-        const py = st.y + m.ty * (st.z - 0.2) * 12 - s.ty * 0.02 * st.z;
+        const py =
+          st.y +
+          m.ty * (st.z - 0.2) * 12 -
+          parallax * (0.35 + st.z * 1.35);
 
         drawGlowStar(px, py, radius, alpha);
 
-        if (st.z > 0.82 && twinkle > 0.94) {
+        if (st.z > 0.84 && twinkle > 0.94) {
           ctx.strokeStyle = `rgba(255,255,255,${alpha * 0.35})`;
           ctx.lineWidth = 1;
           ctx.beginPath();
@@ -161,7 +241,12 @@ function PageBackground() {
         }
       }
 
+      // ===== Meteors =====
       if (!prefersReduced) spawnMeteor();
+
+      // add glow
+      ctx.globalCompositeOperation = "lighter";
+
       for (let i = meteors.length - 1; i >= 0; i--) {
         const mt = meteors[i];
         mt.life += 1;
@@ -169,24 +254,59 @@ function PageBackground() {
         mt.y += mt.vy;
 
         const k = 1 - mt.life / mt.maxLife;
-        const a = Math.max(0, Math.min(0.28, k * 0.28));
 
-        const tx = mt.x - mt.vx * (mt.w / 10);
-        const ty = mt.y - mt.vy * (mt.w / 10);
+        // ✅ smooth appear (0..1) — prevents sudden pop
+        const appear = Math.min(1, mt.life / mt.fadeIn);
+
+        const baseA = 0.1 + mt.z * 0.3;
+        const a = Math.max(0, Math.min(0.42, k * baseA)) * appear;
+
+        // near thicker + also ease in a bit
+        const lw = (1.0 + mt.z * 2.2) * (0.85 + 0.15 * appear);
+
+        // ✅ trail grows during fade-in (very important for realism)
+        const trailGrow = 0.15 + 0.85 * appear;
+
+        const tx = mt.x - mt.vx * (mt.w / 12) * trailGrow;
+        const ty = mt.y - mt.vy * (mt.w / 12) * trailGrow;
+
         const grad = ctx.createLinearGradient(mt.x, mt.y, tx, ty);
-        grad.addColorStop(0, `rgba(255,255,255,${a})`);
+        grad.addColorStop(0, `hsla(${mt.hue}, 95%, 92%, ${a})`);
+        grad.addColorStop(0.25, `hsla(${mt.hue}, 90%, 85%, ${a * 0.55})`);
         grad.addColorStop(1, "rgba(255,255,255,0)");
+
         ctx.strokeStyle = grad;
-        ctx.lineWidth = 2;
+        ctx.lineWidth = lw;
         ctx.beginPath();
         ctx.moveTo(mt.x, mt.y);
         ctx.lineTo(tx, ty);
         ctx.stroke();
 
-        drawGlowStar(mt.x, mt.y, 1.4, a * 1.8);
+        // head glow also fades in
+        drawGlowStar(mt.x, mt.y, mt.r, a * (1.2 + mt.z));
 
-        if (mt.life > mt.maxLife || mt.x < -200 || mt.y > h + 200) meteors.splice(i, 1);
+        // subtle spark only for near meteors, also respect appear
+        if (!prefersReduced && mt.z > 0.78 && k > 0.25 && Math.random() < 0.22 * appear) {
+          drawGlowStar(
+            mt.x + (Math.random() - 0.5) * 6,
+            mt.y + (Math.random() - 0.5) * 6,
+            mt.r * 0.55,
+            a * 0.65
+          );
+        }
+
+        if (
+          mt.life > mt.maxLife ||
+          mt.x < -500 ||
+          mt.y > h + 500 ||
+          mt.x > w + 500 ||
+          mt.y < -500
+        ) {
+          meteors.splice(i, 1);
+        }
       }
+
+      ctx.globalCompositeOperation = "source-over";
 
       raf = requestAnimationFrame(tick);
     };
@@ -276,7 +396,7 @@ function PageBackground() {
 
         .page-aurora {
           filter: blur(70px);
-          opacity: .40;
+          opacity: .36;
           background:
             radial-gradient(40% 40% at 20% 30%, rgba(99,102,241,.14), transparent 60%),
             radial-gradient(45% 45% at 80% 35%, rgba(168,85,247,.10), transparent 60%),
@@ -295,18 +415,18 @@ function PageBackground() {
             linear-gradient(to bottom, rgba(255,255,255,.05) 1px, transparent 1px);
           background-size: 30px 30px;
           mask-image: radial-gradient(60% 55% at 50% 18%, black, transparent 72%);
-          opacity: .22;
+          opacity: .20;
           animation: gridBreath 8s ease-in-out infinite;
         }
         @keyframes gridBreath {
-          0%,100% { opacity: .18; transform: translateY(0); }
-          50%     { opacity: .26; transform: translateY(6px); }
+          0%,100% { opacity: .16; transform: translateY(0); }
+          50%     { opacity: .24; transform: translateY(6px); }
         }
 
         .page-noise {
           background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E");
           mix-blend-mode: overlay;
-          opacity: .12;
+          opacity: .10;
           animation: noiseFloat 5s ease-in-out infinite alternate;
         }
         @keyframes noiseFloat {
@@ -317,7 +437,7 @@ function PageBackground() {
         .page-vignette {
           background:
             radial-gradient(70% 55% at 50% 25%, rgba(255,255,255,.02), transparent 62%),
-            radial-gradient(85% 80% at 50% 50%, transparent, rgba(0,0,0,.65));
+            radial-gradient(85% 80% at 50% 50%, transparent, rgba(0,0,0,.68));
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -367,20 +487,16 @@ export function HomePage() {
     const el = contactSectionRef.current;
     if (!el) return;
 
-    // Smooth scroll
     el.scrollIntoView({ behavior: "smooth", block: "start" });
 
-    // Premium “I arrived here” pulse
     setPulseContact(false);
     window.requestAnimationFrame(() => setPulseContact(true));
 
     if (pulseTimer.current) window.clearTimeout(pulseTimer.current);
     pulseTimer.current = window.setTimeout(() => setPulseContact(false), 1300);
 
-    // Focus first input in the contact form after scroll starts
     window.setTimeout(() => {
-      const firstField =
-        el.querySelector("input, textarea, button") as HTMLElement | null;
+      const firstField = el.querySelector("input, textarea, button") as HTMLElement | null;
       firstField?.focus?.();
     }, 550);
   };
@@ -423,7 +539,7 @@ export function HomePage() {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border/40 bg-background/50 backdrop-blur-sm mb-6"
           >
             <Sparkles size={16} className="text-primary" />
-            <span className="text-sm text-muted-foreground">Available for new opportunities</span>
+            <span className="text-sm text-muted-foreground">Xush Kelibsiz & Welcome</span>
           </motion.div>
 
           <motion.h1

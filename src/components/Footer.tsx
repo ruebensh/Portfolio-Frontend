@@ -33,23 +33,20 @@ export function Footer({ data }: FooterProps) {
             {data?.author || "Jaloliddin"}
           </h3>
           <p className="text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">
-            {data?.description || "Ma'lumotlar bazasi va sun'iy intellekt bo'yicha innovatsion yechimlar."}
+            {data?.description || "Ai Engineer & Developer"}
           </p>
         </div>
 
         {}
         <nav className="flex flex-wrap justify-center gap-x-8 gap-y-4 mb-10">
           <Link href="/" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-            Asosiy
+            Asosiy menyu-
           </Link>
           <Link href="/projects" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-            Loyihalar
+            Proyektlar-
           </Link>
           <Link href="/about" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
             Men haqimda
-          </Link>
-          <Link href="/#contact" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-            Bog'lanish
           </Link>
         </nav>
 
@@ -71,15 +68,15 @@ export function Footer({ data }: FooterProps) {
         {}
         <div className="w-full pt-8 border-t border-border/20 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-xs text-muted-foreground tracking-wide">
-            © {currentYear} {data?.author || "Jaloliddin"}. Barcha huquqlar himoyalangan.
+            © {currentYear} {data?.author || "Jaloliddin"}.
           </p>
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <span>Built with</span>
-            <span className="font-bold text-foreground">Next.js</span>
-            <span>&</span>
-            <span className="font-bold text-foreground">NestJS</span>
+            <span className="font-bold text-foreground">Figma UI</span>
             <span>&</span>
             <span className="font-bold text-foreground">React</span>
+            <span>&</span>
+            <span className="font-bold text-foreground">NextJS</span>
             <span>&</span>
             <span className="font-bold text-foreground">TypeScript</span>
           </div>

@@ -111,7 +111,7 @@ export function Contact({ data }: ContactProps) {
         <h2 className="text-3xl lg:text-4xl font-bold mb-4 text-white">Bog'lanish</h2>
         <div className="h-1.5 w-20 bg-primary mx-auto rounded-full mb-4" />
         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-          Savollaringiz bormi? Loyihangizni birga muhokama qilishimiz mumkin.
+          Savollaringiz bormi? Bog'laning. Doim aloqadaman!
         </p>
       </motion.div>
 
