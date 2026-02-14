@@ -16,9 +16,11 @@ export function Header({ data }: HeaderProps) {
   const [progress, setProgress] = useState(0);
   const authorName = data?.author || "Jaloliddin"; 
   const avatarSrc = data?.avatarUrl ? `${API_URL}${data.avatarUrl}` : null;
+
   const navLinks = [
     { name: "Home", path: "/" },
     { name: "Projects", path: "/projects" },
+    { name: "Certificates", path: "/certificates" }, // Qo'shildi
     { name: "About", path: "/about" },
   ];
 
@@ -40,7 +42,6 @@ export function Header({ data }: HeaderProps) {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50">
-      {}
       <motion.div
         className="h-[2px] bg-gradient-to-r from-primary via-purple-500 to-pink-500 origin-left"
         style={{ scaleX: progress }}
@@ -55,7 +56,6 @@ export function Header({ data }: HeaderProps) {
       >
         <div className="max-w-7xl mx-auto px-6 lg:px-8 flex items-center justify-between">
           
-          {}
           <Link href="/" className="flex items-center gap-3 group">
             <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-white/10 shadow-2xl bg-primary/20 flex items-center justify-center transition-transform group-hover:scale-110">
               {avatarSrc ? (
@@ -74,7 +74,6 @@ export function Header({ data }: HeaderProps) {
             </div>
           </Link>
 
-          {}
           <nav className="hidden md:flex items-center gap-1 bg-white/5 border border-white/10 p-1 rounded-full backdrop-blur-md">
             {navLinks.map((link) => (
               <Link
@@ -91,7 +90,6 @@ export function Header({ data }: HeaderProps) {
             ))}
           </nav>
 
-          {}
           <div className="flex items-center gap-4">
             <Link
               href="/admin"
@@ -102,7 +100,6 @@ export function Header({ data }: HeaderProps) {
               Admin
             </Link>
 
-            {}
             <button
               className="md:hidden p-2.5 rounded-xl border border-white/10 bg-white/5 text-foreground"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -113,7 +110,6 @@ export function Header({ data }: HeaderProps) {
         </div>
       </div>
 
-      {}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
@@ -138,7 +134,6 @@ export function Header({ data }: HeaderProps) {
               
               <hr className="my-2 border-white/5" />
               
-              {}
               <Link
                 href="/admin"
                 onClick={() => setMobileMenuOpen(false)}

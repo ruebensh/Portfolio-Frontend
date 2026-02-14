@@ -5,8 +5,10 @@ import { HomePage } from "./pages/HomePage";
 import { ProjectsPage } from "./pages/ProjectsPage";
 import { ProjectDetailPage } from "./pages/ProjectDetailPage";
 import { AboutPage } from "./pages/AboutPage";
+import { CertificatesPage } from "./pages/CertificatesPage"; // Yangi import
 import { AdminDashboard } from "./pages/admin/AdminDashboard";
 import { AdminProjects } from "./pages/admin/AdminProjects";
+import { AdminCertificates } from "./pages/admin/AdminCertificates"; // Yangi import
 import { AdminSkills } from "./pages/admin/AdminSkills";
 import { AdminExperience } from "./pages/admin/AdminExperience";
 import { AdminAbout } from "./pages/admin/AdminAbout";
@@ -75,13 +77,14 @@ function AppContent() {
           window.location.href = "/";
         }
       } else {
-
         setAuthChecked(true);
       }
     };
 
     checkAuth();
-  }, [currentPath]);
+  }, [currentPath, isAdminRoute]);
+
+  // Admin yo'nalishlari uchun logic
   if (isAdminRoute) {
     if (!authChecked) {
       return <div className="min-h-screen bg-black" />;
@@ -92,6 +95,8 @@ function AppContent() {
         return <AdminDashboard />;
       case "/admin/projects":
         return <AdminProjects />;
+      case "/admin/certificates": // Yangi qo'shildi
+        return <AdminCertificates />;
       case "/admin/skills":
         return <AdminSkills />;
       case "/admin/experience":
@@ -107,12 +112,14 @@ function AppContent() {
     }
   }
 
+  // Foydalanuvchi yo'nalishlari uchun logic
   return (
     <>
       <Header />
       <main className="pt-16">
         {currentPath === "/" && <HomePage />}
         {currentPath === "/projects" && <ProjectsPage />}
+        {currentPath === "/certificates" && <CertificatesPage />} 
         {currentPath.startsWith("/project/") && <ProjectDetailPage />}
         {currentPath === "/about" && <AboutPage />}
       </main>
