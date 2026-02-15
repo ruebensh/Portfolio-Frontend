@@ -1,5 +1,5 @@
 import { Link, useRouter } from "../lib/router";
-import { Menu, X, ChevronRight, LayoutDashboard } from "lucide-react";
+import { Menu, X, LayoutDashboard, Sparkles, FileText } from "lucide-react";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -20,7 +20,8 @@ export function Header({ data }: HeaderProps) {
   const navLinks = [
     { name: "Home", path: "/" },
     { name: "Projects", path: "/projects" },
-    { name: "Certificates", path: "/certificates" }, // Qo'shildi
+    { name: "Certificates", path: "/certificates" },
+    { name: "Resume", path: "/resume" }, // YANGI LINK
     { name: "About", path: "/about" },
   ];
 
@@ -56,23 +57,33 @@ export function Header({ data }: HeaderProps) {
       >
         <div className="max-w-7xl mx-auto px-6 lg:px-8 flex items-center justify-between">
           
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-white/10 shadow-2xl bg-primary/20 flex items-center justify-center transition-transform group-hover:scale-110">
-              {avatarSrc ? (
-                <img src={avatarSrc} alt={authorName} className="w-full h-full object-cover" />
-              ) : (
-                <span className="text-primary font-bold text-lg">{authorName.charAt(0)}</span>
-              )}
+          <div className="flex items-center gap-6">
+            <Link href="/" className="flex items-center gap-3 group">
+              <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-white/10 shadow-2xl bg-primary/20 flex items-center justify-center transition-transform group-hover:scale-110">
+                {avatarSrc ? (
+                  <img src={avatarSrc} alt={authorName} className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-primary font-bold text-lg">{authorName.charAt(0)}</span>
+                )}
+                <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-background rounded-full"></div>
+              </div>
+              <div className="flex flex-col">
+                <span className="font-bold text-sm leading-tight tracking-tight">{authorName}</span>
+                <span className="text-[10px] text-primary font-medium tracking-widest uppercase opacity-80">AI Engineer</span>
+              </div>
+            </Link>
+
+            <div className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full border border-primary/20 bg-primary/5">
+               <motion.div 
+                 animate={{ opacity: [0.4, 1, 0.4] }}
+                 transition={{ duration: 2, repeat: Infinity }}
+                 className="w-1.5 h-1.5 rounded-full bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.6)]"
+               />
+               <span className="text-[10px] font-semibold text-primary uppercase tracking-tighter flex items-center gap-1 text-white">
+                 Assistant Online <Sparkles size={10} className="text-yellow-400" />
+               </span>
             </div>
-            <div className="flex flex-col">
-              <span className="font-bold text-sm leading-tight tracking-tight">
-                {authorName}
-              </span>
-              <span className="text-[10px] text-primary font-medium tracking-widest uppercase opacity-80">
-                AI Engineer
-              </span>
-            </div>
-          </Link>
+          </div>
 
           <nav className="hidden md:flex items-center gap-1 bg-white/5 border border-white/10 p-1 rounded-full backdrop-blur-md">
             {navLinks.map((link) => (
