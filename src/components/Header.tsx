@@ -1,5 +1,5 @@
 import { Link, useRouter } from "../lib/router";
-import { Menu, X, LayoutDashboard, Sparkles, FileText } from "lucide-react";
+import { Menu, X, LayoutDashboard, Sparkles, FileText, Bot } from "lucide-react";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -21,7 +21,9 @@ export function Header({ data }: HeaderProps) {
     { name: "Home", path: "/" },
     { name: "Projects", path: "/projects" },
     { name: "Certificates", path: "/certificates" },
-    { name: "Resume", path: "/resume" }, // YANGI LINK
+    { name: "Resume", path: "/resume" },
+    // YANGI AI PAGE LINKI
+    { name: "Rubensh AI", path: "/ai-chat", icon: <Sparkles size={14} className="text-yellow-400" /> },
     { name: "About", path: "/about" },
   ];
 
@@ -65,7 +67,7 @@ export function Header({ data }: HeaderProps) {
                 ) : (
                   <span className="text-primary font-bold text-lg">{authorName.charAt(0)}</span>
                 )}
-                <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-background rounded-full"></div>
+                <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-background rounded-full shadow-[0_0_8px_rgba(34,197,94,0.5)]"></div>
               </div>
               <div className="flex flex-col">
                 <span className="font-bold text-sm leading-tight tracking-tight">{authorName}</span>
@@ -73,16 +75,17 @@ export function Header({ data }: HeaderProps) {
               </div>
             </Link>
 
-            <div className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full border border-primary/20 bg-primary/5">
+            {/* AI Online Indicator - Endi bu qism /ai-chat ga link bo'ladi */}
+            <Link href="/ai-chat" className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors cursor-pointer">
                <motion.div 
                  animate={{ opacity: [0.4, 1, 0.4] }}
                  transition={{ duration: 2, repeat: Infinity }}
                  className="w-1.5 h-1.5 rounded-full bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.6)]"
                />
-               <span className="text-[10px] font-semibold text-primary uppercase tracking-tighter flex items-center gap-1 text-white">
-                 Assistant Online <Sparkles size={10} className="text-yellow-400" />
+               <span className="text-[10px] font-semibold uppercase tracking-tighter flex items-center gap-1 text-white">
+                 Ask AI <Sparkles size={10} className="text-yellow-400" />
                </span>
-            </div>
+            </Link>
           </div>
 
           <nav className="hidden md:flex items-center gap-1 bg-white/5 border border-white/10 p-1 rounded-full backdrop-blur-md">
@@ -90,13 +93,14 @@ export function Header({ data }: HeaderProps) {
               <Link
                 key={link.path}
                 href={link.path}
-                className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
+                className={`px-4 lg:px-6 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
                   isActive(link.path) 
                     ? "bg-primary text-primary-foreground shadow-lg" 
                     : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                 }`}
               >
                 {link.name}
+                {link.icon && link.icon}
               </Link>
             ))}
           </nav>
@@ -135,11 +139,12 @@ export function Header({ data }: HeaderProps) {
                   key={link.path}
                   href={link.path}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`p-4 rounded-2xl text-lg font-medium ${
+                  className={`p-4 rounded-2xl text-lg font-medium flex items-center justify-between ${
                     isActive(link.path) ? "bg-primary/10 text-primary border border-primary/20" : "text-muted-foreground"
                   }`}
                 >
                   {link.name}
+                  {link.icon && link.icon}
                 </Link>
               ))}
               

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { ArrowRight, Sparkles, FileText, Send, Loader2, Bot } from "lucide-react";
-import { motion } from "framer-motion"; // motion/react bo'lsa nomini o'zgartirib olasiz
+import { ArrowRight, Sparkles, FileText, Send, Loader2, Bot } from "lucide-center";
+import { motion } from "framer-motion";
 import { Link } from "../lib/router";
 
 import { ProfileCard } from "../components/home/ProfileCard";
@@ -244,6 +244,16 @@ export function HomePage() {
   const [aiResponse, setAiResponse] = useState<string | null>(null);
   const [isAiLoading, setIsAiLoading] = useState(false);
 
+  // --- Session ID mantiqi ---
+  const [sessionId] = useState(() => {
+    let sId = localStorage.getItem('ruebensh_session_id');
+    if (!sId) {
+      sId = 'sid_' + Math.random().toString(36).substring(2, 11);
+      localStorage.setItem('ruebensh_session_id', sId);
+    }
+    return sId;
+  });
+
   const contactSectionRef = useRef<HTMLElement | null>(null);
   const pulseTimer = useRef<number | null>(null);
   const [pulseContact, setPulseContact] = useState(false);
@@ -252,7 +262,8 @@ export function HomePage() {
     e.preventDefault();
     if (!aiInput.trim() || isAiLoading) return;
     setIsAiLoading(true);
-    const response = await sendMessageToAI(aiInput);
+    // SessionID ni ham yuboramiz
+    const response = await sendMessageToAI(aiInput, sessionId);
     setAiResponse(response);
     setIsAiLoading(false);
   };

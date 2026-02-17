@@ -6,7 +6,7 @@ import { ProjectsPage } from "./pages/ProjectsPage";
 import { ProjectDetailPage } from "./pages/ProjectDetailPage";
 import { AboutPage } from "./pages/AboutPage";
 import { CertificatesPage } from "./pages/CertificatesPage"; 
-import { ResumePage } from "./pages/ResumePage"; // Rezume sahifasini import qiling
+import { ResumePage } from "./pages/ResumePage"; 
 import { AdminDashboard } from "./pages/admin/AdminDashboard";
 import { AdminProjects } from "./pages/admin/AdminProjects";
 import { AdminCertificates } from "./pages/admin/AdminCertificates"; 
@@ -17,7 +17,9 @@ import { AdminMessages } from "./pages/admin/AdminMessages";
 import { AdminSettings } from "./pages/admin/AdminSettings";
 import { useEffect, useState } from "react";
 
-// AI Komponenti
+// AI Sahifasi komponentini import qiling
+import { AIChatPage } from "./pages/AIChatPage"; 
+// ChatAI - bu kichik suzuvchi tugma bo'lsa kerak
 import ChatAI from "./components/ChatAI";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
@@ -26,6 +28,9 @@ function AppContent() {
   const { currentPath } = useRouter();
   const [authChecked, setAuthChecked] = useState(false);
   const isAdminRoute = currentPath.startsWith("/admin");
+  // AI sahifasida Header/Footer kerak bo'lsa buni o'zgartirmang, 
+  // agar to'liq ekran (full screen) bo'lsin desangiz isAiPage ni tekshiramiz:
+  const isAiPage = currentPath === "/ai-chat";
 
   useEffect(() => {
     document.documentElement.classList.add("dark");
@@ -82,6 +87,7 @@ function AppContent() {
     checkAuth();
   }, [currentPath, isAdminRoute]);
 
+  // Admin yo'nalishlari uchun mantiq
   if (isAdminRoute) {
     if (!authChecked) {
       return <div className="min-h-screen bg-black" />;
@@ -103,24 +109,29 @@ function AppContent() {
     return (
       <>
         {AdminContent}
+        {/* Admin paneldan AI chat tugmasini olib tashlashingiz ham mumkin */}
         <ChatAI />
       </>
     );
   }
 
+  // Foydalanuvchi yo'nalishlari
   return (
     <>
       <Header />
-      <main className="pt-16">
+      <main className={isAiPage ? "" : "pt-16"}>
         {currentPath === "/" && <HomePage />}
         {currentPath === "/projects" && <ProjectsPage />}
         {currentPath === "/certificates" && <CertificatesPage />} 
-        {currentPath === "/resume" && <ResumePage />} {/* YANGI ROUTE */}
-        {currentPath.startsWith("/project/") && <ProjectDetailPage />}
+        {currentPath === "/resume" && <ResumePage />}
         {currentPath === "/about" && <AboutPage />}
+        {/* YANGI AI CHAT ROUTE */}
+        {currentPath === "/ai-chat" && <AIChatPage />}
+        {currentPath.startsWith("/project/") && <ProjectDetailPage />}
       </main>
       <Footer />
-      <ChatAI />
+      {/* Agar /ai-chat sahifasida bo'lsak, ChatAI (kichik tugma) ni yashirishimiz mumkin */}
+      {!isAiPage && <ChatAI />}
     </>
   );
 }
