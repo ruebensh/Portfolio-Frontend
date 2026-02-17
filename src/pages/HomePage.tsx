@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { ArrowRight, Sparkles, FileText, Send, Loader2, Bot } from "lucide-center";
+import { ArrowRight, Sparkles, FileText, Send, Loader2, Bot } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "../lib/router";
 
