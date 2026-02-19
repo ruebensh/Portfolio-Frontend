@@ -192,3 +192,9 @@
   background-size: 200% auto;
   animation: gradient-x 10s linear infinite;
 }
+.custom-scrollbar::-webkit-scrollbar { width: 14px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 0, 0, 0.1);
+  border-radius: 10px;
+}

@@ -1,13 +1,16 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Send, Loader2, Bot, User, Trash2 } from "lucide-react";
+import { Send, Bot, User, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { sendMessageToAI } from "../services/aiService";
 
 export function AIChatPage() {
   const [messages, setMessages] = useState<{ role: "user" | "ai"; text: string }[]>([
-    { role: "ai", text: "Assalomu alaykum! Men Jaloliddinning raqamli yordamchisiman. Men bilan uning tajribasi, loyihalari yoki hayotiy qarashlari haqida suhbatlashishingiz mumkin." },
+    {
+      role: "ai",
+      text: "Assalomu alaykum! Men Jaloliddinning raqamli yordamchisiman. Men bilan uning tajribasi, loyihalari yoki hayotiy qarashlari haqida suhbatlashishingiz mumkin.",
+    },
   ]);
 
   const [input, setInput] = useState("");
@@ -24,15 +27,21 @@ export function AIChatPage() {
   });
 
   useEffect(() => {
-  if (!isLoading) {
-    const id = setTimeout(() => {
-      inputRef.current?.focus();
-    }, 0);
+    if (!isLoading) {
+      const id = setTimeout(() => {
+        inputRef.current?.focus();
+      }, 0);
 
-    return () => clearTimeout(id);
-  }
-  }, [isLoading]);  
+      return () => clearTimeout(id);
+    }
+  }, [isLoading]);
 
+  // Scrollni pastga tushirish (message ko‘payganda)
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+  }, [messages, isLoading]);
 
   const handleSend = async (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -40,14 +49,14 @@ export function AIChatPage() {
 
     const userMsg = input.trim();
     setInput("");
-    setMessages(prev => [...prev, { role: "user", text: userMsg }]);
+    setMessages((prev) => [...prev, { role: "user", text: userMsg }]);
     setIsLoading(true);
 
     try {
       const res = await sendMessageToAI(userMsg, sessionId);
-      setMessages(prev => [...prev, { role: "ai", text: res }]);
+      setMessages((prev) => [...prev, { role: "ai", text: res }]);
     } catch {
-      setMessages(prev => [...prev, { role: "ai", text: "Xatolik yuz berdi..." }]);
+      setMessages((prev) => [...prev, { role: "ai", text: "Xatolik yuz berdi..." }]);
     } finally {
       setIsLoading(false);
     }
@@ -72,12 +81,32 @@ export function AIChatPage() {
           pointer-events: none;
           z-index: 0;
         }
-        .blur-1 { background: #4f46e5; top: -15%; left: -10%; width: 50%; height: 60%; animation: drift 32s infinite ease-in-out; }
-        .blur-2 { background: #7c3aed; bottom: -20%; right: -15%; width: 60%; height: 70%; animation: drift 38s infinite ease-in-out reverse; }
-        @keyframes drift {
-          0%, 100% { transform: translate(0, 0) rotate(0deg); }
-          50% { transform: translate(80px, -100px) rotate(4deg); }
+        .blur-1 {
+          background: #4f46e5;
+          top: -15%;
+          left: -10%;
+          width: 50%;
+          height: 60%;
+          animation: drift 32s infinite ease-in-out;
         }
+        .blur-2 {
+          background: #7c3aed;
+          bottom: -20%;
+          right: -15%;
+          width: 60%;
+          height: 70%;
+          animation: drift 38s infinite ease-in-out reverse;
+        }
+        @keyframes drift {
+          0%,
+          100% {
+            transform: translate(0, 0) rotate(0deg);
+          }
+          50% {
+            transform: translate(80px, -100px) rotate(4deg);
+          }
+        }
+
         .chat-card {
           background: rgba(15, 15, 45, 0.45);
           backdrop-filter: blur(18px);
@@ -85,14 +114,36 @@ export function AIChatPage() {
           box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7);
           border-radius: 1.5rem;
           overflow: hidden;
-          height: 82vh;
+          height: min(82vh, 1000px);
           max-width: 960px;
           width: 100%;
-          z-index: 1;
+          z-index: 0;
+          display: flex;
+          flex-direction: column;
         }
+
+        @media (max-width: 640px) {
+          .chat-card {
+            height: calc(100vh - 96px);
+            border-radius: 1.25rem;
+          }
+        }
+
+        ::-webkit-scrollbar {
+          width: 1px;
+          overflow: hidden;
+        }
+        ::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+          background: rgb(255, 255, 255);
+          border-radius: 10px;
+        }
+        
         .message-ai {
           background: rgba(80, 70, 220, 0.24);
-          border: 1px solid rgba(140, 120, 255, 0.32);
+          border: 1px solid rgba(140, 120, 255, 0.32);1
           box-shadow: 0 4px 24px rgba(140, 120, 255, 0.18);
         }
         .message-user {
@@ -105,22 +156,30 @@ export function AIChatPage() {
           transform: translateY(-1px);
           transition: all 0.25s ease;
         }
+          
+          .chat-messages::-webkit-scrollbar-track {
+            background: transparent;
+          }
+          .chat-messages::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+          }
       `}</style>
 
-      <div className="ai-chat-page flex items-center justify-center p-4 md:p-6">
+      <div className="ai-chat-page flex items-center justify-center p-3 sm:p-4 md:p-6">
         {/* Fon blur doiralari */}
         <div className="floating-bg blur-1" />
         <div className="floating-bg blur-2" />
 
-        <div className="chat-card flex flex-col">
+        <div className="chat-card">
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-white/8 bg-black/25 backdrop-blur-lg">
+          <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-white/8 bg-black/25 backdrop-blur-lg">
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600/40 to-purple-700/40 border border-indigo-400/35 flex items-center justify-center shadow-md">
                 <Bot className="text-indigo-300" size={22} />
               </div>
               <div>
-                <h1 className="text-xl font-semibold text-white tracking-tight">Rubensh AI</h1>
+                <h1 className="text-lg sm:text-xl font-semibold text-white tracking-tight">Rubensh AI</h1>
                 <div className="flex items-center gap-2 text-xs text-cyan-200/80">
                   <span className="relative flex h-2.5 w-2.5">
                     <span className="absolute h-full w-full rounded-full bg-emerald-400 opacity-70 animate-ping" />
@@ -130,13 +189,24 @@ export function AIChatPage() {
                 </div>
               </div>
             </div>
-            <button onClick={clearChat} className="p-2 rounded-lg hover:bg-red-900/40 text-red-300 transition-colors">
+
+            <button
+              onClick={clearChat}
+              className="p-2 rounded-lg hover:bg-red-900/40 text-red-300 transition-colors"
+              aria-label="Clear chat"
+            >
               <Trash2 size={20} />
             </button>
           </div>
 
-          {/* Messages – faqat bu qism scroll qiladi */}
-          <div ref={scrollRef} className="flex-1 overflow-y-auto px-6 py-6 space-y-4 scrollbar-thin scrollbar-thumb-indigo-500/40 scrollbar-track-transparent">
+          {/* Messages – faqat shu qism scroll qiladi */}
+          <div
+            ref={scrollRef} 
+            id="chat-messages"
+
+            className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6 space-y-4 scrollbar-thin scrollbar-thumb-indigo-500/40 scrollbar-track-transparent"
+            style={{ overflowY: "auto", }}
+          >
             <AnimatePresence>
               {messages.map((msg, i) => (
                 <motion.div
@@ -153,7 +223,7 @@ export function AIChatPage() {
                   )}
 
                   <div
-                    className={`max-w-[75%] px-4 py-3 rounded-2xl text-sm leading-relaxed glow-hover ${
+                    className={`max-w-[85%] sm:max-w-[75%] px-4 py-3 rounded-2xl text-sm leading-relaxed glow-hover ${
                       msg.role === "user" ? "message-user rounded-br-none" : "message-ai rounded-bl-none"
                     }`}
                   >
@@ -181,21 +251,25 @@ export function AIChatPage() {
             )}
           </div>
 
-          {/* Input */}
-          <form onSubmit={handleSend} className="border-t border-white/10 bg-black/35 backdrop-blur-lg p-5">
-            <div className="relative max-w-3xl mx-auto">
+          {/* Input – sticky bottom, responsiv */}
+          <form
+            onSubmit={handleSend}
+            className="sticky bottom-0 border-t border-white/10 bg-black/35 backdrop-blur-lg px-4 sm:px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
+          >
+            <div className="relative max-w-4xl mx-auto w-full">
               <input
                 ref={inputRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Xabaringizni yozing..."
                 disabled={isLoading}
-                className="w-full bg-white/7 border border-white/15 rounded-2xl py-4 pl-6 pr-16 text-sm placeholder:text-white/45 outline-none transition-all focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/30"
+                className="w-full bg-white/7 border border-white/15 rounded-2xl py-4 pl-5 sm:pl-6 pr-16 sm:pr-16 text-sm placeholder:text-white/45 outline-none transition-all focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/30"
               />
               <button
                 type="submit"
                 disabled={isLoading || !input.trim()}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl disabled:opacity-50 hover:brightness-110 transition-all shadow-md"
+                className="absolute right-3 sm:right-3 top-1/2 -translate-y-1/2 p-2.5 sm:p-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl disabled:opacity-50 hover:brightness-110 transition-all shadow-md"
+                aria-label="Send"
               >
                 <Send size={18} />
               </button>
