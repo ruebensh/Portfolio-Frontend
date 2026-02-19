@@ -1,140 +1,208 @@
+"use client";
+
 import { useState, useRef, useEffect } from "react";
 import { Send, Loader2, Bot, User, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { sendMessageToAI } from "../services/aiService";
 
 export function AIChatPage() {
-  const [messages, setMessages] = useState<{ role: 'user' | 'ai', text: string }[]>([
-    { role: 'ai', text: "Assalomu alaykum! Men Jaloliddinning raqamli egizagiman. Men bilan uning tajribasi, loyihalari yoki hayotiy qarashlari haqida suhbatlashishingiz mumkin." }
+  const [messages, setMessages] = useState<{ role: "user" | "ai"; text: string }[]>([
+    { role: "ai", text: "Assalomu alaykum! Men Jaloliddinning raqamli yordamchisiman. Men bilan uning tajribasi, loyihalari yoki hayotiy qarashlari haqida suhbatlashishingiz mumkin." },
   ]);
+
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  // --- SESSION ID MANTIQI ---
   const [sessionId] = useState(() => {
-    let sId = localStorage.getItem('ruebensh_session_id');
-    if (!sId) {
-      sId = 'sid_' + Math.random().toString(36).substring(2, 11);
-      localStorage.setItem('ruebensh_session_id', sId);
-    }
-    return sId;
+    const existing = localStorage.getItem("ruebensh_session_id");
+    if (existing) return existing;
+    const newId = "sid_" + Math.random().toString(36).substring(2, 11);
+    localStorage.setItem("ruebensh_session_id", newId);
+    return newId;
   });
 
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
-  }, [messages]);
+  if (!isLoading) {
+    const id = setTimeout(() => {
+      inputRef.current?.focus();
+    }, 0);
+
+    return () => clearTimeout(id);
+  }
+  }, [isLoading]);  
+
 
   const handleSend = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!input.trim() || isLoading) return;
 
-    const userMsg = input;
+    const userMsg = input.trim();
     setInput("");
-    setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
+    setMessages(prev => [...prev, { role: "user", text: userMsg }]);
     setIsLoading(true);
 
-    // Endi sessionId ham yuboriladi
-    const response = await sendMessageToAI(userMsg, sessionId);
-    setMessages(prev => [...prev, { role: 'ai', text: response }]);
-    setIsLoading(false);
+    try {
+      const res = await sendMessageToAI(userMsg, sessionId);
+      setMessages(prev => [...prev, { role: "ai", text: res }]);
+    } catch {
+      setMessages(prev => [...prev, { role: "ai", text: "Xatolik yuz berdi..." }]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const clearChat = () => {
-    setMessages([messages[0]]);
-    // Agar xohlasangiz xotirani backendda ham tozalash uchun alohida route ochish mumkin
-  };
+  const clearChat = () => setMessages([messages[0]]);
 
   return (
-    <div className="min-h-[calc(100vh-64px)] bg-[#020202] text-white p-4 md:p-8 flex flex-col items-center justify-center">
-      {/* Background Decor */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none opacity-20">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/30 rounded-full blur-[120px]" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-[120px]" />
-      </div>
+    <>
+      <style jsx global>{`
+        .ai-chat-page {
+          background: linear-gradient(135deg, #000000 0%, #111111 50%, #1a1a1a 100%);
+          min-height: calc(100vh - 64px);
+          position: relative;
+          overflow: hidden;
+        }
+        .floating-bg {
+          position: absolute;
+          border-radius: 50%;
+          filter: blur(140px);
+          opacity: 0.22;
+          pointer-events: none;
+          z-index: 0;
+        }
+        .blur-1 { background: #4f46e5; top: -15%; left: -10%; width: 50%; height: 60%; animation: drift 32s infinite ease-in-out; }
+        .blur-2 { background: #7c3aed; bottom: -20%; right: -15%; width: 60%; height: 70%; animation: drift 38s infinite ease-in-out reverse; }
+        @keyframes drift {
+          0%, 100% { transform: translate(0, 0) rotate(0deg); }
+          50% { transform: translate(80px, -100px) rotate(4deg); }
+        }
+        .chat-card {
+          background: rgba(15, 15, 45, 0.45);
+          backdrop-filter: blur(18px);
+          border: 1px solid rgba(120, 100, 255, 0.22);
+          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7);
+          border-radius: 1.5rem;
+          overflow: hidden;
+          height: 82vh;
+          max-width: 960px;
+          width: 100%;
+          z-index: 1;
+        }
+        .message-ai {
+          background: rgba(80, 70, 220, 0.24);
+          border: 1px solid rgba(140, 120, 255, 0.32);
+          box-shadow: 0 4px 24px rgba(140, 120, 255, 0.18);
+        }
+        .message-user {
+          background: rgba(60, 130, 240, 0.28);
+          border: 1px solid rgba(100, 180, 255, 0.38);
+          box-shadow: 0 4px 24px rgba(100, 180, 255, 0.22);
+        }
+        .glow-hover:hover {
+          box-shadow: 0 0 32px rgba(140, 120, 255, 0.45) !important;
+          transform: translateY(-1px);
+          transition: all 0.25s ease;
+        }
+      `}</style>
 
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-4xl bg-white/[0.03] border border-white/10 rounded-3xl backdrop-blur-2xl flex flex-col h-[75vh] shadow-2xl overflow-hidden z-10"
-      >
-        {/* Chat Header */}
-        <div className="p-6 border-b border-white/10 flex justify-between items-center bg-white/[0.02]">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center border border-primary/30">
-              <Bot className="text-primary" size={28} />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">Ruebensh AI Assistant</h1>
-              <p className="text-xs text-green-400 flex items-center gap-1">
-                <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" /> Online | Individual Session
-              </p>
-            </div>
-          </div>
-          <button 
-            onClick={clearChat}
-            className="p-2.5 rounded-xl hover:bg-red-500/10 text-muted-foreground hover:text-red-400 transition-all"
-            title="Suhbatni tozalash"
-          >
-            <Trash2 size={20} />
-          </button>
-        </div>
+      <div className="ai-chat-page flex items-center justify-center p-4 md:p-6">
+        {/* Fon blur doiralari */}
+        <div className="floating-bg blur-1" />
+        <div className="floating-bg blur-2" />
 
-        {/* Messages Container */}
-        <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-white/10">
-          <AnimatePresence initial={false}>
-            {messages.map((msg, i) => (
-              <motion.div 
-                key={i}
-                initial={{ opacity: 0, x: msg.role === 'user' ? 20 : -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                className={`flex gap-4 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
-              >
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 border ${
-                  msg.role === 'user' ? 'bg-primary border-primary/30' : 'bg-white/5 border-white/10'
-                }`}>
-                  {msg.role === 'user' ? <User size={20} /> : <Bot size={20} />}
-                </div>
-                <div className={`max-w-[80%] p-4 rounded-2xl text-sm leading-relaxed shadow-lg ${
-                  msg.role === 'user' 
-                  ? 'bg-primary/20 border border-primary/30 text-white rounded-tr-none' 
-                  : 'bg-white/[0.07] border border-white/10 text-gray-200 rounded-tl-none'
-                }`}>
-                  {msg.text}
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-          {isLoading && (
-            <div className="flex gap-4 items-center animate-pulse text-muted-foreground">
-              <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10">
-                <Loader2 size={20} className="animate-spin text-primary" />
+        <div className="chat-card flex flex-col">
+          {/* Header */}
+          <div className="flex items-center justify-between px-6 py-4 border-b border-white/8 bg-black/25 backdrop-blur-lg">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600/40 to-purple-700/40 border border-indigo-400/35 flex items-center justify-center shadow-md">
+                <Bot className="text-indigo-300" size={22} />
               </div>
-              <p className="text-xs tracking-widest italic font-light">Rubensh o'ylamoqda...</p>
+              <div>
+                <h1 className="text-xl font-semibold text-white tracking-tight">Rubensh AI</h1>
+                <div className="flex items-center gap-2 text-xs text-cyan-200/80">
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="absolute h-full w-full rounded-full bg-emerald-400 opacity-70 animate-ping" />
+                    <span className="relative rounded-full h-2.5 w-2.5 bg-emerald-500" />
+                  </span>
+                  Online • Individual Session
+                </div>
+              </div>
             </div>
-          )}
-        </div>
-
-        {/* Input Field */}
-        <form onSubmit={handleSend} className="p-6 border-t border-white/10 bg-white/[0.01]">
-          <div className="relative flex items-center max-w-3xl mx-auto">
-            <input 
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Savolingizni yozing..."
-              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-6 pr-16 outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm placeholder:text-white/20"
-            />
-            <button 
-              type="submit"
-              disabled={isLoading || !input.trim()}
-              className="absolute right-2 p-3 bg-primary text-primary-foreground rounded-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 shadow-lg shadow-primary/20"
-            >
-              <Send size={20} />
+            <button onClick={clearChat} className="p-2 rounded-lg hover:bg-red-900/40 text-red-300 transition-colors">
+              <Trash2 size={20} />
             </button>
           </div>
-        </form>
-      </motion.div>
-    </div>
+
+          {/* Messages – faqat bu qism scroll qiladi */}
+          <div ref={scrollRef} className="flex-1 overflow-y-auto px-6 py-6 space-y-4 scrollbar-thin scrollbar-thumb-indigo-500/40 scrollbar-track-transparent">
+            <AnimatePresence>
+              {messages.map((msg, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.35 }}
+                  className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                >
+                  {msg.role !== "user" && (
+                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-600/35 to-indigo-600/35 border border-purple-400/30 flex items-center justify-center mr-3 flex-shrink-0">
+                      <Bot size={18} className="text-purple-300" />
+                    </div>
+                  )}
+
+                  <div
+                    className={`max-w-[75%] px-4 py-3 rounded-2xl text-sm leading-relaxed glow-hover ${
+                      msg.role === "user" ? "message-user rounded-br-none" : "message-ai rounded-bl-none"
+                    }`}
+                  >
+                    {msg.text}
+                  </div>
+
+                  {msg.role === "user" && (
+                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-600/35 to-blue-700/35 border border-cyan-400/30 flex items-center justify-center ml-3 flex-shrink-0">
+                      <User size={18} className="text-cyan-200" />
+                    </div>
+                  )}
+                </motion.div>
+              ))}
+            </AnimatePresence>
+
+            {isLoading && (
+              <div className="flex items-center gap-3 pl-12 text-indigo-300/80">
+                <div className="flex gap-1.5">
+                  <div className="w-2.5 h-2.5 bg-indigo-400 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                  <div className="w-2.5 h-2.5 bg-indigo-400 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                  <div className="w-2.5 h-2.5 bg-indigo-400 rounded-full animate-bounce" />
+                </div>
+                <span>o‘ylamoqda...</span>
+              </div>
+            )}
+          </div>
+
+          {/* Input */}
+          <form onSubmit={handleSend} className="border-t border-white/10 bg-black/35 backdrop-blur-lg p-5">
+            <div className="relative max-w-3xl mx-auto">
+              <input
+                ref={inputRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Xabaringizni yozing..."
+                disabled={isLoading}
+                className="w-full bg-white/7 border border-white/15 rounded-2xl py-4 pl-6 pr-16 text-sm placeholder:text-white/45 outline-none transition-all focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/30"
+              />
+              <button
+                type="submit"
+                disabled={isLoading || !input.trim()}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl disabled:opacity-50 hover:brightness-110 transition-all shadow-md"
+              >
+                <Send size={18} />
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </>
   );
 }
