@@ -535,7 +535,7 @@ export function BlogPage() {
           transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
           className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border/40 bg-background/50 backdrop-blur-sm mb-6"
         >
-          <span className="text-sm text-white/50">✈️ Telegram kanal · blog</span>
+          <span className="text-sm text-white/50"> Personal · blog</span>
         </motion.div>
 
         <motion.h1
@@ -544,7 +544,7 @@ export function BlogPage() {
           transition={{ duration: 0.75, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
           className="text-5xl sm:text-6xl font-bold mb-4 premium-title"
         >
-          Fikrlar & Yangiliklar
+          Blog
         </motion.h1>
 
         <motion.p
@@ -553,7 +553,7 @@ export function BlogPage() {
           transition={{ duration: 0.75, delay: 0.16, ease: [0.22, 1, 0.36, 1] }}
           className="text-white/40 text-base max-w-md mx-auto"
         >
-          AI, muhandislik va hayot haqidagi qisqa fikrlar
+          Jaloliddinning shaxsiy blogi | Jaloliddin's personal blog
         </motion.p>
 
         <motion.div
@@ -610,7 +610,7 @@ export function BlogPage() {
             transition={{ delay: 0.6 }}
             className="text-center pt-4 text-white/20 text-sm"
           >
-            Barcha postlar yuklandi · @ruebensh_blog kanalga obuna bo'ling
+            kuzatishda davom eting...
           </motion.div>
         )}
       </section>
