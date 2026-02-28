@@ -209,7 +209,7 @@ function ReactionBar({ reactions, postId, onReact }: {
           whileHover={{ scale: 1.06, y: -1 }}
           whileTap={{ scale: 0.93 }}
           onClick={() => onReact(postId, r.emoji)}
-          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 border ${
+          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 border ${
             r.reacted
               ? "bg-primary/20 border-primary/40 text-primary shadow-lg shadow-primary/10"
               : "bg-background/50 border-border/40 text-white/60 hover:bg-background/70 hover:border-border/60 hover:text-white/80"
@@ -405,31 +405,15 @@ function PostCard({ post, index, onReact, onAddComment }: {
           </div>
         )}
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 gap-3 mb-5">
-          <div className="flex items-center gap-2.5 p-3 rounded-xl bg-background/50 border border-border/40">
-            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Share2 size={14} className="text-primary" />
-            </div>
-            <div>
-              <div className="text-xs font-semibold text-white">{formatCount(post.views)}</div>
-              <div className="text-[10px] text-muted-foreground">Ko'rishlar</div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2.5 p-3 rounded-xl bg-background/50 border border-border/40">
-            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-              <MessageCircle size={14} className="text-primary" />
-            </div>
-            <div>
-              <div className="text-xs font-semibold text-white">{post.comments.length}</div>
-              <div className="text-[10px] text-muted-foreground">Fikrlar</div>
-            </div>
-          </div>
+        {/* Stats inline */}
+        <div className="flex items-center gap-3 text-[11px] text-muted-foreground mb-3">
+          <span className="flex items-center gap-1"><Share2 size={11} /> {formatCount(post.views)}</span>
+          <span className="flex items-center gap-1"><MessageCircle size={11} /> {post.comments.length}</span>
         </div>
 
-        <div className="h-px bg-gradient-to-r from-transparent via-border/40 to-transparent mb-4" />
+        <div className="h-px bg-gradient-to-r from-transparent via-border/40 to-transparent mb-3" />
 
-        <div className="mb-4">
+        <div className="mb-3">
           <ReactionBar reactions={post.reactions} postId={post.id} onReact={onReact} />
         </div>
 
@@ -476,6 +460,9 @@ export function BlogPage() {
 
   useEffect(() => {
     fetchPosts();
+    // Har 30 sekundda yangi postlarni tekshirish
+    const interval = setInterval(fetchPosts, 1000);
+    return () => clearInterval(interval);
   }, []);
 
   // Reaksiya bosish
@@ -557,7 +544,7 @@ export function BlogPage() {
           transition={{ duration: 0.75, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
           className="text-5xl sm:text-6xl font-bold mb-4 premium-title"
         >
-          Blog
+          Fikrlar & Yangiliklar
         </motion.h1>
 
         <motion.p
@@ -566,7 +553,7 @@ export function BlogPage() {
           transition={{ duration: 0.75, delay: 0.16, ease: [0.22, 1, 0.36, 1] }}
           className="text-white/40 text-base max-w-md mx-auto"
         >
-          Jaloliddinning blog sahifasi
+          AI, muhandislik va hayot haqidagi qisqa fikrlar
         </motion.p>
 
         <motion.div
@@ -601,7 +588,7 @@ export function BlogPage() {
           <div className="p-10 rounded-2xl border border-border/40 bg-gradient-to-br from-card to-card/50 text-center">
             <p className="text-4xl mb-3">✈️</p>
             <p className="text-white/60 font-medium">Hali postlar yo'q</p>
-            <p className="text-white/30 text-sm mt-1">Jaloliddinning kanalida birinchi post yozilishi kutilmoqda</p>
+            <p className="text-white/30 text-sm mt-1">@ruebensh_blog kanalida birinchi post yozilishini kutmoqda</p>
           </div>
         )}
 
