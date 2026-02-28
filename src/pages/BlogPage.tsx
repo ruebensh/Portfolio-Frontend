@@ -557,7 +557,7 @@ export function BlogPage() {
           transition={{ duration: 0.75, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
           className="text-5xl sm:text-6xl font-bold mb-4 premium-title"
         >
-          Fikrlar & Yangiliklar
+          Blog
         </motion.h1>
 
         <motion.p
@@ -566,7 +566,7 @@ export function BlogPage() {
           transition={{ duration: 0.75, delay: 0.16, ease: [0.22, 1, 0.36, 1] }}
           className="text-white/40 text-base max-w-md mx-auto"
         >
-          AI, muhandislik va hayot haqidagi qisqa fikrlar
+          Jaloliddinning blog sahifasi
         </motion.p>
 
         <motion.div
@@ -601,7 +601,7 @@ export function BlogPage() {
           <div className="p-10 rounded-2xl border border-border/40 bg-gradient-to-br from-card to-card/50 text-center">
             <p className="text-4xl mb-3">✈️</p>
             <p className="text-white/60 font-medium">Hali postlar yo'q</p>
-            <p className="text-white/30 text-sm mt-1">@ruebensh_blog kanalida birinchi post yozilishini kutmoqda</p>
+            <p className="text-white/30 text-sm mt-1">Jaloliddinning kanalida birinchi post yozilishi kutilmoqda</p>
           </div>
         )}
 
