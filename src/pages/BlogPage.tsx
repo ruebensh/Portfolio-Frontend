@@ -1,82 +1,33 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, Image as ImageIcon, Play, ChevronDown } from "lucide-react";
+import { MessageCircle, Share2, Bookmark, MoreHorizontal, Play, ChevronDown, Loader2 } from "lucide-react";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type Reaction = { emoji: string; label: string; count: number; reacted: boolean };
-type Comment = { id: string; author: string; avatar: string; text: string; time: string; fromTelegram: boolean };
+type Comment = { id: string; author: string; text: string; created_at: string; from_telegram: number };
 type Post = {
   id: string;
   text: string;
-  time: string;
   date: string;
   views: number;
-  image?: string;
-  video?: string;
+  imageUrl?: string;
+  videoUrl?: string;
   reactions: Reaction[];
   comments: Comment[];
-  telegramCommentCount: number;
 };
 
-// ─── Mock Data (replace with real Telegram Bot API later) ────────────────────
-
-const MOCK_POSTS: Post[] = [
-  {
-    id: "1",
-    text: `**AI Engineering va kelajak**\n\nBugungi kunda AI faqat vosita emas — u tizimning o'zi. Har bir muhandis uchun AI bilan ishlashni bilish talab emas, zaruriyat.\n\nMen oxirgi 6 oyda o'rganganlardim: model arxitekturasi emas, **integratsiya** muhimroq. Qaysi modelni qo'llaganingizdan ko'ra, uni qanday o'rnatganingiz ko'proq ahamiyatga ega.`,
-    time: "14:32",
-    date: "Bugun",
-    views: 1240,
-    reactions: [
-      { emoji: "🔥", label: "fire", count: 48, reacted: false },
-      { emoji: "👍", label: "like", count: 31, reacted: false },
-      { emoji: "🤯", label: "mind-blown", count: 12, reacted: false },
-      { emoji: "❤️", label: "heart", count: 9, reacted: false },
-    ],
-    comments: [
-      { id: "c1", author: "Sardor T.", avatar: "S", text: "Bu fikrga qo'shilaman, ayniqsa RAG integratsiyasida.", time: "14:45", fromTelegram: true },
-      { id: "c2", author: "Nilufar A.", avatar: "N", text: "Qaysi framework ishlatamiz degan savol chiqadi, lekin to'g'ri aytdingiz.", time: "15:02", fromTelegram: false },
-    ],
-    telegramCommentCount: 14,
-  },
-  {
-    id: "2",
-    text: `**Yangi loyiha: xalimov.vercel.app**\n\nPortfolio saytimni qayta yozdim. Bu safar:\n• Full TypeScript\n• Framer Motion animatsiyalar\n• AI chat assistant\n• Dark aesthetic\n\nBackend Node.js + SQLite. Deploy — Vercel. Kod ochiq, GitHub da topishingiz mumkin.`,
-    time: "09:15",
-    date: "Kecha",
-    views: 3812,
-    image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&q=80",
-    reactions: [
-      { emoji: "🔥", label: "fire", count: 112, reacted: false },
-      { emoji: "👍", label: "like", count: 87, reacted: false },
-      { emoji: "💻", label: "laptop", count: 43, reacted: false },
-      { emoji: "❤️", label: "heart", count: 29, reacted: false },
-    ],
-    comments: [
-      { id: "c3", author: "Jasur M.", avatar: "J", text: "Stack tanlov zo'r, ayniqsa Framer Motion qo'shganingiz!", time: "09:40", fromTelegram: true },
-      { id: "c4", author: "Aziz K.", avatar: "A", text: "GitHub link bormi?", time: "10:12", fromTelegram: true },
-      { id: "c5", author: "Shahlo R.", avatar: "Sh", text: "Dizayn juda chiroyli chiqibdi 🔥", time: "11:00", fromTelegram: false },
-    ],
-    telegramCommentCount: 28,
-  },
-  {
-    id: "3",
-    text: `**O'qish tavsiyasi: "The Pragmatic Programmer"**\n\nHar bir muhandis o'qishi kerak bo'lgan kitob. Yillar o'tsa ham, ichidagi prinsiplar hali ham dolzarb.\n\nEng yoqtirgan qism: *"Your knowledge portfolio"* — bilimni moliyaviy portfolio kabi boshqaring. Diversifikatsiya qiling, doimiy yangilang.`,
-    time: "20:00",
-    date: "2 kun oldin",
-    views: 891,
-    reactions: [
-      { emoji: "📚", label: "book", count: 35, reacted: false },
-      { emoji: "👍", label: "like", count: 22, reacted: false },
-      { emoji: "🔥", label: "fire", count: 17, reacted: false },
-    ],
-    comments: [],
-    telegramCommentCount: 6,
-  },
+// Default reaksiyalar — har bir postga
+const DEFAULT_REACTIONS = [
+  { emoji: "🔥", label: "fire" },
+  { emoji: "👍", label: "like" },
+  { emoji: "❤️", label: "heart" },
+  { emoji: "🤯", label: "mind-blown" },
 ];
 
-// ─── PageBackground (same as HomePage) ───────────────────────────────────────
+// ─── PageBackground ───────────────────────────────────────────────────────────
 
 function PageBackground() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -215,6 +166,21 @@ function formatCount(n: number) {
   return String(n);
 }
 
+function formatDate(iso: string) {
+  const d = new Date(iso);
+  const now = new Date();
+  const diff = Math.floor((now.getTime() - d.getTime()) / 1000);
+  if (diff < 60) return "Hozirgina";
+  if (diff < 3600) return `${Math.floor(diff / 60)} daqiqa oldin`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)} soat oldin`;
+  if (diff < 172800) return "Kecha";
+  return d.toLocaleDateString("uz-UZ");
+}
+
+function formatTime(iso: string) {
+  return new Date(iso).toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit" });
+}
+
 function parseText(text: string) {
   const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g);
   return parts.map((part, i) => {
@@ -261,17 +227,20 @@ function ReactionBar({ reactions, postId, onReact }: {
 
 function CommentSection({ post, onAddComment }: {
   post: Post;
-  onAddComment: (postId: string, text: string) => void;
+  onAddComment: (postId: string, text: string, author: string) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
-  const totalComments = post.comments.length + post.telegramCommentCount;
+  const [author, setAuthor] = useState("");
 
   const submit = () => {
     if (!input.trim()) return;
-    onAddComment(post.id, input.trim());
+    onAddComment(post.id, input.trim(), author.trim() || "Anonim");
     setInput("");
   };
+
+  const telegramComments = post.comments.filter(c => c.from_telegram === 1);
+  const siteComments = post.comments.filter(c => c.from_telegram === 0);
 
   return (
     <div>
@@ -282,7 +251,7 @@ function CommentSection({ post, onAddComment }: {
         <div className="w-8 h-8 rounded-lg bg-background/50 border border-border/40 flex items-center justify-center">
           <MessageCircle size={15} />
         </div>
-        <span className="font-medium">{totalComments} ta fikr</span>
+        <span className="font-medium">{post.comments.length} ta fikr</span>
         <motion.span animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.25 }}>
           <ChevronDown size={14} />
         </motion.span>
@@ -298,10 +267,9 @@ function CommentSection({ post, onAddComment }: {
             className="overflow-hidden"
           >
             <div className="mt-4 space-y-3">
-              {post.telegramCommentCount > 0 && post.comments.filter(c => c.fromTelegram).length === 0 && (
-                <div className="flex items-center gap-2 p-3 rounded-xl bg-background/30 border border-border/30 text-xs text-muted-foreground italic">
-                  <span>✈️</span>
-                  <span>Telegramdan {post.telegramCommentCount} ta fikr mavjud</span>
+              {post.comments.length === 0 && (
+                <div className="p-3 rounded-xl bg-background/30 border border-border/30 text-xs text-muted-foreground text-center italic">
+                  Hali fikr yo'q — birinchi bo'ling!
                 </div>
               )}
               {post.comments.map((c, i) => (
@@ -313,17 +281,17 @@ function CommentSection({ post, onAddComment }: {
                   className="flex gap-3 p-3 rounded-xl bg-background/30 border border-border/30"
                 >
                   <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-xs font-bold text-primary flex-shrink-0">
-                    {c.avatar}
+                    {c.author.charAt(0).toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-xs font-semibold text-white">{c.author}</span>
-                      {c.fromTelegram && (
-                        <span className="text-[10px] text-blue-400/80 bg-blue-400/10 border border-blue-400/20 px-1.5 py-0.5 rounded-md flex items-center gap-0.5">
+                      {c.from_telegram === 1 && (
+                        <span className="text-[10px] text-blue-400/80 bg-blue-400/10 border border-blue-400/20 px-1.5 py-0.5 rounded-md">
                           ✈️ Telegram
                         </span>
                       )}
-                      <span className="text-[10px] text-muted-foreground ml-auto">{c.time}</span>
+                      <span className="text-[10px] text-muted-foreground ml-auto">{formatTime(c.created_at)}</span>
                     </div>
                     <p className="text-sm text-muted-foreground leading-relaxed">{c.text}</p>
                   </div>
@@ -331,23 +299,31 @@ function CommentSection({ post, onAddComment }: {
               ))}
             </div>
 
-            {/* Input */}
-            <div className="mt-3 flex gap-2">
+            <div className="mt-3 space-y-2">
               <input
                 type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && submit()}
-                placeholder="Fikr bildiring..."
-                className="flex-1 bg-background/50 border border-border/40 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-muted-foreground focus:outline-none focus:border-primary/40 focus:bg-background/70 transition-all"
+                value={author}
+                onChange={(e) => setAuthor(e.target.value)}
+                placeholder="Ismingiz (ixtiyoriy)"
+                className="w-full bg-background/50 border border-border/40 rounded-xl px-4 py-2 text-sm text-white placeholder:text-muted-foreground focus:outline-none focus:border-primary/40 transition-all"
               />
-              <motion.button
-                whileTap={{ scale: 0.93 }}
-                onClick={submit}
-                className="px-4 py-2.5 bg-primary/10 border border-primary/30 rounded-xl text-primary text-sm font-medium hover:bg-primary/20 transition-all"
-              >
-                Yuborish
-              </motion.button>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && submit()}
+                  placeholder="Fikr bildiring..."
+                  className="flex-1 bg-background/50 border border-border/40 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-muted-foreground focus:outline-none focus:border-primary/40 focus:bg-background/70 transition-all"
+                />
+                <motion.button
+                  whileTap={{ scale: 0.93 }}
+                  onClick={submit}
+                  className="px-4 py-2.5 bg-primary/10 border border-primary/30 rounded-xl text-primary text-sm font-medium hover:bg-primary/20 transition-all"
+                >
+                  Yuborish
+                </motion.button>
+              </div>
             </div>
           </motion.div>
         )}
@@ -362,7 +338,7 @@ function PostCard({ post, index, onReact, onAddComment }: {
   post: Post;
   index: number;
   onReact: (postId: string, emoji: string) => void;
-  onAddComment: (postId: string, text: string) => void;
+  onAddComment: (postId: string, text: string, author: string) => void;
 }) {
   const [saved, setSaved] = useState(false);
 
@@ -374,17 +350,13 @@ function PostCard({ post, index, onReact, onAddComment }: {
       transition={{ duration: 0.5, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
       className="relative rounded-2xl border border-border/40 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm shadow-2xl shadow-black/5 overflow-hidden group"
     >
-      {/* Inner gradient overlay — ProfileCard kabi */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-purple-500/5 pointer-events-none" />
-
-      {/* Hover glow */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.04] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
       <div className="relative p-6 lg:p-8">
         {/* Header */}
         <div className="flex items-start justify-between mb-5">
           <div className="flex items-center gap-3">
-            {/* Avatar — ProfileCard dagi avatar stilida */}
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-br from-primary to-purple-500 rounded-xl blur-lg opacity-30" />
               <div className="relative w-11 h-11 rounded-xl bg-gradient-to-br from-primary/80 to-purple-500/60 border border-primary/30 flex items-center justify-center text-base font-bold text-white shadow-xl">
@@ -393,18 +365,17 @@ function PostCard({ post, index, onReact, onAddComment }: {
             </div>
             <div>
               <div className="text-sm font-semibold text-white leading-tight">Jaloliddin Xalimov</div>
-              <div className="text-[11px] text-muted-foreground mt-0.5">{post.date} · {post.time}</div>
+              <div className="text-[11px] text-muted-foreground mt-0.5">
+                {formatDate(post.date)} · {formatTime(post.date)}
+              </div>
             </div>
           </div>
-
           <div className="flex items-center gap-1.5">
             <motion.button
               whileTap={{ scale: 0.88 }}
               onClick={() => setSaved(v => !v)}
               className={`w-8 h-8 rounded-lg flex items-center justify-center border transition-all ${
-                saved
-                  ? "bg-primary/10 border-primary/30 text-primary"
-                  : "bg-background/50 border-border/40 text-muted-foreground hover:text-white"
+                saved ? "bg-primary/10 border-primary/30 text-primary" : "bg-background/50 border-border/40 text-muted-foreground hover:text-white"
               }`}
             >
               <Bookmark size={14} fill={saved ? "currentColor" : "none"} />
@@ -421,27 +392,20 @@ function PostCard({ post, index, onReact, onAddComment }: {
         </p>
 
         {/* Media */}
-        {post.image && (
+        {post.imageUrl && (
           <div className="mb-5 rounded-xl overflow-hidden border border-border/40 shadow-xl">
-            <img
-              src={post.image}
-              alt=""
-              className="w-full max-h-72 object-cover group-hover:scale-[1.01] transition-transform duration-700"
-            />
+            <img src={post.imageUrl} alt="" className="w-full max-h-72 object-cover group-hover:scale-[1.01] transition-transform duration-700" />
           </div>
         )}
-        {post.video && (
+        {post.videoUrl && (
           <div className="mb-5 rounded-xl overflow-hidden border border-border/40 bg-black/40 flex items-center justify-center h-48 cursor-pointer">
-            <motion.div
-              whileHover={{ scale: 1.1 }}
-              className="w-14 h-14 rounded-full bg-background/50 backdrop-blur border border-border/40 flex items-center justify-center shadow-xl"
-            >
+            <motion.div whileHover={{ scale: 1.1 }} className="w-14 h-14 rounded-full bg-background/50 backdrop-blur border border-border/40 flex items-center justify-center shadow-xl">
               <Play size={22} className="text-white ml-1" />
             </motion.div>
           </div>
         )}
 
-        {/* Stats row — ProfileCard dagi stat kartachalar uslubida */}
+        {/* Stats */}
         <div className="grid grid-cols-2 gap-3 mb-5">
           <div className="flex items-center gap-2.5 p-3 rounded-xl bg-background/50 border border-border/40">
             <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -457,21 +421,18 @@ function PostCard({ post, index, onReact, onAddComment }: {
               <MessageCircle size={14} className="text-primary" />
             </div>
             <div>
-              <div className="text-xs font-semibold text-white">{post.comments.length + post.telegramCommentCount}</div>
+              <div className="text-xs font-semibold text-white">{post.comments.length}</div>
               <div className="text-[10px] text-muted-foreground">Fikrlar</div>
             </div>
           </div>
         </div>
 
-        {/* Divider */}
         <div className="h-px bg-gradient-to-r from-transparent via-border/40 to-transparent mb-4" />
 
-        {/* Reactions */}
         <div className="mb-4">
           <ReactionBar reactions={post.reactions} postId={post.id} onReact={onReact} />
         </div>
 
-        {/* Comments */}
         <CommentSection post={post} onAddComment={onAddComment} />
       </div>
     </motion.article>
@@ -481,9 +442,45 @@ function PostCard({ post, index, onReact, onAddComment }: {
 // ─── BlogPage ─────────────────────────────────────────────────────────────────
 
 export function BlogPage() {
-  const [posts, setPosts] = useState<Post[]>(MOCK_POSTS);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleReact = (postId: string, emoji: string) => {
+  // Postlarni backend dan olish
+  const fetchPosts = async () => {
+    try {
+      const res = await fetch(`${API_URL}/blog/posts`);
+      if (!res.ok) throw new Error("Server xatosi");
+      const data = await res.json();
+
+      // Backend dan kelgan postlarga default reaksiyalar qo'shamiz
+      const enriched = data.map((p: any) => {
+        const reactionMap = new Map(p.reactions.map((r: any) => [r.emoji, r.count]));
+        return {
+          ...p,
+          reactions: DEFAULT_REACTIONS.map(r => ({
+            ...r,
+            count: (reactionMap.get(r.emoji) as number) || 0,
+            reacted: false,
+          })),
+        };
+      });
+
+      setPosts(enriched);
+    } catch (e) {
+      setError("Postlarni yuklashda xato. Backend ishlayaptimi?");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  // Reaksiya bosish
+  const handleReact = async (postId: string, emoji: string) => {
+    // Optimistic update
     setPosts(prev => prev.map(p => {
       if (p.id !== postId) return p;
       return {
@@ -495,21 +492,37 @@ export function BlogPage() {
         ),
       };
     }));
+
+    // Backend ga yuborish
+    const post = posts.find(p => p.id === postId);
+    const reaction = post?.reactions.find(r => r.emoji === emoji);
+    const delta = reaction?.reacted ? -1 : 1;
+
+    try {
+      await fetch(`${API_URL}/blog/reactions/${postId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ emoji, delta }),
+      });
+    } catch {}
   };
 
-  const handleAddComment = (postId: string, text: string) => {
-    setPosts(prev => prev.map(p => {
-      if (p.id !== postId) return p;
-      const newComment: Comment = {
-        id: `c-${Date.now()}`,
-        author: "Siz",
-        avatar: "S",
-        text,
-        time: new Date().toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit" }),
-        fromTelegram: false,
-      };
-      return { ...p, comments: [...p.comments, newComment] };
-    }));
+  // Komment qo'shish
+  const handleAddComment = async (postId: string, text: string, author: string) => {
+    try {
+      const res = await fetch(`${API_URL}/blog/comments/${postId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ author, text }),
+      });
+      const newComment = await res.json();
+
+      setPosts(prev => prev.map(p =>
+        p.id === postId
+          ? { ...p, comments: [...p.comments, newComment] }
+          : p
+      ));
+    } catch {}
   };
 
   return (
@@ -566,6 +579,33 @@ export function BlogPage() {
 
       {/* Posts Feed */}
       <section className="max-w-2xl mx-auto px-4 pb-24 space-y-5">
+        {/* Loading */}
+        {loading && (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 size={32} className="animate-spin text-primary/50" />
+          </div>
+        )}
+
+        {/* Error */}
+        {error && (
+          <div className="p-6 rounded-2xl border border-red-500/20 bg-red-500/5 text-center">
+            <p className="text-red-400/80 text-sm">{error}</p>
+            <button onClick={fetchPosts} className="mt-3 text-xs text-primary hover:underline">
+              Qayta urinish
+            </button>
+          </div>
+        )}
+
+        {/* Empty */}
+        {!loading && !error && posts.length === 0 && (
+          <div className="p-10 rounded-2xl border border-border/40 bg-gradient-to-br from-card to-card/50 text-center">
+            <p className="text-4xl mb-3">✈️</p>
+            <p className="text-white/60 font-medium">Hali postlar yo'q</p>
+            <p className="text-white/30 text-sm mt-1">@ruebensh_blog kanalida birinchi post yozilishini kutmoqda</p>
+          </div>
+        )}
+
+        {/* Posts */}
         {posts.map((post, i) => (
           <PostCard
             key={post.id}
@@ -576,15 +616,16 @@ export function BlogPage() {
           />
         ))}
 
-        {/* Load more hint */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          className="text-center pt-4 text-white/20 text-sm"
-        >
-          Barcha postlar yuklandi · Telegram kanalga obuna bo'ling
-        </motion.div>
+        {!loading && posts.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+            className="text-center pt-4 text-white/20 text-sm"
+          >
+            Barcha postlar yuklandi · @ruebensh_blog kanalga obuna bo'ling
+          </motion.div>
+        )}
       </section>
     </main>
   );
