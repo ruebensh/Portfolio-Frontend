@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, Share2, Bookmark, MoreHorizontal, Play, ChevronDown, Loader2 } from "lucide-react";
+import { MessageCircle, Share2, Bookmark, MoreHorizontal, Play, ChevronDown, Loader2, ArrowDown } from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -19,7 +19,6 @@ type Post = {
   comments: Comment[];
 };
 
-// Default reaksiyalar — har bir postga
 const DEFAULT_REACTIONS = [
   { emoji: "🔥", label: "fire" },
   { emoji: "👍", label: "like" },
@@ -67,8 +66,7 @@ function PageBackground() {
     const spawnMeteor = () => {
       if (prefersReduced || Math.random() > 0.028) return;
       const z = Math.random() < 0.15 ? 0.75 + Math.random() * 0.25 : Math.pow(Math.random(), 2.2);
-      const baseAngle = (Math.PI * 7) / 6;
-      const angle = baseAngle + (Math.random() - 0.5) * (0.22 + (1 - z) * 0.18);
+      const angle = (Math.PI * 7) / 6 + (Math.random() - 0.5) * (0.22 + (1 - z) * 0.18);
       const speed = (10 + Math.random() * 6) * (0.65 + z * 1.25);
       const vx = Math.cos(angle) * speed, vy = Math.sin(angle) * speed;
       const entryX = Math.random() * w * 0.9 + w * 0.05;
@@ -202,7 +200,7 @@ function ReactionBar({ reactions, postId, onReact }: {
   onReact: (postId: string, emoji: string) => void;
 }) {
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-1.5">
       {reactions.map((r) => (
         <motion.button
           key={r.emoji}
@@ -215,8 +213,8 @@ function ReactionBar({ reactions, postId, onReact }: {
               : "bg-background/50 border-border/40 text-white/60 hover:bg-background/70 hover:border-border/60 hover:text-white/80"
           }`}
         >
-          <span className="text-base leading-none">{r.emoji}</span>
-          <span className="tabular-nums text-xs">{formatCount(r.count)}</span>
+          <span className="text-sm leading-none">{r.emoji}</span>
+          <span className="tabular-nums">{formatCount(r.count)}</span>
         </motion.button>
       ))}
     </div>
@@ -239,21 +237,18 @@ function CommentSection({ post, onAddComment }: {
     setInput("");
   };
 
-  const telegramComments = post.comments.filter(c => c.from_telegram === 1);
-  const siteComments = post.comments.filter(c => c.from_telegram === 0);
-
   return (
     <div>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-white transition-colors"
+        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-white/80 transition-colors"
       >
-        <div className="w-8 h-8 rounded-lg bg-background/50 border border-border/40 flex items-center justify-center">
-          <MessageCircle size={15} />
+        <div className="w-7 h-7 rounded-lg bg-background/50 border border-border/40 flex items-center justify-center">
+          <MessageCircle size={13} />
         </div>
-        <span className="font-medium">{post.comments.length} ta fikr</span>
+        <span className="text-xs font-medium">{post.comments.length} ta fikr</span>
         <motion.span animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.25 }}>
-          <ChevronDown size={14} />
+          <ChevronDown size={13} />
         </motion.span>
       </button>
 
@@ -266,7 +261,7 @@ function CommentSection({ post, onAddComment }: {
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             className="overflow-hidden"
           >
-            <div className="mt-4 space-y-3">
+            <div className="mt-3 space-y-2">
               {post.comments.length === 0 && (
                 <div className="p-3 rounded-xl bg-background/30 border border-border/30 text-xs text-muted-foreground text-center italic">
                   Hali fikr yo'q — birinchi bo'ling!
@@ -275,25 +270,25 @@ function CommentSection({ post, onAddComment }: {
               {post.comments.map((c, i) => (
                 <motion.div
                   key={c.id}
-                  initial={{ opacity: 0, x: -10 }}
+                  initial={{ opacity: 0, x: -8 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                  className="flex gap-3 p-3 rounded-xl bg-background/30 border border-border/30"
+                  transition={{ delay: i * 0.04 }}
+                  className="flex gap-2.5 p-3 rounded-xl bg-background/30 border border-border/30"
                 >
-                  <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-xs font-bold text-primary flex-shrink-0">
+                  <div className="w-7 h-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-[10px] font-bold text-primary flex-shrink-0">
                     {c.author.charAt(0).toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-semibold text-white">{c.author}</span>
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-xs font-semibold text-white/70">{c.author}</span>
                       {c.from_telegram === 1 && (
-                        <span className="text-[10px] text-blue-400/80 bg-blue-400/10 border border-blue-400/20 px-1.5 py-0.5 rounded-md">
+                        <span className="text-[9px] text-blue-400/80 bg-blue-400/10 border border-blue-400/20 px-1.5 py-0.5 rounded-md">
                           ✈️ Telegram
                         </span>
                       )}
                       <span className="text-[10px] text-muted-foreground ml-auto">{formatTime(c.created_at)}</span>
                     </div>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{c.text}</p>
+                    <p className="text-xs text-white/70 leading-relaxed">{c.text}</p>
                   </div>
                 </motion.div>
               ))}
@@ -305,7 +300,7 @@ function CommentSection({ post, onAddComment }: {
                 value={author}
                 onChange={(e) => setAuthor(e.target.value)}
                 placeholder="Ismingiz (ixtiyoriy)"
-                className="w-full bg-background/50 border border-border/40 rounded-xl px-4 py-2 text-sm text-white placeholder:text-muted-foreground focus:outline-none focus:border-primary/40 transition-all"
+                className="w-full bg-background/50 border border-border/40 rounded-xl px-3 py-2 text-xs text-white placeholder:text-muted-foreground focus:outline-none focus:border-primary/40 transition-all"
               />
               <div className="flex gap-2">
                 <input
@@ -314,12 +309,12 @@ function CommentSection({ post, onAddComment }: {
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && submit()}
                   placeholder="Fikr bildiring..."
-                  className="flex-1 bg-background/50 border border-border/40 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-muted-foreground focus:outline-none focus:border-primary/40 focus:bg-background/70 transition-all"
+                  className="flex-1 bg-background/50 border border-border/40 rounded-xl px-3 py-2 text-xs text-white placeholder:text-muted-foreground focus:outline-none focus:border-primary/40 transition-all"
                 />
                 <motion.button
                   whileTap={{ scale: 0.93 }}
                   onClick={submit}
-                  className="px-4 py-2.5 bg-primary/10 border border-primary/30 rounded-xl text-primary text-sm font-medium hover:bg-primary/20 transition-all"
+                  className="px-3 py-2 bg-primary/10 border border-primary/30 rounded-xl text-primary text-xs font-medium hover:bg-primary/20 transition-all"
                 >
                   Yuborish
                 </motion.button>
@@ -334,9 +329,8 @@ function CommentSection({ post, onAddComment }: {
 
 // ─── PostCard ─────────────────────────────────────────────────────────────────
 
-function PostCard({ post, index, onReact, onAddComment }: {
+function PostCard({ post, onReact, onAddComment }: {
   post: Post;
-  index: number;
   onReact: (postId: string, emoji: string) => void;
   onAddComment: (postId: string, text: string, author: string) => void;
 }) {
@@ -344,79 +338,80 @@ function PostCard({ post, index, onReact, onAddComment }: {
 
   return (
     <motion.article
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
-      className="relative rounded-2xl border border-border/40 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm shadow-2xl shadow-black/5 overflow-hidden group"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      className="relative rounded-2xl border border-border/40 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm shadow-xl shadow-black/10 overflow-hidden group"
     >
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-purple-500/5 pointer-events-none" />
       <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.04] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
-      <div className="relative p-6 lg:p-8">
+      <div className="relative p-5 lg:p-6">
         {/* Header */}
-        <div className="flex items-start justify-between mb-5">
+        <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary to-purple-500 rounded-xl blur-lg opacity-30" />
-              <div className="relative w-11 h-11 rounded-xl bg-gradient-to-br from-primary/80 to-purple-500/60 border border-primary/30 flex items-center justify-center text-base font-bold text-white shadow-xl">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary to-purple-500 rounded-xl blur-lg opacity-25" />
+              <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-primary/80 to-purple-500/60 border border-primary/30 flex items-center justify-center text-sm font-bold text-white shadow-lg">
                 J
               </div>
             </div>
             <div>
-              <div className="text-sm font-semibold text-white/50 leading-tight">Jaloliddin Xalimov</div>
-              <div className="text-[11px] text-muted-foreground mt-0.5">
+              <div className="text-sm font-medium text-white/50 leading-tight">Jaloliddin Xalimov</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5">
                 {formatDate(post.date)} · {formatTime(post.date)}
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1">
             <motion.button
               whileTap={{ scale: 0.88 }}
               onClick={() => setSaved(v => !v)}
-              className={`w-8 h-8 rounded-lg flex items-center justify-center border transition-all ${
+              className={`w-7 h-7 rounded-lg flex items-center justify-center border transition-all ${
                 saved ? "bg-primary/10 border-primary/30 text-primary" : "bg-background/50 border-border/40 text-muted-foreground hover:text-white"
               }`}
             >
-              <Bookmark size={14} fill={saved ? "currentColor" : "none"} />
+              <Bookmark size={12} fill={saved ? "currentColor" : "none"} />
             </motion.button>
-            <button className="w-8 h-8 rounded-lg bg-background/50 border border-border/40 flex items-center justify-center text-muted-foreground hover:text-white transition-colors">
-              <MoreHorizontal size={14} />
+            <button className="w-7 h-7 rounded-lg bg-background/50 border border-border/40 flex items-center justify-center text-muted-foreground hover:text-white transition-colors">
+              <MoreHorizontal size={12} />
             </button>
           </div>
         </div>
 
         {/* Text */}
-        <p className="text-[15px] text-white/90 leading-relaxed mb-5">
+        <p className="text-[14px] text-white/90 leading-relaxed mb-4">
           {parseText(post.text)}
         </p>
 
         {/* Media */}
         {post.imageUrl && (
-          <div className="mb-5 rounded-xl overflow-hidden border border-border/40 shadow-xl">
-            <img src={post.imageUrl} alt="" className="w-full max-h-72 object-cover group-hover:scale-[1.01] transition-transform duration-700" />
+          <div className="mb-4 rounded-xl overflow-hidden border border-border/40 shadow-lg">
+            <img src={post.imageUrl} alt="" className="w-full max-h-64 object-cover group-hover:scale-[1.01] transition-transform duration-700" />
           </div>
         )}
         {post.videoUrl && (
-          <div className="mb-5 rounded-xl overflow-hidden border border-border/40 bg-black/40 flex items-center justify-center h-48 cursor-pointer">
-            <motion.div whileHover={{ scale: 1.1 }} className="w-14 h-14 rounded-full bg-background/50 backdrop-blur border border-border/40 flex items-center justify-center shadow-xl">
-              <Play size={22} className="text-white ml-1" />
+          <div className="mb-4 rounded-xl overflow-hidden border border-border/40 bg-black/40 flex items-center justify-center h-44 cursor-pointer">
+            <motion.div whileHover={{ scale: 1.1 }} className="w-12 h-12 rounded-full bg-background/50 backdrop-blur border border-border/40 flex items-center justify-center shadow-xl">
+              <Play size={18} className="text-white ml-0.5" />
             </motion.div>
           </div>
         )}
 
-        {/* Stats inline */}
-        <div className="flex items-center gap-3 text-[11px] text-muted-foreground mb-3">
-          <span className="flex items-center gap-1"><Share2 size={11} /> {formatCount(post.views)}</span>
-          <span className="flex items-center gap-1"><MessageCircle size={11} /> {post.comments.length}</span>
+        {/* Stats + divider */}
+        <div className="flex items-center gap-3 text-[10px] text-white/30 mb-2.5">
+          <span className="flex items-center gap-1"><Share2 size={10} /> {formatCount(post.views)}</span>
+          <span className="flex items-center gap-1"><MessageCircle size={10} /> {post.comments.length}</span>
         </div>
 
-        <div className="h-px bg-gradient-to-r from-transparent via-border/40 to-transparent mb-3" />
+        <div className="h-px bg-gradient-to-r from-transparent via-border/30 to-transparent mb-3" />
 
+        {/* Reactions */}
         <div className="mb-3">
           <ReactionBar reactions={post.reactions} postId={post.id} onReact={onReact} />
         </div>
 
+        {/* Comments */}
         <CommentSection post={post} onAddComment={onAddComment} />
       </div>
     </motion.article>
@@ -429,45 +424,87 @@ export function BlogPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [newPostCount, setNewPostCount] = useState(0);
 
-  // Postlarni backend dan olish
-  const fetchPosts = async () => {
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+  const isAtBottomRef = useRef(true);
+
+  // Foydalanuvchi eng pastdami tekshirish
+  const checkIfAtBottom = useCallback(() => {
+    const threshold = 120;
+    const atBottom = window.innerHeight + window.scrollY >= document.body.scrollHeight - threshold;
+    isAtBottomRef.current = atBottom;
+    if (atBottom) setNewPostCount(0);
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("scroll", checkIfAtBottom, { passive: true });
+    return () => window.removeEventListener("scroll", checkIfAtBottom);
+  }, [checkIfAtBottom]);
+
+  // Eng pastga scroll
+  const scrollToBottom = useCallback((smooth = true) => {
+    bottomRef.current?.scrollIntoView({ behavior: smooth ? "smooth" : "instant" });
+    setNewPostCount(0);
+  }, []);
+
+  const enrichPosts = (data: any[]) =>
+    data.map((p: any) => {
+      const reactionMap = new Map(p.reactions.map((r: any) => [r.emoji, r.count]));
+      return {
+        ...p,
+        reactions: DEFAULT_REACTIONS.map(r => ({
+          ...r,
+          count: (reactionMap.get(r.emoji) as number) || 0,
+          reacted: false,
+        })),
+      };
+    });
+
+  const fetchPosts = useCallback(async (isInitial = false) => {
     try {
       const res = await fetch(`${API_URL}/blog/posts`);
       if (!res.ok) throw new Error("Server xatosi");
       const data = await res.json();
+      // Eskidan yangilarga (pastda yangi)
+      const enriched = enrichPosts(data).reverse();
 
-      // Backend dan kelgan postlarga default reaksiyalar qo'shamiz
-      const enriched = data.map((p: any) => {
-        const reactionMap = new Map(p.reactions.map((r: any) => [r.emoji, r.count]));
-        return {
-          ...p,
-          reactions: DEFAULT_REACTIONS.map(r => ({
-            ...r,
-            count: (reactionMap.get(r.emoji) as number) || 0,
-            reacted: false,
-          })),
-        };
+      setPosts(prev => {
+        const newIds = new Set(enriched.map((p: Post) => p.id));
+        const prevIds = new Set(prev.map((p: Post) => p.id));
+        const addedCount = [...newIds].filter(id => !prevIds.has(id)).length;
+
+        if (!isInitial && addedCount > 0) {
+          if (isAtBottomRef.current) {
+            // Foydalanuvchi pastda — avtomatik scroll
+            setTimeout(() => scrollToBottom(), 100);
+          } else {
+            // O'qiyapti — "yangi post" tugmasini ko'rsat
+            setNewPostCount(n => n + addedCount);
+          }
+        }
+        return enriched;
       });
 
-      setPosts(enriched);
+      setError(null);
     } catch (e) {
-      setError("Postlarni yuklashda xato. Backend ishlayaptimi?");
+      setError("Postlarni yuklashda xato.");
     } finally {
-      setLoading(false);
+      if (isInitial) setLoading(false);
     }
-  };
+  }, [scrollToBottom]);
 
+  // Birinchi yuklash — pastga scroll
   useEffect(() => {
-    fetchPosts();
-    // Har 30 sekundda yangi postlarni tekshirish
-    const interval = setInterval(fetchPosts, 1000);
+    fetchPosts(true).then(() => {
+      setTimeout(() => scrollToBottom(false), 150);
+    });
+    const interval = setInterval(() => fetchPosts(false), 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchPosts, scrollToBottom]);
 
   // Reaksiya bosish
   const handleReact = async (postId: string, emoji: string) => {
-    // Optimistic update
     setPosts(prev => prev.map(p => {
       if (p.id !== postId) return p;
       return {
@@ -480,7 +517,6 @@ export function BlogPage() {
       };
     }));
 
-    // Backend ga yuborish
     const post = posts.find(p => p.id === postId);
     const reaction = post?.reactions.find(r => r.emoji === emoji);
     const delta = reaction?.reacted ? -1 : 1;
@@ -503,11 +539,8 @@ export function BlogPage() {
         body: JSON.stringify({ author, text }),
       });
       const newComment = await res.json();
-
       setPosts(prev => prev.map(p =>
-        p.id === postId
-          ? { ...p, comments: [...p.comments, newComment] }
-          : p
+        p.id === postId ? { ...p, comments: [...p.comments, newComment] } : p
       ));
     } catch {}
   };
@@ -528,14 +561,14 @@ export function BlogPage() {
       <PageBackground />
 
       {/* Header */}
-      <section className="pt-24 pb-12 px-6 text-center">
+      <section className="pt-24 pb-10 px-6 text-center">
         <motion.div
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
           className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border/40 bg-background/50 backdrop-blur-sm mb-6"
         >
-          <span className="text-sm text-white/50"> Personal · blog</span>
+          <span className="text-sm text-white/50">✈️ Personal · blog</span>
         </motion.div>
 
         <motion.h1
@@ -544,7 +577,7 @@ export function BlogPage() {
           transition={{ duration: 0.75, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
           className="text-5xl sm:text-6xl font-bold mb-4 premium-title"
         >
-          Blog
+          Fikrlar & Yangiliklar
         </motion.h1>
 
         <motion.p
@@ -565,55 +598,60 @@ export function BlogPage() {
       </section>
 
       {/* Posts Feed */}
-      <section className="max-w-2xl mx-auto px-4 pb-24 space-y-5">
-        {/* Loading */}
+      <section className="max-w-2xl mx-auto px-4 pb-24 space-y-4">
         {loading && (
           <div className="flex items-center justify-center py-20">
-            <Loader2 size={32} className="animate-spin text-primary/50" />
+            <Loader2 size={28} className="animate-spin text-primary/50" />
           </div>
         )}
 
-        {/* Error */}
         {error && (
           <div className="p-6 rounded-2xl border border-red-500/20 bg-red-500/5 text-center">
             <p className="text-red-400/80 text-sm">{error}</p>
-            <button onClick={fetchPosts} className="mt-3 text-xs text-primary hover:underline">
+            <button onClick={() => fetchPosts(true)} className="mt-3 text-xs text-primary hover:underline">
               Qayta urinish
             </button>
           </div>
         )}
 
-        {/* Empty */}
         {!loading && !error && posts.length === 0 && (
           <div className="p-10 rounded-2xl border border-border/40 bg-gradient-to-br from-card to-card/50 text-center">
             <p className="text-4xl mb-3">✈️</p>
             <p className="text-white/60 font-medium">Hali postlar yo'q</p>
-            <p className="text-white/30 text-sm mt-1">@ruebensh_blog kanalida birinchi post yozilishini kutmoqda</p>
+            <p className="text-white/30 text-sm mt-1">Birinchi post yozilishini kutmoqda...</p>
           </div>
         )}
 
-        {/* Posts */}
-        {posts.map((post, i) => (
-          <PostCard
-            key={post.id}
-            post={post}
-            index={i}
-            onReact={handleReact}
-            onAddComment={handleAddComment}
-          />
-        ))}
+        <AnimatePresence>
+          {posts.map((post) => (
+            <PostCard
+              key={post.id}
+              post={post}
+              onReact={handleReact}
+              onAddComment={handleAddComment}
+            />
+          ))}
+        </AnimatePresence>
 
-        {!loading && posts.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-            className="text-center pt-4 text-white/20 text-sm"
-          >
-            kuzatishda davom eting...
-          </motion.div>
-        )}
+        {/* Scroll anchor */}
+        <div ref={bottomRef} />
       </section>
+
+      {/* Yangi post tugmasi — faqat foydalanuvchi yuqorida o'qiyotgan bo'lsa */}
+      <AnimatePresence>
+        {newPostCount > 0 && (
+          <motion.button
+            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            onClick={() => scrollToBottom()}
+            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-medium shadow-2xl shadow-primary/30 hover:bg-primary/90 transition-all"
+          >
+            <ArrowDown size={15} />
+            {newPostCount} ta yangi post
+          </motion.button>
+        )}
+      </AnimatePresence>
     </main>
   );
 }
