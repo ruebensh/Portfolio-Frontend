@@ -364,7 +364,7 @@ function PostCard({ post, index, onReact, onAddComment }: {
               </div>
             </div>
             <div>
-              <div className="text-sm font-semibold text-white leading-tight">Jaloliddin Xalimov</div>
+              <div className="text-sm font-semibold text-white/50 leading-tight">Jaloliddin Xalimov</div>
               <div className="text-[11px] text-muted-foreground mt-0.5">
                 {formatDate(post.date)} · {formatTime(post.date)}
               </div>
@@ -387,7 +387,7 @@ function PostCard({ post, index, onReact, onAddComment }: {
         </div>
 
         {/* Text */}
-        <p className="text-[15px] text-muted-foreground leading-relaxed mb-5">
+        <p className="text-[15px] text-white/90 leading-relaxed mb-5">
           {parseText(post.text)}
         </p>
 
