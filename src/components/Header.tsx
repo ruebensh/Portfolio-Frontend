@@ -1,5 +1,5 @@
 import { Link, useRouter } from "../lib/router";
-import { Menu, X, LayoutDashboard, Sparkles, FileText, Bot } from "lucide-react";
+import { Menu, X, LayoutDashboard, Sparkles, FileText, Bot, BookOpen, Rss } from "lucide-react"; // Rss yoki BookOpen qo'shdik
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -22,8 +22,9 @@ export function Header({ data }: HeaderProps) {
     { name: "Projects", path: "/projects" },
     { name: "Certificates", path: "/certificates" },
     { name: "Resume", path: "/resume" },
-    // YANGI AI PAGE LINKI
     { name: "Rubensh AI", path: "/ai-chat", icon: <Sparkles size={14} className="text-yellow-400" /> },
+    // YANGI BLOG (TELEGRAM CHANNEL) LINKI
+    { name: "Blog", path: "/blog", icon: <Rss size={14} className="text-blue-400" /> },
     { name: "About", path: "/about" },
   ];
 
@@ -75,7 +76,7 @@ export function Header({ data }: HeaderProps) {
               </div>
             </Link>
 
-            {/* AI Online Indicator - Endi bu qism /ai-chat ga link bo'ladi */}
+            {/* AI Online Indicator */}
             <Link href="/ai-chat" className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors cursor-pointer">
                <motion.div 
                  animate={{ opacity: [0.4, 1, 0.4] }}
@@ -93,7 +94,7 @@ export function Header({ data }: HeaderProps) {
               <Link
                 key={link.path}
                 href={link.path}
-                className={`px-4 lg:px-6 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
+                className={`px-3 lg:px-5 py-2 rounded-full text-[13px] font-medium transition-all flex items-center gap-1.5 ${
                   isActive(link.path) 
                     ? "bg-primary text-primary-foreground shadow-lg" 
                     : "text-muted-foreground hover:text-foreground hover:bg-white/5"
@@ -125,6 +126,7 @@ export function Header({ data }: HeaderProps) {
         </div>
       </div>
 
+      {/* Mobile Menu */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div

@@ -16,6 +16,7 @@ import { AdminAbout } from "./pages/admin/AdminAbout";
 import { AdminMessages } from "./pages/admin/AdminMessages";
 import { AdminSettings } from "./pages/admin/AdminSettings";
 import { useEffect, useState } from "react";
+import { BlogPage } from "./pages/BlogPage";
 
 // AI Sahifasi komponentini import qiling
 import { AIChatPage } from "./pages/AIChatPage"; 
@@ -125,7 +126,7 @@ function AppContent() {
         {currentPath === "/certificates" && <CertificatesPage />} 
         {currentPath === "/resume" && <ResumePage />}
         {currentPath === "/about" && <AboutPage />}
-        {/* YANGI AI CHAT ROUTE */}
+        {currentPath === "/blog" && <BlogPage />}
         {currentPath === "/ai-chat" && <AIChatPage />}
         {currentPath.startsWith("/project/") && <ProjectDetailPage />}
       </main>
