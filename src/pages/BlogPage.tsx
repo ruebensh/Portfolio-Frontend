@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, Share2, Bookmark, MoreHorizontal, Play, ChevronDown, Loader2, ArrowDown } from "lucide-react";
+import { MessageCircle, Share2, Bookmark, MoreHorizontal, Play, ChevronDown, Loader2, ArrowDown, Pause } from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -13,8 +13,14 @@ type Post = {
   text: string;
   date: string;
   views: number;
+  mediaType: 'none' | 'image' | 'video' | 'gif' | 'audio' | 'voice' | 'sticker';
   imageUrl?: string;
   videoUrl?: string;
+  stickerUrl?: string;
+  stickerEmoji?: string;
+  audioUrl?: string;
+  audioTitle?: string;
+  audioPerformer?: string;
   reactions: Reaction[];
   comments: Comment[];
 };
@@ -190,6 +196,117 @@ function parseText(text: string) {
       <span key={`${i}-${j}`}>{j > 0 && <br />}{line}</span>
     ));
   });
+}
+
+// ─── MediaBlock ───────────────────────────────────────────────────────────────
+
+function MediaBlock({ post }: { post: Post }) {
+  const [playing, setPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const toggleAudio = () => {
+    if (!audioRef.current) return;
+    if (playing) {
+      audioRef.current.pause();
+      setPlaying(false);
+    } else {
+      audioRef.current.play();
+      setPlaying(true);
+    }
+  };
+
+  // 📷 Rasm
+  if (post.mediaType === 'image' && post.imageUrl) {
+    return (
+      <div className="mb-4 rounded-xl overflow-hidden border border-border/40 shadow-lg">
+        <img
+          src={post.imageUrl}
+          alt=""
+          className="w-full max-h-64 object-cover hover:scale-[1.01] transition-transform duration-700"
+        />
+      </div>
+    );
+  }
+
+  // 🎥 Video
+  if (post.mediaType === 'video' && post.videoUrl) {
+    return (
+      <div className="mb-4 rounded-xl overflow-hidden border border-border/40 shadow-lg bg-black/60">
+        <video
+          src={post.videoUrl}
+          controls
+          playsInline
+          className="w-full max-h-72 rounded-xl"
+          preload="metadata"
+        />
+      </div>
+    );
+  }
+
+  // 🎞 GIF
+  if (post.mediaType === 'gif' && post.videoUrl) {
+    return (
+      <div className="mb-4 rounded-xl overflow-hidden border border-border/40 shadow-lg bg-black/40">
+        <video
+          src={post.videoUrl}
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full max-h-64 rounded-xl object-contain"
+        />
+      </div>
+    );
+  }
+
+  // 🎭 Sticker
+  if (post.mediaType === 'sticker') {
+    return (
+      <div className="mb-4 flex items-center justify-start pl-1">
+        {post.stickerUrl ? (
+          <img
+            src={post.stickerUrl}
+            alt={post.stickerEmoji || 'sticker'}
+            className="w-28 h-28 object-contain"
+          />
+        ) : (
+          <span className="text-6xl">{post.stickerEmoji || '🎭'}</span>
+        )}
+      </div>
+    );
+  }
+
+  // 🎵 Audio yoki 🎤 Voice
+  if ((post.mediaType === 'audio' || post.mediaType === 'voice') && post.audioUrl) {
+    const isVoice = post.mediaType === 'voice';
+    return (
+      <div className="mb-4 flex items-center gap-3 p-3 rounded-xl bg-background/50 border border-border/40">
+        <motion.button
+          whileTap={{ scale: 0.9 }}
+          onClick={toggleAudio}
+          className="w-10 h-10 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-primary flex-shrink-0 hover:bg-primary/30 transition-all"
+        >
+          {playing ? <Pause size={15} /> : <Play size={15} className="ml-0.5" />}
+        </motion.button>
+        <div className="flex-1 min-w-0">
+          <div className="text-xs font-medium text-white/80 truncate">
+            {isVoice ? '🎤 Ovozli xabar' : `🎵 ${post.audioTitle || 'Audio'}`}
+          </div>
+          {!isVoice && post.audioPerformer && (
+            <div className="text-[10px] text-muted-foreground truncate mt-0.5">{post.audioPerformer}</div>
+          )}
+          <audio
+            ref={audioRef}
+            src={post.audioUrl}
+            onEnded={() => setPlaying(false)}
+            className="hidden"
+          />
+        </div>
+      </div>
+    );
+  }
+
+  return null;
 }
 
 // ─── ReactionBar ──────────────────────────────────────────────────────────────
@@ -380,25 +497,16 @@ function PostCard({ post, onReact, onAddComment }: {
         </div>
 
         {/* Text */}
-        <p className="text-[14px] text-white/90 leading-relaxed mb-4">
-          {parseText(post.text)}
-        </p>
+        {post.text && (
+          <p className="text-[14px] text-white/90 leading-relaxed mb-4">
+            {parseText(post.text)}
+          </p>
+        )}
 
         {/* Media */}
-        {post.imageUrl && (
-          <div className="mb-4 rounded-xl overflow-hidden border border-border/40 shadow-lg">
-            <img src={post.imageUrl} alt="" className="w-full max-h-64 object-cover group-hover:scale-[1.01] transition-transform duration-700" />
-          </div>
-        )}
-        {post.videoUrl && (
-          <div className="mb-4 rounded-xl overflow-hidden border border-border/40 bg-black/40 flex items-center justify-center h-44 cursor-pointer">
-            <motion.div whileHover={{ scale: 1.1 }} className="w-12 h-12 rounded-full bg-background/50 backdrop-blur border border-border/40 flex items-center justify-center shadow-xl">
-              <Play size={18} className="text-white ml-0.5" />
-            </motion.div>
-          </div>
-        )}
+        <MediaBlock post={post} />
 
-        {/* Stats + divider */}
+        {/* Stats */}
         <div className="flex items-center gap-3 text-[10px] text-white/30 mb-2.5">
           <span className="flex items-center gap-1"><Share2 size={10} /> {formatCount(post.views)}</span>
           <span className="flex items-center gap-1"><MessageCircle size={10} /> {post.comments.length}</span>
@@ -429,7 +537,6 @@ export function BlogPage() {
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const isAtBottomRef = useRef(true);
 
-  // Foydalanuvchi eng pastdami tekshirish
   const checkIfAtBottom = useCallback(() => {
     const threshold = 120;
     const atBottom = window.innerHeight + window.scrollY >= document.body.scrollHeight - threshold;
@@ -442,7 +549,6 @@ export function BlogPage() {
     return () => window.removeEventListener("scroll", checkIfAtBottom);
   }, [checkIfAtBottom]);
 
-  // Eng pastga scroll
   const scrollToBottom = useCallback((smooth = true) => {
     bottomRef.current?.scrollIntoView({ behavior: smooth ? "smooth" : "instant" });
     setNewPostCount(0);
@@ -466,7 +572,6 @@ export function BlogPage() {
       const res = await fetch(`${API_URL}/blog/posts`);
       if (!res.ok) throw new Error("Server xatosi");
       const data = await res.json();
-      // Eskidan yangilarga (pastda yangi)
       const enriched = enrichPosts(data).reverse();
 
       setPosts(prev => {
@@ -476,10 +581,8 @@ export function BlogPage() {
 
         if (!isInitial && addedCount > 0) {
           if (isAtBottomRef.current) {
-            // Foydalanuvchi pastda — avtomatik scroll
             setTimeout(() => scrollToBottom(), 100);
           } else {
-            // O'qiyapti — "yangi post" tugmasini ko'rsat
             setNewPostCount(n => n + addedCount);
           }
         }
@@ -494,7 +597,6 @@ export function BlogPage() {
     }
   }, [scrollToBottom]);
 
-  // Birinchi yuklash — pastga scroll
   useEffect(() => {
     fetchPosts(true).then(() => {
       setTimeout(() => scrollToBottom(false), 150);
@@ -503,7 +605,6 @@ export function BlogPage() {
     return () => clearInterval(interval);
   }, [fetchPosts, scrollToBottom]);
 
-  // Reaksiya bosish
   const handleReact = async (postId: string, emoji: string) => {
     setPosts(prev => prev.map(p => {
       if (p.id !== postId) return p;
@@ -530,7 +631,6 @@ export function BlogPage() {
     } catch {}
   };
 
-  // Komment qo'shish
   const handleAddComment = async (postId: string, text: string, author: string) => {
     try {
       const res = await fetch(`${API_URL}/blog/comments/${postId}`, {
@@ -560,7 +660,6 @@ export function BlogPage() {
 
       <PageBackground />
 
-      {/* Header */}
       <section className="pt-24 pb-10 px-6 text-center">
         <motion.div
           initial={{ opacity: 0, y: 18 }}
@@ -597,7 +696,6 @@ export function BlogPage() {
         />
       </section>
 
-      {/* Posts Feed */}
       <section className="max-w-2xl mx-auto px-4 pb-24 space-y-4">
         {loading && (
           <div className="flex items-center justify-center py-20">
@@ -633,11 +731,9 @@ export function BlogPage() {
           ))}
         </AnimatePresence>
 
-        {/* Scroll anchor */}
         <div ref={bottomRef} />
       </section>
 
-      {/* Yangi post tugmasi — faqat foydalanuvchi yuqorida o'qiyotgan bo'lsa */}
       <AnimatePresence>
         {newPostCount > 0 && (
           <motion.button
