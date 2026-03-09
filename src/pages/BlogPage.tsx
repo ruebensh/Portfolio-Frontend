@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, Share2, Bookmark, MoreHorizontal, Play, ChevronDown, Loader2, ArrowDown, Pause } from "lucide-react";
+import { MessageCircle, Share2, Bookmark, MoreHorizontal, Play, ChevronDown, Loader2, ArrowDown, Pause, Trash2, Link } from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || "";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -206,86 +207,46 @@ function MediaBlock({ post }: { post: Post }) {
 
   const toggleAudio = () => {
     if (!audioRef.current) return;
-    if (playing) {
-      audioRef.current.pause();
-      setPlaying(false);
-    } else {
-      audioRef.current.play();
-      setPlaying(true);
-    }
+    if (playing) { audioRef.current.pause(); setPlaying(false); }
+    else { audioRef.current.play(); setPlaying(true); }
   };
 
-  // 📷 Rasm
   if (post.mediaType === 'image' && post.imageUrl) {
     return (
       <div className="mb-4 rounded-xl overflow-hidden border border-border/40 shadow-lg">
-        <img
-          src={post.imageUrl}
-          alt=""
-          className="w-full max-h-64 object-cover hover:scale-[1.01] transition-transform duration-700"
-        />
+        <img src={post.imageUrl} alt="" className="w-full max-h-64 object-cover hover:scale-[1.01] transition-transform duration-700" />
       </div>
     );
   }
-
-  // 🎥 Video
   if (post.mediaType === 'video' && post.videoUrl) {
     return (
       <div className="mb-4 rounded-xl overflow-hidden border border-border/40 shadow-lg bg-black/60">
-        <video
-          src={post.videoUrl}
-          controls
-          playsInline
-          className="w-full max-h-72 rounded-xl"
-          preload="metadata"
-        />
+        <video src={post.videoUrl} controls playsInline className="w-full max-h-72 rounded-xl" preload="metadata" />
       </div>
     );
   }
-
-  // 🎞 GIF
   if (post.mediaType === 'gif' && post.videoUrl) {
     return (
       <div className="mb-4 rounded-xl overflow-hidden border border-border/40 shadow-lg bg-black/40">
-        <video
-          src={post.videoUrl}
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="w-full max-h-64 rounded-xl object-contain"
-        />
+        <video src={post.videoUrl} autoPlay loop muted playsInline className="w-full max-h-64 rounded-xl object-contain" />
       </div>
     );
   }
-
-  // 🎭 Sticker
   if (post.mediaType === 'sticker') {
     return (
       <div className="mb-4 flex items-center justify-start pl-1">
-        {post.stickerUrl ? (
-          <img
-            src={post.stickerUrl}
-            alt={post.stickerEmoji || 'sticker'}
-            className="w-28 h-28 object-contain"
-          />
-        ) : (
-          <span className="text-6xl">{post.stickerEmoji || '🎭'}</span>
-        )}
+        {post.stickerUrl
+          ? <img src={post.stickerUrl} alt={post.stickerEmoji || 'sticker'} className="w-28 h-28 object-contain" />
+          : <span className="text-6xl">{post.stickerEmoji || '🎭'}</span>}
       </div>
     );
   }
-
-  // 🎵 Audio yoki 🎤 Voice
   if ((post.mediaType === 'audio' || post.mediaType === 'voice') && post.audioUrl) {
     const isVoice = post.mediaType === 'voice';
     return (
       <div className="mb-4 flex items-center gap-3 p-3 rounded-xl bg-background/50 border border-border/40">
-        <motion.button
-          whileTap={{ scale: 0.9 }}
-          onClick={toggleAudio}
-          className="w-10 h-10 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-primary flex-shrink-0 hover:bg-primary/30 transition-all"
-        >
+        <motion.button whileTap={{ scale: 0.9 }} onClick={toggleAudio}
+          className="w-10 h-10 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-primary flex-shrink-0 hover:bg-primary/30 transition-all">
           {playing ? <Pause size={15} /> : <Play size={15} className="ml-0.5" />}
         </motion.button>
         <div className="flex-1 min-w-0">
@@ -295,18 +256,98 @@ function MediaBlock({ post }: { post: Post }) {
           {!isVoice && post.audioPerformer && (
             <div className="text-[10px] text-muted-foreground truncate mt-0.5">{post.audioPerformer}</div>
           )}
-          <audio
-            ref={audioRef}
-            src={post.audioUrl}
-            onEnded={() => setPlaying(false)}
-            className="hidden"
-          />
+          <audio ref={audioRef} src={post.audioUrl} onEnded={() => setPlaying(false)} className="hidden" />
         </div>
       </div>
     );
   }
-
   return null;
+}
+
+// ─── PostMenu ─────────────────────────────────────────────────────────────────
+
+function PostMenu({ postId, onDelete }: { postId: string; onDelete: (id: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const handleDelete = async () => {
+    const password = window.prompt("Admin paroli:");
+    if (!password) return;
+    if (password !== ADMIN_PASSWORD) {
+      alert("Noto'g'ri parol!");
+      return;
+    }
+    setDeleting(true);
+    try {
+      const res = await fetch(`${API_URL}/blog/posts/${postId}`, { method: "DELETE" });
+      if (res.ok) {
+        onDelete(postId);
+      } else {
+        alert("O'chirishda xato!");
+      }
+    } catch {
+      alert("Server bilan bog'lanishda xato!");
+    } finally {
+      setDeleting(false);
+      setOpen(false);
+    }
+  };
+
+  const handleCopyLink = () => {
+    const url = `${window.location.origin}${window.location.pathname}#post-${postId}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setOpen(false);
+    });
+  };
+
+  return (
+    <div className="relative" ref={menuRef}>
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="w-7 h-7 rounded-lg bg-background/50 border border-border/40 flex items-center justify-center text-muted-foreground hover:text-white transition-colors"
+      >
+        <MoreHorizontal size={12} />
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.92, y: -4 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.92, y: -4 }}
+            transition={{ duration: 0.15 }}
+            className="absolute right-0 top-9 z-50 w-44 rounded-xl border border-border/50 bg-card/95 backdrop-blur-md shadow-2xl shadow-black/30 overflow-hidden"
+          >
+            <button
+              onClick={handleCopyLink}
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-white/70 hover:bg-white/5 hover:text-white transition-colors"
+            >
+              <Link size={13} className="text-white/40" />
+              Havolani nusxalash
+            </button>
+            <div className="h-px bg-border/30 mx-2" />
+            <button
+              onClick={handleDelete}
+              disabled={deleting}
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-red-400/80 hover:bg-red-500/10 hover:text-red-400 transition-colors disabled:opacity-50"
+            >
+              <Trash2 size={13} />
+              {deleting ? "O'chirilmoqda..." : "O'chirish"}
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 }
 
 // ─── ReactionBar ──────────────────────────────────────────────────────────────
@@ -356,10 +397,8 @@ function CommentSection({ post, onAddComment }: {
 
   return (
     <div>
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-white/80 transition-colors"
-      >
+      <button onClick={() => setOpen((v) => !v)}
+        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-white/80 transition-colors">
         <div className="w-7 h-7 rounded-lg bg-background/50 border border-border/40 flex items-center justify-center">
           <MessageCircle size={13} />
         </div>
@@ -385,13 +424,9 @@ function CommentSection({ post, onAddComment }: {
                 </div>
               )}
               {post.comments.map((c, i) => (
-                <motion.div
-                  key={c.id}
-                  initial={{ opacity: 0, x: -8 }}
-                  animate={{ opacity: 1, x: 0 }}
+                <motion.div key={c.id} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.04 }}
-                  className="flex gap-2.5 p-3 rounded-xl bg-background/30 border border-border/30"
-                >
+                  className="flex gap-2.5 p-3 rounded-xl bg-background/30 border border-border/30">
                   <div className="w-7 h-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-[10px] font-bold text-primary flex-shrink-0">
                     {c.author.charAt(0).toUpperCase()}
                   </div>
@@ -399,9 +434,7 @@ function CommentSection({ post, onAddComment }: {
                     <div className="flex items-center gap-2 mb-0.5">
                       <span className="text-xs font-semibold text-white/70">{c.author}</span>
                       {c.from_telegram === 1 && (
-                        <span className="text-[9px] text-blue-400/80 bg-blue-400/10 border border-blue-400/20 px-1.5 py-0.5 rounded-md">
-                          ✈️ Telegram
-                        </span>
+                        <span className="text-[9px] text-blue-400/80 bg-blue-400/10 border border-blue-400/20 px-1.5 py-0.5 rounded-md">✈️ Telegram</span>
                       )}
                       <span className="text-[10px] text-muted-foreground ml-auto">{formatTime(c.created_at)}</span>
                     </div>
@@ -410,29 +443,17 @@ function CommentSection({ post, onAddComment }: {
                 </motion.div>
               ))}
             </div>
-
             <div className="mt-3 space-y-2">
-              <input
-                type="text"
-                value={author}
-                onChange={(e) => setAuthor(e.target.value)}
+              <input type="text" value={author} onChange={(e) => setAuthor(e.target.value)}
                 placeholder="Ismingiz (ixtiyoriy)"
-                className="w-full bg-background/50 border border-border/40 rounded-xl px-3 py-2 text-xs text-white placeholder:text-muted-foreground focus:outline-none focus:border-primary/40 transition-all"
-              />
+                className="w-full bg-background/50 border border-border/40 rounded-xl px-3 py-2 text-xs text-white placeholder:text-muted-foreground focus:outline-none focus:border-primary/40 transition-all" />
               <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
+                <input type="text" value={input} onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && submit()}
                   placeholder="Fikr bildiring..."
-                  className="flex-1 bg-background/50 border border-border/40 rounded-xl px-3 py-2 text-xs text-white placeholder:text-muted-foreground focus:outline-none focus:border-primary/40 transition-all"
-                />
-                <motion.button
-                  whileTap={{ scale: 0.93 }}
-                  onClick={submit}
-                  className="px-3 py-2 bg-primary/10 border border-primary/30 rounded-xl text-primary text-xs font-medium hover:bg-primary/20 transition-all"
-                >
+                  className="flex-1 bg-background/50 border border-border/40 rounded-xl px-3 py-2 text-xs text-white placeholder:text-muted-foreground focus:outline-none focus:border-primary/40 transition-all" />
+                <motion.button whileTap={{ scale: 0.93 }} onClick={submit}
+                  className="px-3 py-2 bg-primary/10 border border-primary/30 rounded-xl text-primary text-xs font-medium hover:bg-primary/20 transition-all">
                   Yuborish
                 </motion.button>
               </div>
@@ -446,17 +467,20 @@ function CommentSection({ post, onAddComment }: {
 
 // ─── PostCard ─────────────────────────────────────────────────────────────────
 
-function PostCard({ post, onReact, onAddComment }: {
+function PostCard({ post, onReact, onAddComment, onDelete }: {
   post: Post;
   onReact: (postId: string, emoji: string) => void;
   onAddComment: (postId: string, text: string, author: string) => void;
+  onDelete: (id: string) => void;
 }) {
   const [saved, setSaved] = useState(false);
 
   return (
     <motion.article
+      id={`post-${post.id}`}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.96, y: -10 }}
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
       className="relative rounded-2xl border border-border/40 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm shadow-xl shadow-black/10 overflow-hidden group"
     >
@@ -464,49 +488,34 @@ function PostCard({ post, onReact, onAddComment }: {
       <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.04] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
       <div className="relative p-5 lg:p-6">
-        {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-br from-primary to-purple-500 rounded-xl blur-lg opacity-25" />
-              <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-primary/80 to-purple-500/60 border border-primary/30 flex items-center justify-center text-sm font-bold text-white shadow-lg">
-                J
-              </div>
+              <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-primary/80 to-purple-500/60 border border-primary/30 flex items-center justify-center text-sm font-bold text-white shadow-lg">J</div>
             </div>
             <div>
               <div className="text-sm font-medium text-white/50 leading-tight">Jaloliddin Xalimov</div>
-              <div className="text-[10px] text-muted-foreground mt-0.5">
-                {formatDate(post.date)} · {formatTime(post.date)}
-              </div>
+              <div className="text-[10px] text-muted-foreground mt-0.5">{formatDate(post.date)} · {formatTime(post.date)}</div>
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <motion.button
-              whileTap={{ scale: 0.88 }}
-              onClick={() => setSaved(v => !v)}
+            <motion.button whileTap={{ scale: 0.88 }} onClick={() => setSaved(v => !v)}
               className={`w-7 h-7 rounded-lg flex items-center justify-center border transition-all ${
                 saved ? "bg-primary/10 border-primary/30 text-primary" : "bg-background/50 border-border/40 text-muted-foreground hover:text-white"
-              }`}
-            >
+              }`}>
               <Bookmark size={12} fill={saved ? "currentColor" : "none"} />
             </motion.button>
-            <button className="w-7 h-7 rounded-lg bg-background/50 border border-border/40 flex items-center justify-center text-muted-foreground hover:text-white transition-colors">
-              <MoreHorizontal size={12} />
-            </button>
+            <PostMenu postId={post.id} onDelete={onDelete} />
           </div>
         </div>
 
-        {/* Text */}
         {post.text && (
-          <p className="text-[14px] text-white/90 leading-relaxed mb-4">
-            {parseText(post.text)}
-          </p>
+          <p className="text-[14px] text-white/90 leading-relaxed mb-4">{parseText(post.text)}</p>
         )}
 
-        {/* Media */}
         <MediaBlock post={post} />
 
-        {/* Stats */}
         <div className="flex items-center gap-3 text-[10px] text-white/30 mb-2.5">
           <span className="flex items-center gap-1"><Share2 size={10} /> {formatCount(post.views)}</span>
           <span className="flex items-center gap-1"><MessageCircle size={10} /> {post.comments.length}</span>
@@ -514,12 +523,10 @@ function PostCard({ post, onReact, onAddComment }: {
 
         <div className="h-px bg-gradient-to-r from-transparent via-border/30 to-transparent mb-3" />
 
-        {/* Reactions */}
         <div className="mb-3">
           <ReactionBar reactions={post.reactions} postId={post.id} onReact={onReact} />
         </div>
 
-        {/* Comments */}
         <CommentSection post={post} onAddComment={onAddComment} />
       </div>
     </motion.article>
@@ -578,19 +585,14 @@ export function BlogPage() {
         const newIds = new Set(enriched.map((p: Post) => p.id));
         const prevIds = new Set(prev.map((p: Post) => p.id));
         const addedCount = [...newIds].filter(id => !prevIds.has(id)).length;
-
         if (!isInitial && addedCount > 0) {
-          if (isAtBottomRef.current) {
-            setTimeout(() => scrollToBottom(), 100);
-          } else {
-            setNewPostCount(n => n + addedCount);
-          }
+          if (isAtBottomRef.current) setTimeout(() => scrollToBottom(), 100);
+          else setNewPostCount(n => n + addedCount);
         }
         return enriched;
       });
-
       setError(null);
-    } catch (e) {
+    } catch {
       setError("Postlarni yuklashda xato.");
     } finally {
       if (isInitial) setLoading(false);
@@ -598,9 +600,7 @@ export function BlogPage() {
   }, [scrollToBottom]);
 
   useEffect(() => {
-    fetchPosts(true).then(() => {
-      setTimeout(() => scrollToBottom(false), 150);
-    });
+    fetchPosts(true).then(() => setTimeout(() => scrollToBottom(false), 150));
     const interval = setInterval(() => fetchPosts(false), 5000);
     return () => clearInterval(interval);
   }, [fetchPosts, scrollToBottom]);
@@ -608,24 +608,14 @@ export function BlogPage() {
   const handleReact = async (postId: string, emoji: string) => {
     setPosts(prev => prev.map(p => {
       if (p.id !== postId) return p;
-      return {
-        ...p,
-        reactions: p.reactions.map(r =>
-          r.emoji === emoji
-            ? { ...r, count: r.reacted ? r.count - 1 : r.count + 1, reacted: !r.reacted }
-            : r
-        ),
-      };
+      return { ...p, reactions: p.reactions.map(r => r.emoji === emoji ? { ...r, count: r.reacted ? r.count - 1 : r.count + 1, reacted: !r.reacted } : r) };
     }));
-
     const post = posts.find(p => p.id === postId);
     const reaction = post?.reactions.find(r => r.emoji === emoji);
     const delta = reaction?.reacted ? -1 : 1;
-
     try {
       await fetch(`${API_URL}/blog/reactions/${postId}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ emoji, delta }),
       });
     } catch {}
@@ -634,15 +624,16 @@ export function BlogPage() {
   const handleAddComment = async (postId: string, text: string, author: string) => {
     try {
       const res = await fetch(`${API_URL}/blog/comments/${postId}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ author, text }),
       });
       const newComment = await res.json();
-      setPosts(prev => prev.map(p =>
-        p.id === postId ? { ...p, comments: [...p.comments, newComment] } : p
-      ));
+      setPosts(prev => prev.map(p => p.id === postId ? { ...p, comments: [...p.comments, newComment] } : p));
     } catch {}
+  };
+
+  const handleDelete = (postId: string) => {
+    setPosts(prev => prev.filter(p => p.id !== postId));
   };
 
   return (
@@ -661,39 +652,22 @@ export function BlogPage() {
       <PageBackground />
 
       <section className="pt-24 pb-10 px-6 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
+        <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border/40 bg-background/50 backdrop-blur-sm mb-6"
-        >
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border/40 bg-background/50 backdrop-blur-sm mb-6">
           <span className="text-sm text-white/50">✈️ Personal · blog</span>
         </motion.div>
-
-        <motion.h1
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
+        <motion.h1 initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.75, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-          className="text-5xl sm:text-6xl font-bold mb-4 premium-title"
-        >
+          className="text-5xl sm:text-6xl font-bold mb-4 premium-title">
           Fikrlar & Yangiliklar
         </motion.h1>
-
-        <motion.p
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
+        <motion.p initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.75, delay: 0.16, ease: [0.22, 1, 0.36, 1] }}
-          className="text-white/40 text-base max-w-md mx-auto"
-        >
+          className="text-white/40 text-base max-w-md mx-auto">
           Jaloliddinning shaxsiy blogi | Jaloliddin's personal blog
         </motion.p>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="mt-8 premium-divider"
-        />
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="mt-8 premium-divider" />
       </section>
 
       <section className="max-w-2xl mx-auto px-4 pb-24 space-y-4">
@@ -702,16 +676,12 @@ export function BlogPage() {
             <Loader2 size={28} className="animate-spin text-primary/50" />
           </div>
         )}
-
         {error && (
           <div className="p-6 rounded-2xl border border-red-500/20 bg-red-500/5 text-center">
             <p className="text-red-400/80 text-sm">{error}</p>
-            <button onClick={() => fetchPosts(true)} className="mt-3 text-xs text-primary hover:underline">
-              Qayta urinish
-            </button>
+            <button onClick={() => fetchPosts(true)} className="mt-3 text-xs text-primary hover:underline">Qayta urinish</button>
           </div>
         )}
-
         {!loading && !error && posts.length === 0 && (
           <div className="p-10 rounded-2xl border border-border/40 bg-gradient-to-br from-card to-card/50 text-center">
             <p className="text-4xl mb-3">✈️</p>
@@ -719,30 +689,20 @@ export function BlogPage() {
             <p className="text-white/30 text-sm mt-1">Birinchi post yozilishini kutmoqda...</p>
           </div>
         )}
-
         <AnimatePresence>
           {posts.map((post) => (
-            <PostCard
-              key={post.id}
-              post={post}
-              onReact={handleReact}
-              onAddComment={handleAddComment}
-            />
+            <PostCard key={post.id} post={post} onReact={handleReact} onAddComment={handleAddComment} onDelete={handleDelete} />
           ))}
         </AnimatePresence>
-
         <div ref={bottomRef} />
       </section>
 
       <AnimatePresence>
         {newPostCount > 0 && (
           <motion.button
-            initial={{ opacity: 0, y: 20, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            onClick={() => scrollToBottom()}
-            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-medium shadow-2xl shadow-primary/30 hover:bg-primary/90 transition-all"
-          >
+            initial={{ opacity: 0, y: 20, scale: 0.9 }} animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }} onClick={() => scrollToBottom()}
+            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-medium shadow-2xl shadow-primary/30 hover:bg-primary/90 transition-all">
             <ArrowDown size={15} />
             {newPostCount} ta yangi post
           </motion.button>
