@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { ArrowRight, Sparkles, FileText, Send, Loader2, Bot } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { Link } from "../lib/router";
 
 import { ProfileCard } from "../components/home/ProfileCard";
@@ -12,6 +12,88 @@ import { Contact } from "../components/home/Contact";
 import { sendMessageToAI } from "../services/aiService";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
+// ─── INTERACTIVE CARD (3D TILT EFFECT) ────────────────────────────────────────
+// Bu komponent kursor ustiga kelganda komponentni kursor tomonga biroz egadi
+function InteractiveCard({ children }: { children: React.ReactNode }) {
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const mouseXSpring = useSpring(x);
+  const mouseYSpring = useSpring(y);
+
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["10deg", "-10deg"]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-10deg", "10deg"]);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    const xPct = mouseX / width - 0.5;
+    const yPct = mouseY / height - 0.5;
+
+    x.set(xPct);
+    y.set(yPct);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    <motion.div
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        rotateX,
+        rotateY,
+        transformStyle: "preserve-3d",
+      }}
+      whileHover={{ scale: 1.02 }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      className="w-full h-full"
+    >
+      <div style={{ transform: "translateZ(50px)" }}>
+        {children}
+      </div>
+    </motion.div>
+  );
+}
+
+// ─── MAGNETIC BUTTON EFFECT ───────────────────────────────────────────────────
+// Tugmalar kursor yaqinlashganda unga biroz tortiladi
+function MagneticButton({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+
+  const handleMouse = (e: React.MouseEvent) => {
+    const { clientX, clientY } = e;
+    const rect = ref.current?.getBoundingClientRect();
+    if (rect) {
+      const x = clientX - (rect.left + rect.width / 2);
+      const y = clientY - (rect.top + rect.height / 2);
+      setPosition({ x: x * 0.3, y: y * 0.3 });
+    }
+  };
+
+  const reset = () => setPosition({ x: 0, y: 0 });
+
+  return (
+    <motion.div
+      ref={ref}
+      onMouseMove={handleMouse}
+      onMouseLeave={reset}
+      animate={{ x: position.x, y: position.y }}
+      transition={{ type: "spring", stiffness: 150, damping: 15, mass: 0.1 }}
+    >
+      {children}
+    </motion.div>
+  );
+}
 
 function PageBackground() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -262,7 +344,6 @@ export function HomePage() {
     e.preventDefault();
     if (!aiInput.trim() || isAiLoading) return;
     setIsAiLoading(true);
-    // SessionID ni ham yuboramiz
     const response = await sendMessageToAI(aiInput, sessionId);
     setAiResponse(response);
     setIsAiLoading(false);
@@ -307,66 +388,91 @@ export function HomePage() {
           <motion.p initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.75, delay: 0.16, ease: [0.22, 1, 0.36, 1] }} className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-12">
             {settings?.description || "Full-stack software engineer specializing in modern web technologies."}
           </motion.p>
+          
           <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.75, delay: 0.24, ease: [0.22, 1, 0.36, 1] }} className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/projects" className="group px-8 py-4 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-all flex items-center gap-2 shadow-lg shadow-primary/20 shimmer-btn glass-btn">
-              View Projects <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-            </Link>
-            {settings?.cvUrl ? (
-              <a href={`${API_URL}${settings.cvUrl}`} target="_blank" rel="noopener noreferrer" className="px-8 py-4 rounded-xl border border-border/40 bg-background/50 backdrop-blur-sm hover:bg-accent transition-colors flex items-center gap-2 shimmer-btn glass-btn">
-                <FileText size={18} /> Download CV
-              </a>
-            ) : (
-              <button type="button" onClick={scrollToContact} className="px-8 py-4 rounded-xl border border-border/40 bg-background/50 backdrop-blur-sm hover:bg-accent transition-colors shimmer-btn glass-btn">Get in Touch</button>
-            )}
+            <MagneticButton>
+              <Link href="/projects" className="group px-8 py-4 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-all flex items-center gap-2 shadow-lg shadow-primary/20 shimmer-btn glass-btn">
+                View Projects <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </MagneticButton>
+
+            <MagneticButton>
+              {settings?.cvUrl ? (
+                <a href={`${API_URL}${settings.cvUrl}`} target="_blank" rel="noopener noreferrer" className="px-8 py-4 rounded-xl border border-border/40 bg-background/50 backdrop-blur-sm hover:bg-accent transition-colors flex items-center gap-2 shimmer-btn glass-btn">
+                  <FileText size={18} /> Download CV
+                </a>
+              ) : (
+                <button type="button" onClick={scrollToContact} className="px-8 py-4 rounded-xl border border-border/40 bg-background/50 backdrop-blur-sm hover:bg-accent transition-colors shimmer-btn glass-btn">Get in Touch</button>
+              )}
+            </MagneticButton>
           </motion.div>
           <div className="mt-16 premium-divider" />
         </div>
       </section>
 
       <section className="py-24">
-        <Reveal><ProfileCard data={settings} /></Reveal>
+        <Reveal>
+          <InteractiveCard>
+            <ProfileCard data={settings} />
+          </InteractiveCard>
+        </Reveal>
       </section>
 
       {/* --- YANGI AI INTERACTIVE SECTION --- */}
       <section className="py-12 px-6">
         <Reveal delay={0.1}>
-          <div className="max-w-4xl mx-auto p-8 rounded-3xl border border-primary/20 bg-primary/5 backdrop-blur-xl relative overflow-hidden group">
-            <div className="absolute -right-20 -top-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl group-hover:bg-primary/20 transition-all duration-700" />
-            <div className="relative z-10 flex flex-col md:flex-row gap-8 items-center">
-              <div className="flex-1 text-left">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-primary/20 rounded-lg text-primary"><Bot size={24} /></div>
-                  <h2 className="text-2xl font-bold premium-title text-white">Ask Ruebensh AI</h2>
+          <InteractiveCard>
+            <div className="max-w-4xl mx-auto p-8 rounded-3xl border border-primary/20 bg-primary/5 backdrop-blur-xl relative overflow-hidden group">
+              <div className="absolute -right-20 -top-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl group-hover:bg-primary/20 transition-all duration-700" />
+              <div className="relative z-10 flex flex-col md:flex-row gap-8 items-center">
+                <div className="flex-1 text-left">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-primary/20 rounded-lg text-primary"><Bot size={24} /></div>
+                    <h2 className="text-2xl font-bold premium-title text-white">Ask Ruebensh AI</h2>
+                  </div>
+                  <p className="text-muted-foreground mb-6 text-sm">Men va mani loyihalarim yoki tajribam haqida shaxsiy AI yordamchimdan so'rang.</p>
+                  <form onSubmit={handleAskAI} className="relative">
+                    <input type="text" value={aiInput} onChange={(e) => setAiInput(e.target.value)} placeholder="Masalan: Ruebensh niki nimani anglatadi?" className="w-full bg-background/50 border border-border/40 rounded-2xl px-5 py-4 pr-14 focus:ring-2 focus:ring-primary outline-none text-white transition-all text-sm" />
+                    <MagneticButton>
+                      <button disabled={isAiLoading} className="absolute right-0 top-0 p-4 bg-primary text-primary-foreground rounded-xl transition-all disabled:opacity-50">
+                        {isAiLoading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+                      </button>
+                    </MagneticButton>
+                  </form>
                 </div>
-                <p className="text-muted-foreground mb-6 text-sm">Men va mani loyihalarim yoki tajribam haqida shaxsiy AI yordamchimdan so'rang.</p>
-                <form onSubmit={handleAskAI} className="relative">
-                  <input type="text" value={aiInput} onChange={(e) => setAiInput(e.target.value)} placeholder="Masalan: Ruebensh niki nimani anglatadi?" className="w-full bg-background/50 border border-border/40 rounded-2xl px-5 py-4 pr-14 focus:ring-2 focus:ring-primary outline-none text-white transition-all text-sm" />
-                  <button disabled={isAiLoading} className="absolute right-2 top-2 p-3 bg-primary text-primary-foreground rounded-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50">
-                    {isAiLoading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
-                  </button>
-                </form>
+                {aiResponse && (
+                  <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="flex-1 bg-background/40 border border-border/20 p-6 rounded-2xl backdrop-blur-md relative">
+                    <p className="text-sm leading-relaxed italic text-foreground text-left text-gray-300">"{aiResponse}"</p>
+                  </motion.div>
+                )}
               </div>
-              {aiResponse && (
-                <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="flex-1 bg-background/40 border border-border/20 p-6 rounded-2xl backdrop-blur-md relative">
-                  <p className="text-sm leading-relaxed italic text-foreground text-left text-gray-300">"{aiResponse}"</p>
-                </motion.div>
-              )}
             </div>
-          </div>
+          </InteractiveCard>
         </Reveal>
       </section>
-      {/* ---------------------------------- */}
 
       <section className="py-24 bg-white/[0.01]">
-        <Reveal delay={0.05}><Skills /></Reveal>
+        <Reveal delay={0.05}>
+          <InteractiveCard>
+            <Skills />
+          </InteractiveCard>
+        </Reveal>
       </section>
 
       <section className="py-24">
-        <Reveal delay={0.05}><Experience /></Reveal>
+        <Reveal delay={0.05}>
+          <InteractiveCard>
+            <Experience />
+          </InteractiveCard>
+        </Reveal>
       </section>
 
       <section id="contact" ref={(el) => (contactSectionRef.current = el)} className={`py-24 bg-white/[0.01] ${pulseContact ? "contact-pulse" : ""}`}>
-        <Reveal delay={0.05}><Contact data={settings} /></Reveal>
+        <Reveal delay={0.05}>
+          <InteractiveCard>
+            <Contact data={settings} />
+          </InteractiveCard>
+        </Reveal>
       </section>
     </main>
   );
