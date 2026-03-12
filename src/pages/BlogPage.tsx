@@ -779,10 +779,19 @@ function ContactCard({ contact }: { contact: ContactData }) {
 
 function ReactionPicker({ onPick }: { onPick: (emoji: string) => void }) {
   return (
-    <motion.div initial={{ opacity: 0, y: 8, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 8, scale: 0.96 }} className="absolute left-0 bottom-full mb-2 z-30 rounded-2xl border border-border/50 bg-card/95 backdrop-blur-md shadow-2xl shadow-black/30 p-2 w-[18rem]">
-      <div className="grid grid-cols-6 gap-1.5">
+    <motion.div
+      initial={{ opacity: 0, y: 8, scale: 0.96 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 8, scale: 0.96 }}
+      className="absolute left-0 top-full mt-2 z-30 rounded-2xl border border-border/50 bg-card/95 backdrop-blur-md shadow-2xl shadow-black/30 p-2 max-w-[min(92vw,32rem)]"
+    >
+      <div className="flex flex-wrap gap-1.5">
         {DEFAULT_REACTION_OPTIONS.map((emoji) => (
-          <button key={emoji} onClick={() => onPick(emoji)} className="h-10 rounded-xl bg-background/50 hover:bg-primary/10 border border-border/30 hover:border-primary/30 transition-all text-xl">
+          <button
+            key={emoji}
+            onClick={() => onPick(emoji)}
+            className="h-10 min-w-10 px-2 rounded-xl bg-background/50 hover:bg-primary/10 border border-border/30 hover:border-primary/30 transition-all text-xl"
+          >
             {emoji}
           </button>
         ))}
