@@ -1,11 +1,26 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, Share2, Bookmark, MoreHorizontal, Play, ChevronDown, Loader2, ArrowDown, Pause, Trash2, Link } from "lucide-react";
+import { MessageCircle, Share2, Bookmark, MoreHorizontal, Play, ChevronDown, Loader2, ArrowDown, Pause, Trash2, Link, ExternalLink } from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || "";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
+
+type TgEntity = {
+  type: string;   // 'url' | 'text_link' | 'bold' | 'italic' | 'code' | 'mention' | 'hashtag' | ...
+  offset: number;
+  length: number;
+  url?: string;   // text_link uchun
+};
+
+type LinkPreview = {
+  url: string;
+  title?: string;
+  description?: string;
+  photo?: string;
+  site_name?: string;
+};
 
 type Reaction = { emoji: string; label: string; count: number; reacted: boolean };
 type Comment = { id: string; author: string; text: string; created_at: string; from_telegram: number };
@@ -22,6 +37,8 @@ type Post = {
   audioUrl?: string;
   audioTitle?: string;
   audioPerformer?: string;
+  entities?: TgEntity[];
+  linkPreview?: LinkPreview | null;
   reactions: Reaction[];
   comments: Comment[];
 };
@@ -186,17 +203,171 @@ function formatTime(iso: string) {
   return new Date(iso).toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit" });
 }
 
-function parseText(text: string) {
-  const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g);
-  return parts.map((part, i) => {
-    if (part.startsWith("**") && part.endsWith("**"))
-      return <strong key={i} className="text-white font-semibold">{part.slice(2, -2)}</strong>;
-    if (part.startsWith("*") && part.endsWith("*"))
-      return <em key={i} className="text-white/80 italic">{part.slice(1, -1)}</em>;
-    return part.split("\n").map((line, j) => (
-      <span key={`${i}-${j}`}>{j > 0 && <br />}{line}</span>
-    ));
-  });
+// ─── PostText — entities bilan render ────────────────────────────────────────
+
+function PostText({ text, entities }: { text: string; entities?: TgEntity[] }) {
+  if (!text) return null;
+
+  // Entities bo'lmasa oddiy parse
+  if (!entities || entities.length === 0) {
+    return (
+      <p className="text-[14px] text-white/90 leading-relaxed mb-4 whitespace-pre-wrap">
+        {text}
+      </p>
+    );
+  }
+
+  // Telegram entities offset/length Unicode codepoint asosida
+  // JS string UTF-16, shuning uchun Array.from ishlatamiz
+  const chars = Array.from(text);
+  const result: React.ReactNode[] = [];
+  let cursor = 0;
+
+  // Entities ni offset bo'yicha tartiblaymiz
+  const sorted = [...entities].sort((a, b) => a.offset - b.offset);
+
+  for (const entity of sorted) {
+    // Entity dan oldingi oddiy matn
+    if (entity.offset > cursor) {
+      const plain = chars.slice(cursor, entity.offset).join("");
+      result.push(<span key={`plain-${cursor}`}>{renderPlain(plain)}</span>);
+    }
+
+    const entityText = chars.slice(entity.offset, entity.offset + entity.length).join("");
+    const key = `entity-${entity.offset}`;
+
+    switch (entity.type) {
+      case 'url':
+        result.push(
+          <a key={key} href={entityText} target="_blank" rel="noopener noreferrer"
+            className="text-blue-400 hover:text-blue-300 underline underline-offset-2 break-all transition-colors">
+            {entityText}
+          </a>
+        );
+        break;
+      case 'text_link':
+        result.push(
+          <a key={key} href={entity.url} target="_blank" rel="noopener noreferrer"
+            className="text-blue-400 hover:text-blue-300 underline underline-offset-2 transition-colors">
+            {entityText}
+          </a>
+        );
+        break;
+      case 'bold':
+        result.push(<strong key={key} className="text-white font-semibold">{entityText}</strong>);
+        break;
+      case 'italic':
+        result.push(<em key={key} className="text-white/80 italic">{entityText}</em>);
+        break;
+      case 'code':
+        result.push(
+          <code key={key} className="px-1.5 py-0.5 rounded bg-white/10 border border-white/10 text-[12px] font-mono text-green-300">
+            {entityText}
+          </code>
+        );
+        break;
+      case 'pre':
+        result.push(
+          <pre key={key} className="px-3 py-2 rounded-lg bg-white/10 border border-white/10 text-[12px] font-mono text-green-300 overflow-x-auto my-1">
+            {entityText}
+          </pre>
+        );
+        break;
+      case 'mention':
+        result.push(
+          <a key={key} href={`https://t.me/${entityText.slice(1)}`} target="_blank" rel="noopener noreferrer"
+            className="text-blue-400 hover:text-blue-300 transition-colors">
+            {entityText}
+          </a>
+        );
+        break;
+      case 'hashtag':
+        result.push(
+          <span key={key} className="text-primary/80 hover:text-primary transition-colors cursor-pointer">
+            {entityText}
+          </span>
+        );
+        break;
+      default:
+        result.push(<span key={key}>{entityText}</span>);
+    }
+
+    cursor = entity.offset + entity.length;
+  }
+
+  // Qolgan matn
+  if (cursor < chars.length) {
+    const plain = chars.slice(cursor).join("");
+    result.push(<span key={`plain-end`}>{renderPlain(plain)}</span>);
+  }
+
+  return (
+    <p className="text-[14px] text-white/90 leading-relaxed mb-4 whitespace-pre-wrap">
+      {result}
+    </p>
+  );
+}
+
+function renderPlain(text: string) {
+  return text.split("\n").map((line, i) => (
+    <span key={i}>{i > 0 && <br />}{line}</span>
+  ));
+}
+
+// ─── LinkPreviewCard ──────────────────────────────────────────────────────────
+
+function LinkPreviewCard({ preview }: { preview: LinkPreview }) {
+  const domain = (() => {
+    try { return new URL(preview.url).hostname.replace('www.', ''); }
+    catch { return preview.url; }
+  })();
+
+  return (
+    <a
+      href={preview.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group mb-4 flex overflow-hidden rounded-xl border border-border/40 bg-background/40 backdrop-blur-sm hover:border-primary/30 hover:bg-primary/5 transition-all duration-300"
+    >
+      {/* Chap chiziq — Telegram uslubi */}
+      <div className="w-1 flex-shrink-0 bg-gradient-to-b from-primary/60 to-purple-500/60 rounded-l-xl" />
+
+      <div className="flex flex-1 gap-3 p-3 min-w-0">
+        <div className="flex-1 min-w-0">
+          {/* Site nomi */}
+          {(preview.site_name || domain) && (
+            <div className="text-[10px] text-primary/70 font-medium uppercase tracking-wide mb-1 flex items-center gap-1">
+              <ExternalLink size={9} />
+              {preview.site_name || domain}
+            </div>
+          )}
+          {/* Sarlavha */}
+          {preview.title && (
+            <div className="text-sm font-semibold text-white/90 leading-snug mb-1 line-clamp-2 group-hover:text-white transition-colors">
+              {preview.title}
+            </div>
+          )}
+          {/* Tavsif */}
+          {preview.description && (
+            <div className="text-[11px] text-white/40 leading-relaxed line-clamp-2">
+              {preview.description}
+            </div>
+          )}
+          {/* URL */}
+          {!preview.title && (
+            <div className="text-xs text-blue-400/70 truncate">{preview.url}</div>
+          )}
+        </div>
+
+        {/* Rasm */}
+        {preview.photo && (
+          <div className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border border-border/30">
+            <img src={preview.photo} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+          </div>
+        )}
+      </div>
+    </a>
+  );
 }
 
 // ─── MediaBlock ───────────────────────────────────────────────────────────────
@@ -282,42 +453,27 @@ function PostMenu({ postId, onDelete }: { postId: string; onDelete: (id: string)
   const handleDelete = async () => {
     const password = window.prompt("Admin paroli:");
     if (!password) return;
-    if (password !== ADMIN_PASSWORD) {
-      alert("Noto'g'ri parol!");
-      return;
-    }
+    if (password !== ADMIN_PASSWORD) { alert("Noto'g'ri parol!"); return; }
     setDeleting(true);
     try {
       const res = await fetch(`${API_URL}/blog/posts/${postId}`, { method: "DELETE" });
-      if (res.ok) {
-        onDelete(postId);
-      } else {
-        alert("O'chirishda xato!");
-      }
-    } catch {
-      alert("Server bilan bog'lanishda xato!");
-    } finally {
-      setDeleting(false);
-      setOpen(false);
-    }
+      if (res.ok) onDelete(postId);
+      else alert("O'chirishda xato!");
+    } catch { alert("Server bilan bog'lanishda xato!"); }
+    finally { setDeleting(false); setOpen(false); }
   };
 
   const handleCopyLink = () => {
     const url = `${window.location.origin}${window.location.pathname}#post-${postId}`;
-    navigator.clipboard.writeText(url).then(() => {
-      setOpen(false);
-    });
+    navigator.clipboard.writeText(url).then(() => setOpen(false));
   };
 
   return (
     <div className="relative" ref={menuRef}>
-      <button
-        onClick={() => setOpen(v => !v)}
-        className="w-7 h-7 rounded-lg bg-background/50 border border-border/40 flex items-center justify-center text-muted-foreground hover:text-white transition-colors"
-      >
+      <button onClick={() => setOpen(v => !v)}
+        className="w-7 h-7 rounded-lg bg-background/50 border border-border/40 flex items-center justify-center text-muted-foreground hover:text-white transition-colors">
         <MoreHorizontal size={12} />
       </button>
-
       <AnimatePresence>
         {open && (
           <motion.div
@@ -327,19 +483,14 @@ function PostMenu({ postId, onDelete }: { postId: string; onDelete: (id: string)
             transition={{ duration: 0.15 }}
             className="absolute right-0 top-9 z-50 w-44 rounded-xl border border-border/50 bg-card/95 backdrop-blur-md shadow-2xl shadow-black/30 overflow-hidden"
           >
-            <button
-              onClick={handleCopyLink}
-              className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-white/70 hover:bg-white/5 hover:text-white transition-colors"
-            >
+            <button onClick={handleCopyLink}
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-white/70 hover:bg-white/5 hover:text-white transition-colors">
               <Link size={13} className="text-white/40" />
               Havolani nusxalash
             </button>
             <div className="h-px bg-border/30 mx-2" />
-            <button
-              onClick={handleDelete}
-              disabled={deleting}
-              className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-red-400/80 hover:bg-red-500/10 hover:text-red-400 transition-colors disabled:opacity-50"
-            >
+            <button onClick={handleDelete} disabled={deleting}
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-red-400/80 hover:bg-red-500/10 hover:text-red-400 transition-colors disabled:opacity-50">
               <Trash2 size={13} />
               {deleting ? "O'chirilmoqda..." : "O'chirish"}
             </button>
@@ -360,17 +511,13 @@ function ReactionBar({ reactions, postId, onReact }: {
   return (
     <div className="flex flex-wrap gap-1.5">
       {reactions.map((r) => (
-        <motion.button
-          key={r.emoji}
-          whileHover={{ scale: 1.06, y: -1 }}
-          whileTap={{ scale: 0.93 }}
+        <motion.button key={r.emoji} whileHover={{ scale: 1.06, y: -1 }} whileTap={{ scale: 0.93 }}
           onClick={() => onReact(postId, r.emoji)}
           className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 border ${
             r.reacted
               ? "bg-primary/20 border-primary/40 text-primary shadow-lg shadow-primary/10"
               : "bg-background/50 border-border/40 text-white/60 hover:bg-background/70 hover:border-border/60 hover:text-white/80"
-          }`}
-        >
+          }`}>
           <span className="text-sm leading-none">{r.emoji}</span>
           <span className="tabular-nums">{formatCount(r.count)}</span>
         </motion.button>
@@ -411,10 +558,8 @@ function CommentSection({ post, onAddComment }: {
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             className="overflow-hidden"
           >
             <div className="mt-3 space-y-2">
@@ -488,6 +633,7 @@ function PostCard({ post, onReact, onAddComment, onDelete }: {
       <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.04] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
       <div className="relative p-5 lg:p-6">
+        {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="relative">
@@ -510,12 +656,16 @@ function PostCard({ post, onReact, onAddComment, onDelete }: {
           </div>
         </div>
 
-        {post.text && (
-          <p className="text-[14px] text-white/90 leading-relaxed mb-4">{parseText(post.text)}</p>
-        )}
+        {/* Matn — entities bilan */}
+        <PostText text={post.text} entities={post.entities} />
 
+        {/* Media */}
         <MediaBlock post={post} />
 
+        {/* Link preview card */}
+        {post.linkPreview && <LinkPreviewCard preview={post.linkPreview} />}
+
+        {/* Stats */}
         <div className="flex items-center gap-3 text-[10px] text-white/30 mb-2.5">
           <span className="flex items-center gap-1"><Share2 size={10} /> {formatCount(post.views)}</span>
           <span className="flex items-center gap-1"><MessageCircle size={10} /> {post.comments.length}</span>
@@ -660,7 +810,7 @@ export function BlogPage() {
         <motion.h1 initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.75, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
           className="text-5xl sm:text-6xl font-bold mb-4 premium-title">
-          Fikrlar & Yangiliklar
+          Blog | Блог
         </motion.h1>
         <motion.p initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.75, delay: 0.16, ease: [0.22, 1, 0.36, 1] }}
