@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   MessageCircle,
@@ -13,6 +13,12 @@ import {
   Trash2,
   Link as LinkIcon,
   ExternalLink,
+  MapPin,
+  Phone,
+  Vote,
+  FileText,
+  Images,
+  SmilePlus,
 } from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
@@ -49,12 +55,67 @@ type Comment = {
   from_telegram: number;
 };
 
+type PollData = {
+  id?: string | null;
+  question?: string | null;
+  options?: Array<{ text: string; voter_count: number }>;
+  total_voter_count?: number;
+  is_closed?: boolean;
+  is_anonymous?: boolean;
+  type?: string | null;
+  allows_multiple_answers?: boolean;
+};
+
+type LocationData = {
+  latitude: number;
+  longitude: number;
+  horizontal_accuracy?: number | null;
+  live_period?: number | null;
+  heading?: number | null;
+  proximity_alert_radius?: number | null;
+};
+
+type ContactData = {
+  phone_number?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
+  user_id?: string | null;
+  vcard?: string | null;
+};
+
+type VenueData = {
+  title?: string | null;
+  address?: string | null;
+  location?: LocationData | null;
+};
+
+type MediaItem = {
+  id: number;
+  postId: string;
+  mediaGroupId?: string | null;
+  sortOrder: number;
+  type: string;
+  url?: string | null;
+  thumbnailUrl?: string | null;
+  mimeType?: string | null;
+  fileName?: string | null;
+  fileSize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  duration?: number | null;
+  title?: string | null;
+  performer?: string | null;
+  emoji?: string | null;
+  isAnimated?: boolean | null;
+  isVideo?: boolean | null;
+};
+
 type Post = {
   id: string;
   text: string;
   date: string;
   views: number;
-  mediaType: "none" | "image" | "video" | "gif" | "audio" | "voice" | "sticker" | "document";
+  mediaType: string;
   imageUrl?: string;
   videoUrl?: string;
   stickerUrl?: string;
@@ -66,19 +127,52 @@ type Post = {
   docName?: string;
   docMime?: string;
   channelUsername?: string;
+  mediaGroupId?: string | null;
+  postType?: string;
   entities?: TgEntity[];
   linkPreview?: LinkPreview | null;
   telegramEmbed?: TelegramEmbed | null;
+  pollData?: PollData | null;
+  locationData?: LocationData | null;
+  contactData?: ContactData | null;
+  venueData?: VenueData | null;
+  media?: MediaItem[];
   reactions: Reaction[];
   comments: Comment[];
   commentsCount?: number;
 };
 
-const DEFAULT_REACTIONS = [
-  { emoji: "🔥", label: "fire" },
-  { emoji: "👍", label: "like" },
-  { emoji: "❤️", label: "heart" },
-  { emoji: "🤯", label: "mind-blown" },
+const DEFAULT_REACTION_OPTIONS = [
+  "👍",
+  "👎",
+  "❤",
+  "🔥",
+  "🥰",
+  "👏",
+  "😁",
+  "🤔",
+  "🤯",
+  "😱",
+  "🤬",
+  "😢",
+  "🎉",
+  "🤩",
+  "🙏",
+  "👌",
+  "😍",
+  "🐳",
+  "❤‍🔥",
+  "⚡",
+  "💯",
+  "🤣",
+  "🏆",
+  "💔",
+  "🌚",
+  "🍓",
+  "🍾",
+  "💋",
+  "🕊",
+  "🤝",
 ];
 
 function PageBackground() {
@@ -264,9 +358,7 @@ function PageBackground() {
         ctx.lineTo(tx, ty);
         ctx.stroke();
         drawGlowStar(mt.x, mt.y, mt.r, a * (1.2 + mt.z));
-        if (mt.life > mt.maxLife || mt.x < -500 || mt.y > h + 500 || mt.x > w + 500 || mt.y < -500) {
-          meteors.splice(i, 1);
-        }
+        if (mt.life > mt.maxLife || mt.x < -500 || mt.y > h + 500 || mt.x > w + 500 || mt.y < -500) meteors.splice(i, 1);
       }
 
       ctx.globalCompositeOperation = "source-over";
@@ -274,7 +366,6 @@ function PageBackground() {
     };
 
     raf = requestAnimationFrame(tick);
-
     return () => {
       window.removeEventListener("resize", resize);
       window.removeEventListener("pointermove", onMove);
@@ -311,6 +402,13 @@ function formatDate(iso: string) {
 
 function formatTime(iso: string) {
   return new Date(iso).toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit" });
+}
+
+function formatFileSize(bytes?: number | null) {
+  if (!bytes) return null;
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  if (bytes >= 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${bytes} B`;
 }
 
 function normalizeHref(href: string) {
@@ -354,13 +452,7 @@ function PostText({ text, entities }: { text: string; entities?: TgEntity[] }) {
       case "url": {
         const href = normalizeHref(entityText);
         result.push(
-          <a
-            key={key}
-            href={href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-400 hover:text-blue-300 underline underline-offset-2 break-all transition-colors"
-          >
+          <a key={key} href={href} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline underline-offset-2 break-all transition-colors">
             {entityText}
           </a>,
         );
@@ -368,70 +460,40 @@ function PostText({ text, entities }: { text: string; entities?: TgEntity[] }) {
       }
       case "text_link":
         result.push(
-          <a
-            key={key}
-            href={entity.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-400 hover:text-blue-300 underline underline-offset-2 break-all transition-colors"
-          >
+          <a key={key} href={entity.url} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline underline-offset-2 break-all transition-colors">
             {entityText}
           </a>,
         );
         break;
       case "bold":
-        result.push(
-          <strong key={key} className="text-white font-semibold">
-            {entityText}
-          </strong>,
-        );
+        result.push(<strong key={key} className="text-white font-semibold">{entityText}</strong>);
         break;
       case "italic":
-        result.push(
-          <em key={key} className="text-white/80 italic">
-            {entityText}
-          </em>,
-        );
+        result.push(<em key={key} className="text-white/80 italic">{entityText}</em>);
         break;
       case "code":
         result.push(
-          <code
-            key={key}
-            className="px-1.5 py-0.5 rounded bg-white/10 border border-white/10 text-[12px] font-mono text-green-300"
-          >
+          <code key={key} className="px-1.5 py-0.5 rounded bg-white/10 border border-white/10 text-[12px] font-mono text-green-300">
             {entityText}
           </code>,
         );
         break;
       case "pre":
         result.push(
-          <pre
-            key={key}
-            className="px-3 py-2 rounded-lg bg-white/10 border border-white/10 text-[12px] font-mono text-green-300 overflow-x-auto my-1 whitespace-pre-wrap"
-          >
+          <pre key={key} className="px-3 py-2 rounded-lg bg-white/10 border border-white/10 text-[12px] font-mono text-green-300 overflow-x-auto my-1 whitespace-pre-wrap">
             {entityText}
           </pre>,
         );
         break;
       case "mention":
         result.push(
-          <a
-            key={key}
-            href={`https://t.me/${entityText.slice(1)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-400 hover:text-blue-300 transition-colors"
-          >
+          <a key={key} href={`https://t.me/${entityText.slice(1)}`} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">
             {entityText}
           </a>,
         );
         break;
       case "hashtag":
-        result.push(
-          <span key={key} className="text-primary/80">
-            {entityText}
-          </span>,
-        );
+        result.push(<span key={key} className="text-primary/80">{entityText}</span>);
         break;
       default:
         result.push(<span key={key}>{entityText}</span>);
@@ -458,14 +520,8 @@ function LinkPreviewCard({ preview }: { preview: LinkPreview }) {
   })();
 
   return (
-    <a
-      href={preview.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group mb-4 flex overflow-hidden rounded-xl border border-border/40 bg-background/40 backdrop-blur-sm hover:border-primary/30 hover:bg-primary/5 transition-all duration-300"
-    >
+    <a href={preview.url} target="_blank" rel="noopener noreferrer" className="group mb-4 flex overflow-hidden rounded-xl border border-border/40 bg-background/40 backdrop-blur-sm hover:border-primary/30 hover:bg-primary/5 transition-all duration-300">
       <div className="w-1 flex-shrink-0 bg-gradient-to-b from-primary/60 to-purple-500/60 rounded-l-xl" />
-
       <div className="flex flex-1 gap-3 p-3 min-w-0">
         <div className="flex-1 min-w-0">
           {(preview.site_name || domain) && (
@@ -474,27 +530,13 @@ function LinkPreviewCard({ preview }: { preview: LinkPreview }) {
               {preview.site_name || domain}
             </div>
           )}
-
-          {preview.title && (
-            <div className="text-sm font-semibold text-white/90 leading-snug mb-1 line-clamp-2 group-hover:text-white transition-colors">
-              {preview.title}
-            </div>
-          )}
-
-          {preview.description && (
-            <div className="text-[11px] text-white/40 leading-relaxed line-clamp-2">{preview.description}</div>
-          )}
-
+          {preview.title && <div className="text-sm font-semibold text-white/90 leading-snug mb-1 line-clamp-2 group-hover:text-white transition-colors">{preview.title}</div>}
+          {preview.description && <div className="text-[11px] text-white/40 leading-relaxed line-clamp-2">{preview.description}</div>}
           {!preview.title && <div className="text-xs text-blue-400/70 truncate">{preview.display_url || preview.url}</div>}
         </div>
-
         {preview.photo && (
           <div className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border border-border/30">
-            <img
-              src={preview.photo}
-              alt="preview"
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-            />
+            <img src={preview.photo} alt="preview" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
           </div>
         )}
       </div>
@@ -509,7 +551,6 @@ function TelegramEmbedCard({ embed }: { embed: TelegramEmbed }) {
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-
     container.innerHTML = "";
 
     const script = document.createElement("script");
@@ -538,102 +579,321 @@ function TelegramEmbedCard({ embed }: { embed: TelegramEmbed }) {
   );
 }
 
-function MediaBlock({ post }: { post: Post }) {
-  const [playing, setPlaying] = useState(false);
+function MediaGallery({ media }: { media: MediaItem[] }) {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const active = media[activeIndex] || media[0];
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [playing, setPlaying] = useState(false);
 
-  const toggleAudio = () => {
-    if (!audioRef.current) return;
-    if (playing) {
-      audioRef.current.pause();
-      setPlaying(false);
-    } else {
-      void audioRef.current.play();
-      setPlaying(true);
+  useEffect(() => {
+    setActiveIndex(0);
+    setPlaying(false);
+  }, [media]);
+
+  const renderMedia = (item: MediaItem) => {
+    if (!item) return null;
+
+    if (item.type === "image" && item.url) {
+      return <img src={item.url} alt="post media" className="w-full max-h-[28rem] object-cover" />;
     }
+
+    if ((item.type === "video" || item.type === "gif") && item.url) {
+      return (
+        <video
+          src={item.url}
+          controls={item.type !== "gif"}
+          autoPlay={item.type === "gif"}
+          loop={item.type === "gif"}
+          muted={item.type === "gif"}
+          playsInline
+          className="w-full max-h-[28rem] bg-black object-contain"
+        />
+      );
+    }
+
+    if (item.type === "video_note" && item.url) {
+      return (
+        <div className="flex justify-center p-4 bg-black/50">
+          <video src={item.url} controls playsInline className="w-64 h-64 rounded-full object-cover border border-border/40 shadow-xl" />
+        </div>
+      );
+    }
+
+    if ((item.type === "audio" || item.type === "voice") && item.url) {
+      return (
+        <div className="p-4 bg-background/50 flex items-center gap-3">
+          <button
+            onClick={() => {
+              if (!audioRef.current) return;
+              if (playing) {
+                audioRef.current.pause();
+                setPlaying(false);
+              } else {
+                void audioRef.current.play();
+                setPlaying(true);
+              }
+            }}
+            className="w-12 h-12 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-primary"
+          >
+            {playing ? <Pause size={18} /> : <Play size={18} className="ml-0.5" />}
+          </button>
+          <div className="min-w-0 flex-1">
+            <div className="text-sm text-white/85 truncate">{item.type === "voice" ? "🎤 Ovozli xabar" : item.title || item.fileName || "Audio"}</div>
+            {(item.performer || item.duration) && <div className="text-xs text-white/45 truncate">{[item.performer, item.duration ? `${item.duration}s` : null].filter(Boolean).join(" · ")}</div>}
+          </div>
+          <audio ref={audioRef} src={item.url} onEnded={() => setPlaying(false)} className="hidden" />
+        </div>
+      );
+    }
+
+    if (item.type === "sticker") {
+      return (
+        <div className="p-6 flex items-center justify-center bg-background/40">
+          {item.url ? (
+            <img src={item.url} alt={item.emoji || "sticker"} className="w-40 h-40 object-contain" />
+          ) : (
+            <div className="text-7xl">{item.emoji || "🎭"}</div>
+          )}
+        </div>
+      );
+    }
+
+    if (item.type === "document") {
+      return (
+        <a href={item.url || "#"} target="_blank" rel="noopener noreferrer" className="p-4 bg-background/50 flex items-center gap-3 hover:bg-primary/5 transition-colors">
+          <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+            <FileText size={18} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-sm text-white/85 truncate">{item.fileName || "Fayl"}</div>
+            <div className="text-xs text-white/45 truncate">{[item.mimeType, formatFileSize(item.fileSize)].filter(Boolean).join(" · ")}</div>
+          </div>
+          <ExternalLink size={14} className="text-white/40" />
+        </a>
+      );
+    }
+
+    return null;
   };
 
-  if (post.mediaType === "image" && post.imageUrl) {
-    return (
-      <div className="mb-4 rounded-xl overflow-hidden border border-border/40 shadow-lg">
-        <img src={post.imageUrl} alt="post media" className="w-full max-h-64 object-cover hover:scale-[1.01] transition-transform duration-700" />
-      </div>
-    );
-  }
+  if (!active) return null;
 
-  if (post.mediaType === "video" && post.videoUrl) {
-    return (
-      <div className="mb-4 rounded-xl overflow-hidden border border-border/40 shadow-lg bg-black/60">
-        <video src={post.videoUrl} controls playsInline className="w-full max-h-72 rounded-xl" preload="metadata" />
-      </div>
-    );
-  }
-
-  if (post.mediaType === "gif" && post.videoUrl) {
-    return (
-      <div className="mb-4 rounded-xl overflow-hidden border border-border/40 shadow-lg bg-black/40">
-        <video src={post.videoUrl} autoPlay loop muted playsInline className="w-full max-h-64 rounded-xl object-contain" />
-      </div>
-    );
-  }
-
-  if (post.mediaType === "sticker") {
-    return (
-      <div className="mb-4 flex items-center justify-start pl-1">
-        {post.stickerUrl ? (
-          <img src={post.stickerUrl} alt={post.stickerEmoji || "sticker"} className="w-28 h-28 object-contain" />
-        ) : (
-          <span className="text-6xl">{post.stickerEmoji || "🎭"}</span>
-        )}
-      </div>
-    );
-  }
-
-  if ((post.mediaType === "audio" || post.mediaType === "voice") && post.audioUrl) {
-    const isVoice = post.mediaType === "voice";
-    return (
-      <div className="mb-4 flex items-center gap-3 p-3 rounded-xl bg-background/50 border border-border/40">
-        <motion.button
-          whileTap={{ scale: 0.9 }}
-          onClick={toggleAudio}
-          className="w-10 h-10 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-primary flex-shrink-0 hover:bg-primary/30 transition-all"
-        >
-          {playing ? <Pause size={15} /> : <Play size={15} className="ml-0.5" />}
-        </motion.button>
-        <div className="flex-1 min-w-0">
-          <div className="text-xs font-medium text-white/80 truncate">
-            {isVoice ? "🎤 Ovozli xabar" : `🎵 ${post.audioTitle || "Audio"}`}
+  return (
+    <div className="mb-4 rounded-xl overflow-hidden border border-border/40 shadow-lg bg-background/30">
+      {renderMedia(active)}
+      {media.length > 1 && (
+        <div className="p-2 border-t border-border/30 bg-black/20">
+          <div className="flex gap-2 overflow-x-auto">
+            {media.map((item, idx) => (
+              <button
+                key={`${item.id}-${idx}`}
+                onClick={() => setActiveIndex(idx)}
+                className={`relative shrink-0 w-20 h-20 rounded-lg overflow-hidden border transition-all ${idx === activeIndex ? "border-primary/50 ring-2 ring-primary/20" : "border-border/30 hover:border-border/60"}`}
+              >
+                {item.type === "image" && item.url ? (
+                  <img src={item.url} alt="thumb" className="w-full h-full object-cover" />
+                ) : item.thumbnailUrl ? (
+                  <img src={item.thumbnailUrl} alt="thumb" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-background/70 flex items-center justify-center text-white/60 text-xs px-1 text-center">
+                    {item.type === "video_note" ? "Video note" : item.type === "document" ? "Fayl" : item.type}
+                  </div>
+                )}
+              </button>
+            ))}
           </div>
-          {!isVoice && post.audioPerformer && (
-            <div className="text-[10px] text-muted-foreground truncate mt-0.5">{post.audioPerformer}</div>
-          )}
-          <audio ref={audioRef} src={post.audioUrl} onEnded={() => setPlaying(false)} className="hidden" />
         </div>
-      </div>
-    );
-  }
+      )}
+    </div>
+  );
+}
 
-  if (post.mediaType === "document" && post.docUrl) {
-    return (
-      <a
-        href={post.docUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mb-4 flex items-center gap-3 p-3 rounded-xl bg-background/50 border border-border/40 hover:border-primary/30 hover:bg-primary/5 transition-all"
-      >
-        <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
-          <LinkIcon size={16} />
+function PollCard({ poll }: { poll: PollData }) {
+  const total = Math.max(1, Number(poll.total_voter_count || 0));
+  return (
+    <div className="mb-4 rounded-xl border border-border/40 bg-background/40 p-4 backdrop-blur-sm">
+      <div className="flex items-center gap-2 text-primary/80 text-xs font-medium uppercase tracking-wide mb-2">
+        <Vote size={14} /> So'rovnoma
+      </div>
+      <div className="text-sm font-semibold text-white/90 mb-3">{poll.question || "So'rovnoma"}</div>
+      <div className="space-y-2">
+        {(poll.options || []).map((option, idx) => {
+          const count = Number(option.voter_count || 0);
+          const pct = Math.round((count / total) * 100);
+          return (
+            <div key={`${option.text}-${idx}`} className="rounded-lg border border-border/30 bg-white/[0.03] overflow-hidden">
+              <div className="flex items-center justify-between text-xs px-3 py-2 relative">
+                <div className="absolute inset-y-0 left-0 bg-primary/10" style={{ width: `${pct}%` }} />
+                <span className="relative z-10 text-white/80">{option.text}</span>
+                <span className="relative z-10 text-white/45">{pct}%</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div className="mt-3 text-[11px] text-white/45">
+        {formatCount(Number(poll.total_voter_count || 0))} ta ovoz {poll.is_closed ? "· yopilgan" : ""}
+      </div>
+    </div>
+  );
+}
+
+function LocationCard({ location, venue }: { location?: LocationData | null; venue?: VenueData | null }) {
+  const loc = venue?.location || location;
+  if (!loc) return null;
+  const mapUrl = `https://maps.google.com/?q=${loc.latitude},${loc.longitude}`;
+  return (
+    <a href={mapUrl} target="_blank" rel="noopener noreferrer" className="mb-4 block rounded-xl border border-border/40 bg-background/40 p-4 hover:border-primary/30 hover:bg-primary/5 transition-all">
+      <div className="flex items-start gap-3">
+        <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
+          <MapPin size={16} />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="text-xs font-medium text-white/85 truncate">{post.docName || "Fayl"}</div>
-          {post.docMime && <div className="text-[10px] text-white/40 truncate">{post.docMime}</div>}
+          <div className="text-sm font-medium text-white/85">{venue?.title || "Lokatsiya"}</div>
+          {venue?.address && <div className="text-xs text-white/55 mt-0.5">{venue.address}</div>}
+          <div className="text-[11px] text-white/40 mt-1 truncate">{loc.latitude}, {loc.longitude}</div>
         </div>
-        <ExternalLink size={14} className="text-white/35" />
-      </a>
-    );
-  }
+        <ExternalLink size={14} className="text-white/35 shrink-0" />
+      </div>
+    </a>
+  );
+}
 
-  return null;
+function ContactCard({ contact }: { contact: ContactData }) {
+  const name = [contact.first_name, contact.last_name].filter(Boolean).join(" ").trim() || "Kontakt";
+  return (
+    <div className="mb-4 rounded-xl border border-border/40 bg-background/40 p-4">
+      <div className="flex items-start gap-3">
+        <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
+          <Phone size={16} />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="text-sm font-medium text-white/85">{name}</div>
+          {contact.phone_number && <div className="text-xs text-white/55 mt-0.5">{contact.phone_number}</div>}
+          {contact.user_id && <div className="text-[11px] text-white/35 mt-1">Telegram ID: {contact.user_id}</div>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ReactionPicker({ onPick }: { onPick: (emoji: string) => void }) {
+  return (
+    <motion.div initial={{ opacity: 0, y: 8, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 8, scale: 0.96 }} className="absolute left-0 bottom-full mb-2 z-30 rounded-2xl border border-border/50 bg-card/95 backdrop-blur-md shadow-2xl shadow-black/30 p-2 w-[18rem]">
+      <div className="grid grid-cols-6 gap-1.5">
+        {DEFAULT_REACTION_OPTIONS.map((emoji) => (
+          <button key={emoji} onClick={() => onPick(emoji)} className="h-10 rounded-xl bg-background/50 hover:bg-primary/10 border border-border/30 hover:border-primary/30 transition-all text-xl">
+            {emoji}
+          </button>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
+function ReactionBar({ reactions, postId, onReact }: { reactions: Reaction[]; postId: string; onReact: (postId: string, emoji: string) => void; }) {
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const pressTimer = useRef<number | null>(null);
+  const nonZero = reactions.filter((r) => r.count > 0 || r.reacted);
+
+  const openPicker = () => setPickerOpen(true);
+  const clearTimer = () => {
+    if (pressTimer.current) window.clearTimeout(pressTimer.current);
+    pressTimer.current = null;
+  };
+
+  return (
+    <div className="relative flex flex-wrap gap-1.5 items-center">
+      {nonZero.map((r) => (
+        <motion.button
+          key={r.emoji}
+          whileHover={{ scale: 1.06, y: -1 }}
+          whileTap={{ scale: 0.93 }}
+          onClick={() => onReact(postId, r.emoji)}
+          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 border ${r.reacted ? "bg-primary/20 border-primary/40 text-primary shadow-lg shadow-primary/10" : "bg-background/50 border-border/40 text-white/60 hover:bg-background/70 hover:border-border/60 hover:text-white/80"}`}
+        >
+          <span className="text-sm leading-none">{r.emoji}</span>
+          <span className="tabular-nums">{formatCount(r.count)}</span>
+        </motion.button>
+      ))}
+
+      <div className="relative">
+        <motion.button
+          whileTap={{ scale: 0.93 }}
+          onClick={openPicker}
+          onMouseDown={() => {
+            clearTimer();
+            pressTimer.current = window.setTimeout(openPicker, 350);
+          }}
+          onMouseUp={clearTimer}
+          onMouseLeave={clearTimer}
+          onTouchStart={() => {
+            clearTimer();
+            pressTimer.current = window.setTimeout(openPicker, 350);
+          }}
+          onTouchEnd={clearTimer}
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border bg-background/50 border-border/40 text-white/60 hover:bg-background/70 hover:border-border/60 hover:text-white/80 transition-all"
+        >
+          <SmilePlus size={14} />
+          <span>Reaksiya</span>
+        </motion.button>
+        <AnimatePresence>{pickerOpen && <ReactionPicker onPick={(emoji) => { onReact(postId, emoji); setPickerOpen(false); }} />}</AnimatePresence>
+      </div>
+    </div>
+  );
+}
+
+function CommentSection({ post, onAddComment }: { post: Post; onAddComment: (postId: string, text: string, author: string) => void; }) {
+  const [open, setOpen] = useState(false);
+  const [input, setInput] = useState("");
+  const [author, setAuthor] = useState("");
+  const realCount = post.commentsCount ?? post.comments.length;
+
+  const submit = () => {
+    if (!input.trim()) return;
+    onAddComment(post.id, input.trim(), author.trim() || "Anonim");
+    setInput("");
+  };
+
+  return (
+    <div>
+      <button onClick={() => setOpen((v) => !v)} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-white/80 transition-colors">
+        <div className="w-7 h-7 rounded-lg bg-background/50 border border-border/40 flex items-center justify-center"><MessageCircle size={13} /></div>
+        <span className="text-xs font-medium">{realCount} ta fikr</span>
+        <motion.span animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.25 }}><ChevronDown size={13} /></motion.span>
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }} className="overflow-hidden">
+            <div className="mt-3 space-y-2">
+              {post.comments.length === 0 && <div className="p-3 rounded-xl bg-background/30 border border-border/30 text-xs text-muted-foreground text-center italic">Hali fikr yo'q — birinchi bo'ling!</div>}
+              {post.comments.map((c, i) => (
+                <motion.div key={c.id} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.04 }} className="flex gap-2.5 p-3 rounded-xl bg-background/30 border border-border/30">
+                  <div className="w-7 h-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-[10px] font-bold text-primary flex-shrink-0">{c.author.charAt(0).toUpperCase()}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-xs font-semibold text-white/70">{c.author}</span>
+                      {c.from_telegram === 1 && <span className="text-[9px] text-blue-400/80 bg-blue-400/10 border border-blue-400/20 px-1.5 py-0.5 rounded-md">✈️ Telegram</span>}
+                      <span className="text-[10px] text-muted-foreground ml-auto">{formatTime(c.created_at)}</span>
+                    </div>
+                    <p className="text-xs text-white/70 leading-relaxed whitespace-pre-wrap break-words">{c.text}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+            <div className="mt-3 space-y-2">
+              <input type="text" value={author} onChange={(e) => setAuthor(e.target.value)} placeholder="Ismingiz (ixtiyoriy)" className="w-full bg-background/50 border border-border/40 rounded-xl px-3 py-2 text-xs text-white placeholder:text-muted-foreground focus:outline-none focus:border-primary/40 transition-all" />
+              <div className="flex gap-2">
+                <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && submit()} placeholder="Fikr bildiring..." className="flex-1 bg-background/50 border border-border/40 rounded-xl px-3 py-2 text-xs text-white placeholder:text-muted-foreground focus:outline-none focus:border-primary/40 transition-all" />
+                <motion.button whileTap={{ scale: 0.93 }} onClick={submit} className="px-3 py-2 bg-primary/10 border border-primary/30 rounded-xl text-primary text-xs font-medium hover:bg-primary/20 transition-all">Yuborish</motion.button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 }
 
 function PostMenu({ postId, onDelete }: { postId: string; onDelete: (id: string) => void }) {
@@ -676,37 +936,13 @@ function PostMenu({ postId, onDelete }: { postId: string; onDelete: (id: string)
 
   return (
     <div className="relative" ref={menuRef}>
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className="w-7 h-7 rounded-lg bg-background/50 border border-border/40 flex items-center justify-center text-muted-foreground hover:text-white transition-colors"
-      >
-        <MoreHorizontal size={12} />
-      </button>
+      <button onClick={() => setOpen((v) => !v)} className="w-7 h-7 rounded-lg bg-background/50 border border-border/40 flex items-center justify-center text-muted-foreground hover:text-white transition-colors"><MoreHorizontal size={12} /></button>
       <AnimatePresence>
         {open && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.92, y: -4 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.92, y: -4 }}
-            transition={{ duration: 0.15 }}
-            className="absolute right-0 top-9 z-50 w-44 rounded-xl border border-border/50 bg-card/95 backdrop-blur-md shadow-2xl shadow-black/30 overflow-hidden"
-          >
-            <button
-              onClick={handleCopyLink}
-              className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-white/70 hover:bg-white/5 hover:text-white transition-colors"
-            >
-              <LinkIcon size={13} className="text-white/40" />
-              Havolani nusxalash
-            </button>
+          <motion.div initial={{ opacity: 0, scale: 0.92, y: -4 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.92, y: -4 }} transition={{ duration: 0.15 }} className="absolute right-0 top-9 z-50 w-44 rounded-xl border border-border/50 bg-card/95 backdrop-blur-md shadow-2xl shadow-black/30 overflow-hidden">
+            <button onClick={handleCopyLink} className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-white/70 hover:bg-white/5 hover:text-white transition-colors"><LinkIcon size={13} className="text-white/40" />Havolani nusxalash</button>
             <div className="h-px bg-border/30 mx-2" />
-            <button
-              onClick={handleDelete}
-              disabled={deleting}
-              className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-red-400/80 hover:bg-red-500/10 hover:text-red-400 transition-colors disabled:opacity-50"
-            >
-              <Trash2 size={13} />
-              {deleting ? "O'chirilmoqda..." : "O'chirish"}
-            </button>
+            <button onClick={handleDelete} disabled={deleting} className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-red-400/80 hover:bg-red-500/10 hover:text-red-400 transition-colors disabled:opacity-50"><Trash2 size={13} />{deleting ? "O'chirilmoqda..." : "O'chirish"}</button>
           </motion.div>
         )}
       </AnimatePresence>
@@ -714,156 +950,36 @@ function PostMenu({ postId, onDelete }: { postId: string; onDelete: (id: string)
   );
 }
 
-function ReactionBar({ reactions, postId, onReact }: {
-  reactions: Reaction[];
-  postId: string;
-  onReact: (postId: string, emoji: string) => void;
-}) {
-  return (
-    <div className="flex flex-wrap gap-1.5">
-      {reactions.map((r) => (
-        <motion.button
-          key={r.emoji}
-          whileHover={{ scale: 1.06, y: -1 }}
-          whileTap={{ scale: 0.93 }}
-          onClick={() => onReact(postId, r.emoji)}
-          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 border ${
-            r.reacted
-              ? "bg-primary/20 border-primary/40 text-primary shadow-lg shadow-primary/10"
-              : "bg-background/50 border-border/40 text-white/60 hover:bg-background/70 hover:border-border/60 hover:text-white/80"
-          }`}
-        >
-          <span className="text-sm leading-none">{r.emoji}</span>
-          <span className="tabular-nums">{formatCount(r.count)}</span>
-        </motion.button>
-      ))}
-    </div>
-  );
+function LegacyMediaFallback({ post }: { post: Post }) {
+  if (post.mediaType === "image" && post.imageUrl) {
+    return <div className="mb-4 rounded-xl overflow-hidden border border-border/40 shadow-lg"><img src={post.imageUrl} alt="post media" className="w-full max-h-64 object-cover hover:scale-[1.01] transition-transform duration-700" /></div>;
+  }
+
+  if ((post.mediaType === "video" || post.mediaType === "gif") && post.videoUrl) {
+    return <div className="mb-4 rounded-xl overflow-hidden border border-border/40 shadow-lg bg-black/60"><video src={post.videoUrl} controls={post.mediaType !== "gif"} autoPlay={post.mediaType === "gif"} loop={post.mediaType === "gif"} muted={post.mediaType === "gif"} playsInline className="w-full max-h-72 rounded-xl" preload="metadata" /></div>;
+  }
+
+  if (post.mediaType === "sticker") {
+    return <div className="mb-4 flex items-center justify-start pl-1">{post.stickerUrl ? <img src={post.stickerUrl} alt={post.stickerEmoji || "sticker"} className="w-28 h-28 object-contain" /> : <span className="text-6xl">{post.stickerEmoji || "🎭"}</span>}</div>;
+  }
+
+  if ((post.mediaType === "audio" || post.mediaType === "voice") && post.audioUrl) {
+    return <MediaGallery media={[{ id: 0, postId: post.id, sortOrder: 0, type: post.mediaType, url: post.audioUrl, title: post.audioTitle, performer: post.audioPerformer }]} />;
+  }
+
+  if (post.mediaType === "document" && post.docUrl) {
+    return <MediaGallery media={[{ id: 0, postId: post.id, sortOrder: 0, type: "document", url: post.docUrl, fileName: post.docName, mimeType: post.docMime }]} />;
+  }
+
+  return null;
 }
 
-function CommentSection({ post, onAddComment }: {
-  post: Post;
-  onAddComment: (postId: string, text: string, author: string) => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const [input, setInput] = useState("");
-  const [author, setAuthor] = useState("");
-  const realCount = post.commentsCount ?? post.comments.length;
-
-  const submit = () => {
-    if (!input.trim()) return;
-    onAddComment(post.id, input.trim(), author.trim() || "Anonim");
-    setInput("");
-  };
-
-  return (
-    <div>
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-white/80 transition-colors"
-      >
-        <div className="w-7 h-7 rounded-lg bg-background/50 border border-border/40 flex items-center justify-center">
-          <MessageCircle size={13} />
-        </div>
-        <span className="text-xs font-medium">{realCount} ta fikr</span>
-        <motion.span animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.25 }}>
-          <ChevronDown size={13} />
-        </motion.span>
-      </button>
-
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="overflow-hidden"
-          >
-            <div className="mt-3 space-y-2">
-              {post.comments.length === 0 && (
-                <div className="p-3 rounded-xl bg-background/30 border border-border/30 text-xs text-muted-foreground text-center italic">
-                  Hali fikr yo'q — birinchi bo'ling!
-                </div>
-              )}
-
-              {post.comments.map((c, i) => (
-                <motion.div
-                  key={c.id}
-                  initial={{ opacity: 0, x: -8 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.04 }}
-                  className="flex gap-2.5 p-3 rounded-xl bg-background/30 border border-border/30"
-                >
-                  <div className="w-7 h-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-[10px] font-bold text-primary flex-shrink-0">
-                    {c.author.charAt(0).toUpperCase()}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className="text-xs font-semibold text-white/70">{c.author}</span>
-                      {c.from_telegram === 1 && (
-                        <span className="text-[9px] text-blue-400/80 bg-blue-400/10 border border-blue-400/20 px-1.5 py-0.5 rounded-md">
-                          ✈️ Telegram
-                        </span>
-                      )}
-                      <span className="text-[10px] text-muted-foreground ml-auto">{formatTime(c.created_at)}</span>
-                    </div>
-                    <p className="text-xs text-white/70 leading-relaxed whitespace-pre-wrap break-words">{c.text}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-
-            <div className="mt-3 space-y-2">
-              <input
-                type="text"
-                value={author}
-                onChange={(e) => setAuthor(e.target.value)}
-                placeholder="Ismingiz (ixtiyoriy)"
-                className="w-full bg-background/50 border border-border/40 rounded-xl px-3 py-2 text-xs text-white placeholder:text-muted-foreground focus:outline-none focus:border-primary/40 transition-all"
-              />
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && submit()}
-                  placeholder="Fikr bildiring..."
-                  className="flex-1 bg-background/50 border border-border/40 rounded-xl px-3 py-2 text-xs text-white placeholder:text-muted-foreground focus:outline-none focus:border-primary/40 transition-all"
-                />
-                <motion.button
-                  whileTap={{ scale: 0.93 }}
-                  onClick={submit}
-                  className="px-3 py-2 bg-primary/10 border border-primary/30 rounded-xl text-primary text-xs font-medium hover:bg-primary/20 transition-all"
-                >
-                  Yuborish
-                </motion.button>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-function PostCard({ post, onReact, onAddComment, onDelete }: {
-  post: Post;
-  onReact: (postId: string, emoji: string) => void;
-  onAddComment: (postId: string, text: string, author: string) => void;
-  onDelete: (id: string) => void;
-}) {
+function PostCard({ post, onReact, onAddComment, onDelete }: { post: Post; onReact: (postId: string, emoji: string) => void; onAddComment: (postId: string, text: string, author: string) => void; onDelete: (id: string) => void; }) {
   const [saved, setSaved] = useState(false);
+  const media = post.media || [];
 
   return (
-    <motion.article
-      id={`post-${post.id}`}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.96, y: -10 }}
-      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      className="relative rounded-2xl border border-border/40 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm shadow-xl shadow-black/10 overflow-hidden group"
-    >
+    <motion.article id={`post-${post.id}`} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, y: -10 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }} className="relative rounded-2xl border border-border/40 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm shadow-xl shadow-black/10 overflow-hidden group">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-purple-500/5 pointer-events-none" />
       <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.04] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
@@ -872,27 +988,15 @@ function PostCard({ post, onReact, onAddComment, onDelete }: {
           <div className="flex items-center gap-3">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-br from-primary to-purple-500 rounded-xl blur-lg opacity-25" />
-              <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-primary/80 to-purple-500/60 border border-primary/30 flex items-center justify-center text-sm font-bold text-white shadow-lg">
-                J
-              </div>
+              <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-primary/80 to-purple-500/60 border border-primary/30 flex items-center justify-center text-sm font-bold text-white shadow-lg">J</div>
             </div>
             <div>
               <div className="text-sm font-medium text-white/50 leading-tight">Jaloliddin Xalimov</div>
-              <div className="text-[10px] text-muted-foreground mt-0.5">
-                {formatDate(post.date)} · {formatTime(post.date)}
-              </div>
+              <div className="text-[10px] text-muted-foreground mt-0.5">{formatDate(post.date)} · {formatTime(post.date)}</div>
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <motion.button
-              whileTap={{ scale: 0.88 }}
-              onClick={() => setSaved((v) => !v)}
-              className={`w-7 h-7 rounded-lg flex items-center justify-center border transition-all ${
-                saved
-                  ? "bg-primary/10 border-primary/30 text-primary"
-                  : "bg-background/50 border-border/40 text-muted-foreground hover:text-white"
-              }`}
-            >
+            <motion.button whileTap={{ scale: 0.88 }} onClick={() => setSaved((v) => !v)} className={`w-7 h-7 rounded-lg flex items-center justify-center border transition-all ${saved ? "bg-primary/10 border-primary/30 text-primary" : "bg-background/50 border-border/40 text-muted-foreground hover:text-white"}`}>
               <Bookmark size={12} fill={saved ? "currentColor" : "none"} />
             </motion.button>
             <PostMenu postId={post.id} onDelete={onDelete} />
@@ -901,18 +1005,24 @@ function PostCard({ post, onReact, onAddComment, onDelete }: {
 
         <PostText text={post.text} entities={post.entities} />
 
-        <MediaBlock post={post} />
+        {post.postType === "poll" && post.pollData && <PollCard poll={post.pollData} />}
+        {(post.postType === "location" || post.postType === "venue") && <LocationCard location={post.locationData} venue={post.venueData} />}
+        {post.postType === "contact" && post.contactData && <ContactCard contact={post.contactData} />}
+
+        {media.length > 0 ? <MediaGallery media={media} /> : <LegacyMediaFallback post={post} />}
+
+        {media.length > 1 && (
+          <div className="mb-3 flex items-center gap-2 text-[10px] text-white/35">
+            <Images size={12} /> {media.length} ta media
+          </div>
+        )}
 
         {post.telegramEmbed && <TelegramEmbedCard embed={post.telegramEmbed} />}
         {!post.telegramEmbed && post.linkPreview && <LinkPreviewCard preview={post.linkPreview} />}
 
         <div className="flex items-center gap-3 text-[10px] text-white/30 mb-2.5">
-          <span className="flex items-center gap-1">
-            <Share2 size={10} /> {formatCount(post.views)}
-          </span>
-          <span className="flex items-center gap-1">
-            <MessageCircle size={10} /> {post.commentsCount ?? post.comments.length}
-          </span>
+          <span className="flex items-center gap-1"><Share2 size={10} /> {formatCount(post.views)}</span>
+          <span className="flex items-center gap-1"><MessageCircle size={10} /> {post.commentsCount ?? post.comments.length}</span>
         </div>
 
         <div className="h-px bg-gradient-to-r from-transparent via-border/30 to-transparent mb-3" />
@@ -956,80 +1066,72 @@ export function BlogPage() {
   const enrichPosts = useCallback((data: any[]) => {
     return data.map((p: any) => {
       const reactionMap = new Map((p.reactions || []).map((r: any) => [r.emoji, r.count]));
+      const mergedReactionList = Array.from(new Set([...DEFAULT_REACTION_OPTIONS, ...Array.from(reactionMap.keys())]));
       return {
         ...p,
         comments: p.comments || [],
         entities: p.entities || [],
         linkPreview: p.linkPreview || null,
         telegramEmbed: p.telegramEmbed || null,
-        reactions: DEFAULT_REACTIONS.map((r) => ({
-          ...r,
-          count: Number(reactionMap.get(r.emoji) || 0),
+        media: p.media || [],
+        reactions: mergedReactionList.map((emoji) => ({
+          emoji,
+          label: emoji,
+          count: Number(reactionMap.get(emoji) || 0),
           reacted: false,
         })),
       } as Post;
     });
   }, []);
 
-  const fetchPosts = useCallback(
-    async (isInitial = false) => {
-      try {
-        const res = await fetch(`${API_URL}/blog/posts`);
-        if (!res.ok) throw new Error("Server xatosi");
-        const data = await res.json();
-        const enriched = enrichPosts(data).reverse();
+  const fetchPosts = useCallback(async (isInitial = false) => {
+    try {
+      const res = await fetch(`${API_URL}/blog/posts`);
+      if (!res.ok) throw new Error("Server xatosi");
+      const data = await res.json();
+      const enriched = enrichPosts(data).reverse();
 
-        setPosts((prev) => {
-          const newIds = new Set(enriched.map((p) => p.id));
-          const prevIds = new Set(prev.map((p) => p.id));
-          const addedCount = [...newIds].filter((id) => !prevIds.has(id)).length;
+      setPosts((prev) => {
+        const newIds = new Set(enriched.map((p) => p.id));
+        const prevIds = new Set(prev.map((p) => p.id));
+        const addedCount = [...newIds].filter((id) => !prevIds.has(id)).length;
 
-          if (!isInitial && addedCount > 0) {
-            if (isAtBottomRef.current) setTimeout(() => scrollToBottom(), 100);
-            else setNewPostCount((n) => n + addedCount);
-          }
+        if (!isInitial && addedCount > 0) {
+          if (isAtBottomRef.current) setTimeout(() => scrollToBottom(), 100);
+          else setNewPostCount((n) => n + addedCount);
+        }
 
-          return enriched;
-        });
+        return enriched;
+      });
 
-        setError(null);
-      } catch {
-        setError("Postlarni yuklashda xato.");
-      } finally {
-        if (isInitial) setLoading(false);
-      }
-    },
-    [enrichPosts, scrollToBottom],
-  );
+      setError(null);
+    } catch {
+      setError("Postlarni yuklashda xato.");
+    } finally {
+      if (isInitial) setLoading(false);
+    }
+  }, [enrichPosts, scrollToBottom]);
 
   useEffect(() => {
     void fetchPosts(true).then(() => setTimeout(() => scrollToBottom(false), 150));
-    const interval = setInterval(() => {
-      void fetchPosts(false);
-    }, 5000);
+    const interval = setInterval(() => { void fetchPosts(false); }, 5000);
     return () => clearInterval(interval);
   }, [fetchPosts, scrollToBottom]);
 
   const handleReact = async (postId: string, emoji: string) => {
     let nextDelta = 1;
 
-    setPosts((prev) =>
-      prev.map((p) => {
-        if (p.id !== postId) return p;
-        return {
-          ...p,
-          reactions: p.reactions.map((r) => {
-            if (r.emoji !== emoji) return r;
-            nextDelta = r.reacted ? -1 : 1;
-            return {
-              ...r,
-              count: Math.max(0, r.reacted ? r.count - 1 : r.count + 1),
-              reacted: !r.reacted,
-            };
-          }),
-        };
-      }),
-    );
+    setPosts((prev) => prev.map((p) => {
+      if (p.id !== postId) return p;
+      return {
+        ...p,
+        reactions: p.reactions.map((r) => {
+          if (r.emoji !== emoji) return r;
+          nextDelta = r.reacted ? -1 : 1;
+          return { ...r, count: Math.max(0, r.reacted ? r.count - 1 : r.count + 1), reacted: !r.reacted };
+        }),
+      };
+    }));
 
     try {
       await fetch(`${API_URL}/blog/reactions/${postId}`, {
@@ -1051,17 +1153,7 @@ export function BlogPage() {
       });
       if (!res.ok) throw new Error();
       const newComment = await res.json();
-      setPosts((prev) =>
-        prev.map((p) =>
-          p.id === postId
-            ? {
-                ...p,
-                comments: [...p.comments, newComment],
-                commentsCount: (p.commentsCount ?? p.comments.length) + 1,
-              }
-            : p,
-        ),
-      );
+      setPosts((prev) => prev.map((p) => p.id === postId ? { ...p, comments: [...p.comments, newComment], commentsCount: (p.commentsCount ?? p.comments.length) + 1 } : p));
     } catch {
       void fetchPosts(false);
     }
@@ -1088,80 +1180,28 @@ export function BlogPage() {
       <PageBackground />
 
       <section className="pt-24 pb-10 px-6 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border/40 bg-background/50 backdrop-blur-sm mb-6"
-        >
+        <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border/40 bg-background/50 backdrop-blur-sm mb-6">
           <span className="text-sm text-white/50">✈️ Personal · blog</span>
         </motion.div>
-        <motion.h1
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.75, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-          className="text-5xl sm:text-6xl font-bold mb-4 premium-title"
-        >
-          Blog | Блог
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.75, delay: 0.16, ease: [0.22, 1, 0.36, 1] }}
-          className="text-white/40 text-base max-w-md mx-auto"
-        >
-          Jaloliddinning shaxsiy blogi | Jaloliddin&apos;s personal blog
-        </motion.p>
+        <motion.h1 initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.75, delay: 0.08, ease: [0.22, 1, 0.36, 1] }} className="text-5xl sm:text-6xl font-bold mb-4 premium-title">Blog | Блог</motion.h1>
+        <motion.p initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.75, delay: 0.16, ease: [0.22, 1, 0.36, 1] }} className="text-white/40 text-base max-w-md mx-auto">Jaloliddinning shaxsiy blogi | Jaloliddin&apos;s personal blog</motion.p>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="mt-8 premium-divider" />
       </section>
 
       <section className="max-w-2xl mx-auto px-4 pb-24 space-y-4">
-        {loading && (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 size={28} className="animate-spin text-primary/50" />
-          </div>
-        )}
-
-        {error && (
-          <div className="p-6 rounded-2xl border border-red-500/20 bg-red-500/5 text-center">
-            <p className="text-red-400/80 text-sm">{error}</p>
-            <button onClick={() => void fetchPosts(true)} className="mt-3 text-xs text-primary hover:underline">
-              Qayta urinish
-            </button>
-          </div>
-        )}
-
-        {!loading && !error && posts.length === 0 && (
-          <div className="p-10 rounded-2xl border border-border/40 bg-gradient-to-br from-card to-card/50 text-center">
-            <p className="text-4xl mb-3">✈️</p>
-            <p className="text-white/60 font-medium">Hali postlar yo&apos;q</p>
-            <p className="text-white/30 text-sm mt-1">Birinchi post yozilishini kutmoqda...</p>
-          </div>
-        )}
+        {loading && <div className="flex items-center justify-center py-20"><Loader2 size={28} className="animate-spin text-primary/50" /></div>}
+        {error && <div className="p-6 rounded-2xl border border-red-500/20 bg-red-500/5 text-center"><p className="text-red-400/80 text-sm">{error}</p><button onClick={() => void fetchPosts(true)} className="mt-3 text-xs text-primary hover:underline">Qayta urinish</button></div>}
+        {!loading && !error && posts.length === 0 && <div className="p-10 rounded-2xl border border-border/40 bg-gradient-to-br from-card to-card/50 text-center"><p className="text-4xl mb-3">✈️</p><p className="text-white/60 font-medium">Hali postlar yo&apos;q</p><p className="text-white/30 text-sm mt-1">Birinchi post yozilishini kutmoqda...</p></div>}
 
         <AnimatePresence>
-          {posts.map((post) => (
-            <PostCard
-              key={post.id}
-              post={post}
-              onReact={handleReact}
-              onAddComment={handleAddComment}
-              onDelete={handleDelete}
-            />
-          ))}
+          {posts.map((post) => <PostCard key={post.id} post={post} onReact={handleReact} onAddComment={handleAddComment} onDelete={handleDelete} />)}
         </AnimatePresence>
         <div ref={bottomRef} />
       </section>
 
       <AnimatePresence>
         {newPostCount > 0 && (
-          <motion.button
-            initial={{ opacity: 0, y: 20, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            onClick={() => scrollToBottom()}
-            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-medium shadow-2xl shadow-primary/30 hover:bg-primary/90 transition-all"
-          >
+          <motion.button initial={{ opacity: 0, y: 20, scale: 0.9 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.9 }} onClick={() => scrollToBottom()} className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-medium shadow-2xl shadow-primary/30 hover:bg-primary/90 transition-all">
             <ArrowDown size={15} />
             {newPostCount} ta yangi post
           </motion.button>
