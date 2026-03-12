@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   MessageCircle,
@@ -47,6 +47,7 @@ type TelegramEmbed = {
 };
 
 type Reaction = { emoji: string; label: string; count: number; reacted: boolean };
+
 type Comment = {
   id: string;
   author: string;
@@ -276,6 +277,7 @@ function PageBackground() {
       mouseRef.current.x = e.clientX / window.innerWidth - 0.5;
       mouseRef.current.y = e.clientY / window.innerHeight - 0.5;
     };
+
     const onScroll = () => {
       scrollRef.current.y = window.scrollY || 0;
     };
@@ -358,7 +360,9 @@ function PageBackground() {
         ctx.lineTo(tx, ty);
         ctx.stroke();
         drawGlowStar(mt.x, mt.y, mt.r, a * (1.2 + mt.z));
-        if (mt.life > mt.maxLife || mt.x < -500 || mt.y > h + 500 || mt.x > w + 500 || mt.y < -500) meteors.splice(i, 1);
+        if (mt.life > mt.maxLife || mt.x < -500 || mt.y > h + 500 || mt.x > w + 500 || mt.y < -500) {
+          meteors.splice(i, 1);
+        }
       }
 
       ctx.globalCompositeOperation = "source-over";
@@ -649,11 +653,7 @@ function MediaGallery({ media }: { media: MediaItem[] }) {
     if (item.type === "sticker") {
       return (
         <div className="p-6 flex items-center justify-center bg-background/40">
-          {item.url ? (
-            <img src={item.url} alt={item.emoji || "sticker"} className="w-40 h-40 object-contain" />
-          ) : (
-            <div className="text-7xl">{item.emoji || "🎭"}</div>
-          )}
+          {item.url ? <img src={item.url} alt={item.emoji || "sticker"} className="w-40 h-40 object-contain" /> : <div className="text-7xl">{item.emoji || "🎭"}</div>}
         </div>
       );
     }
@@ -777,21 +777,55 @@ function ContactCard({ contact }: { contact: ContactData }) {
   );
 }
 
-function ReactionPicker
+function ReactionPicker({ onPick }: { onPick: (emoji: string) => void }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8, scale: 0.96 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 8, scale: 0.96 }}
+      className="absolute left-0 bottom-full mb-2 z-40 rounded-2xl border border-border/50 bg-card/95 backdrop-blur-md shadow-2xl shadow-black/30 p-2 w-[min(92vw,22rem)] max-h-44 overflow-y-auto"
+    >
+      <div className="flex flex-wrap gap-1.5">
+        {DEFAULT_REACTION_OPTIONS.map((emoji) => (
+          <button
+            key={emoji}
+            onClick={() => onPick(emoji)}
+            className="h-10 min-w-10 px-2 rounded-xl bg-background/50 hover:bg-primary/10 border border-border/30 hover:border-primary/30 transition-all text-xl"
+          >
+            {emoji}
+          </button>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
 
 function ReactionBar({ reactions, postId, onReact }: { reactions: Reaction[]; postId: string; onReact: (postId: string, emoji: string) => void; }) {
   const [pickerOpen, setPickerOpen] = useState(false);
   const pressTimer = useRef<number | null>(null);
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
   const nonZero = reactions.filter((r) => r.count > 0 || r.reacted);
 
   const openPicker = () => setPickerOpen(true);
+
   const clearTimer = () => {
     if (pressTimer.current) window.clearTimeout(pressTimer.current);
     pressTimer.current = null;
   };
 
+  useEffect(() => {
+    const onClickOutside = (e: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        setPickerOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, []);
+
   return (
-    <div className="relative flex flex-wrap gap-1.5 items-center">
+    <div ref={wrapperRef} className="relative flex flex-wrap gap-1.5 items-center overflow-visible">
       {nonZero.map((r) => (
         <motion.button
           key={r.emoji}
@@ -808,7 +842,7 @@ function ReactionBar({ reactions, postId, onReact }: { reactions: Reaction[]; po
       <div className="relative">
         <motion.button
           whileTap={{ scale: 0.93 }}
-          onClick={openPicker}
+          onClick={() => setPickerOpen((v) => !v)}
           onMouseDown={() => {
             clearTimer();
             pressTimer.current = window.setTimeout(openPicker, 350);
@@ -825,7 +859,17 @@ function ReactionBar({ reactions, postId, onReact }: { reactions: Reaction[]; po
           <SmilePlus size={14} />
           <span>Reaksiya</span>
         </motion.button>
-        <AnimatePresence>{pickerOpen && <ReactionPicker onPick={(emoji) => { onReact(postId, emoji); setPickerOpen(false); }} />}</AnimatePresence>
+
+        <AnimatePresence>
+          {pickerOpen && (
+            <ReactionPicker
+              onPick={(emoji) => {
+                onReact(postId, emoji);
+                setPickerOpen(false);
+              }}
+            />
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
@@ -967,9 +1011,9 @@ function PostCard({ post, onReact, onAddComment, onDelete }: { post: Post; onRea
   const media = post.media || [];
 
   return (
-    <motion.article id={`post-${post.id}`} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, y: -10 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }} className="relative rounded-2xl border border-border/40 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm shadow-xl shadow-black/10 overflow-hidden group">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-purple-500/5 pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.04] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+    <motion.article id={`post-${post.id}`} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, y: -10 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }} className="relative rounded-2xl border border-border/40 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm shadow-xl shadow-black/10 overflow-visible group">
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-purple-500/5 pointer-events-none rounded-2xl" />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.04] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
 
       <div className="relative p-5 lg:p-6">
         <div className="flex items-start justify-between mb-4">
@@ -1102,7 +1146,9 @@ export function BlogPage() {
 
   useEffect(() => {
     void fetchPosts(true).then(() => setTimeout(() => scrollToBottom(false), 150));
-    const interval = setInterval(() => { void fetchPosts(false); }, 5000);
+    const interval = setInterval(() => {
+      void fetchPosts(false);
+    }, 5000);
     return () => clearInterval(interval);
   }, [fetchPosts, scrollToBottom]);
 
