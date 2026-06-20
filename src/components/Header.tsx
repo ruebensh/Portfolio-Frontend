@@ -72,11 +72,11 @@ export function Header({ data }: HeaderProps) {
                 {/* Online Status Dot */}
                 <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-green-500 border-[3px] border-background rounded-full shadow-[0_0_10px_rgba(34,197,94,0.8)] z-20"></div>
               </div>
-              <div className="flex flex-col">
-                <span className="font-extrabold text-[15px] leading-tight tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70 group-hover:to-primary transition-all">
+              <div className="flex flex-col justify-center">
+                <span className="font-extrabold text-[16px] leading-tight tracking-tight text-white group-hover:text-primary transition-colors">
                   {authorName}
                 </span>
-                <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-primary/90 flex items-center gap-1">
+                <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-primary/90 flex items-center gap-1 mt-0.5">
                   AI Engineer <Sparkles size={10} className="text-yellow-400/80" />
                 </span>
               </div>
