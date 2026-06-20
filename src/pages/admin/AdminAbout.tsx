@@ -7,7 +7,11 @@ import { Input } from "../../components/ui/input";
 import { Save, Plus, Trash2, Loader2, GraduationCap, Award, Lightbulb, BookOpen, Briefcase } from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
-const TOKEN = localStorage.getItem("token") || ""; 
+
+const getAuthHeader = () => {
+  const token = localStorage.getItem("token");
+  return token ? { "Authorization": `Bearer ${token}` } : {};
+};
 
 export function AdminAbout() {
   const [saveLoading, setSaveLoading] = useState(false);
@@ -77,7 +81,7 @@ export function AdminAbout() {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${TOKEN}` 
+          ...getAuthHeader()
         },
         body: JSON.stringify(payload)
       });

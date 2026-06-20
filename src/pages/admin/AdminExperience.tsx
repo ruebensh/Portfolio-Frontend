@@ -6,6 +6,11 @@ import { Plus, Trash2, Calendar, Save, Loader2 } from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
+const getAuthHeader = () => {
+  const token = localStorage.getItem("token");
+  return token ? { "Authorization": `Bearer ${token}` } : {};
+};
+
 export function AdminExperience() {
   const [expData, setExpData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -85,7 +90,7 @@ export function AdminExperience() {
 
       const res = await fetch(`${API_URL}/experience/admin`, {
         method: "POST", 
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...getAuthHeader() },
         body: JSON.stringify(payload),
       });
 

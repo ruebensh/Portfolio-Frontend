@@ -7,6 +7,11 @@ import { Search, Mail, MailOpen, Trash2, Loader2, RefreshCw, Send } from "lucide
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
+const getAuthHeader = () => {
+  const token = localStorage.getItem("token");
+  return token ? { "Authorization": `Bearer ${token}` } : {};
+};
+
 export function AdminMessages() {
   const [messages, setMessages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -17,7 +22,9 @@ export function AdminMessages() {
   const fetchMessages = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/messages`);
+      const res = await fetch(`${API_URL}/messages`, {
+        headers: { ...getAuthHeader() }
+      });
       const data = await res.json();
       setMessages(data || []);
     } catch (err) {
@@ -37,7 +44,7 @@ export function AdminMessages() {
     try {
       const res = await fetch(`${API_URL}/messages/${id}/reply`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...getAuthHeader() },
         body: JSON.stringify({ text }),
       });
 
@@ -58,7 +65,7 @@ export function AdminMessages() {
   const handleMarkAsRead = async (id: number, e: React.MouseEvent) => {
     e.stopPropagation();
     try {
-      const res = await fetch(`${API_URL}/messages/${id}/read`, { method: "PATCH" });
+      const res = await fetch(`${API_URL}/messages/${id}/read`, { method: "PATCH", headers: { ...getAuthHeader() } });
       if (res.ok) {
         setMessages(messages.map(m => m.id === id ? { ...m, read: true } : m));
       }
@@ -69,7 +76,7 @@ export function AdminMessages() {
     e.stopPropagation();
     if (!confirm("Ushbu xabar o'chirilsinmi?")) return;
     try {
-      const res = await fetch(`${API_URL}/messages/${id}`, { method: "DELETE" });
+      const res = await fetch(`${API_URL}/messages/${id}`, { method: "DELETE", headers: { ...getAuthHeader() } });
       if (res.ok) {
         setMessages(messages.filter(m => m.id !== id));
         if (selectedMessage === id) setSelectedMessage(null);

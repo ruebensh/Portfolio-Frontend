@@ -10,7 +10,11 @@ import {
 } from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
-const TOKEN = localStorage.getItem("portfolio_admin_access"); 
+
+const getAuthHeader = () => {
+  const token = localStorage.getItem("token");
+  return token ? { "Authorization": `Bearer ${token}` } : {};
+};
 
 export function AdminSettings() {
   const [loading, setLoading] = useState(false);
@@ -57,7 +61,7 @@ export function AdminSettings() {
     formData.append("file", file);
     const res = await fetch(`${API_URL}/upload/file`, {
       method: "POST",
-      headers: { "Authorization": `Bearer ${TOKEN}` },
+      headers: { ...getAuthHeader() },
       body: formData
     });
     if (!res.ok) throw new Error("Yuklashda xatolik");
@@ -85,7 +89,7 @@ export function AdminSettings() {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${TOKEN}` 
+          ...getAuthHeader()
         },
         body: JSON.stringify(settings)
       });
