@@ -108,7 +108,7 @@ export function AdminMessages() {
   return (
     <AdminLayout>
       <div className="space-y-8">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold mb-2">Messages</h1>
             <p className="text-muted-foreground">Foydalanuvchilardan kelgan xabarlar</p>
@@ -155,21 +155,21 @@ export function AdminMessages() {
                 } ${selectedMessage === msg.id ? "bg-accent" : ""}`}
                 onClick={() => setSelectedMessage(selectedMessage === msg.id ? null : msg.id)}
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-4 flex-1 min-w-0">
+                <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+                  <div className="flex items-start gap-4 flex-1 min-w-0 w-full">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
                       !msg.read ? "bg-primary text-primary-foreground" : "bg-muted"
                     }`}>
                       {msg.read ? <MailOpen size={20} /> : <Mail size={20} />}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-bold truncate">{msg.name}</span>
-                        <span className="text-xs text-muted-foreground">
+                      <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
+                        <span className="font-bold truncate max-w-[200px] sm:max-w-xs">{msg.name}</span>
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">
                           {new Date(msg.createdAt).toLocaleDateString()}
                         </span>
                       </div>
-                      <div className="text-sm text-primary mb-2">{msg.email}</div>
+                      <div className="text-sm text-primary mb-2 break-all">{msg.email}</div>
                       <div className={`text-sm ${selectedMessage === msg.id ? "" : "line-clamp-2"}`}>
                         {msg.text}
                       </div>
@@ -194,10 +194,10 @@ export function AdminMessages() {
                     animate={{ opacity: 1, height: "auto" }}
                     className="mt-6 pt-6 border-t border-border/40"
                   >
-                    <div className="p-4 rounded-lg bg-muted/50 text-sm leading-relaxed whitespace-pre-wrap mb-4">
+                    <div className="p-4 rounded-lg bg-muted/50 text-sm leading-relaxed whitespace-pre-wrap break-words mb-4">
                       {msg.text}
                     </div>
-                    <div className="flex gap-3">
+                    <div className="flex flex-wrap gap-3">
                       <Button 
                         size="sm" 
                         className="gap-2" 

@@ -76,7 +76,7 @@ export function AdminSkills() {
   return (
     <AdminLayout>
       <div className="space-y-8">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold mb-2">Skills</h1>
             <p className="text-muted-foreground">Texnik ko'nikmalaringizni boshqaring</p>
@@ -95,8 +95,8 @@ export function AdminSkills() {
         <div className="space-y-6">
           {skillsData.map((category, catIdx) => (
             <motion.div key={catIdx} className="p-6 rounded-2xl border border-border/40 bg-card">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold">{category.category}</h2>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+                <h2 className="text-xl font-semibold break-all">{category.category}</h2>
                 <div className="flex gap-2">
                   <Button variant="outline" size="sm" onClick={() => addSkill(catIdx)} className="gap-2">
                     <Plus size={16} /> Add Skill
@@ -110,8 +110,8 @@ export function AdminSkills() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {category.items.map((skill: any, skillIdx: number) => (
                   <div key={skillIdx} className="p-4 rounded-xl border border-border/40 bg-background/50">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="font-medium">{skill.name}</span>
+                    <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                      <span className="font-medium break-all">{skill.name}</span>
                       <div className="flex items-center gap-2">
                         <span className="text-sm text-muted-foreground">{skill.level}%</span>
                         <button onClick={() => removeSkill(catIdx, skillIdx)} className="text-destructive p-1">

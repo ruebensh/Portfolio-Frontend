@@ -123,7 +123,7 @@ export function AdminExperience() {
   return (
     <AdminLayout>
       <div className="space-y-8 pb-20">
-        <div className="flex items-center justify-between sticky top-0 z-10 bg-background/80 backdrop-blur py-4 border-b border-border/40">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sticky top-0 z-10 bg-background/80 backdrop-blur py-4 border-b border-border/40">
           <div>
             <h1 className="text-3xl font-bold mb-1">Experience</h1>
             <p className="text-sm text-muted-foreground">Professional karerangizni boshqaring</p>
@@ -178,7 +178,7 @@ export function AdminExperience() {
               </div>
 
               <div className="lg:pl-16">
-                <div className="flex items-center justify-between mb-3">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-3">
                   <h4 className="text-sm font-semibold text-muted-foreground">Yutuqlar</h4>
                   <Button variant="secondary" size="sm" onClick={() => addImpact(index)} className="h-7 text-xs">
                     + Qo'shish

@@ -136,12 +136,12 @@ export function AdminDashboard() {
             <h2 className="text-xl font-semibold mb-6">Recent Projects</h2>
             <div className="space-y-3">
               {data.projects.slice(0, 5).map((project: any) => (
-                <div key={project.id} className="p-4 rounded-lg border bg-background/50 flex justify-between items-center">
+                <div key={project.id} className="p-4 rounded-lg border bg-background/50 flex flex-col sm:flex-row gap-3 justify-between sm:items-center">
                   <div>
                     <div className="font-medium">{project.title}</div>
                     <div className="text-xs text-muted-foreground">{project.category}</div>
                   </div>
-                  <span className="text-xs px-2 py-1 rounded bg-primary/10 text-primary">{project.status}</span>
+                  <span className="text-xs px-2 py-1 rounded bg-primary/10 text-primary w-fit">{project.status}</span>
                 </div>
               ))}
             </div>

@@ -104,7 +104,7 @@ export function AdminAbout() {
   return (
     <AdminLayout>
       <div className="space-y-8 pb-10">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold mb-2">About Content</h1>
             <p className="text-muted-foreground">O'zingiz haqingizdagi ma'lumotlarni boshqarish</p>
@@ -130,7 +130,7 @@ export function AdminAbout() {
 
         {}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="p-6 rounded-2xl border border-border/40 bg-card">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
             <h2 className="text-xl font-semibold flex items-center gap-2"><GraduationCap size={20} className="text-primary" /> Ta'lim</h2>
             <Button variant="outline" size="sm" onClick={addEducation} className="gap-2"> <Plus size={16} /> Qo'shish </Button>
           </div>
@@ -151,7 +151,7 @@ export function AdminAbout() {
 
         {}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="p-6 rounded-2xl border border-border/40 bg-card">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
             <h2 className="text-xl font-semibold flex items-center gap-2"><Award size={20} className="text-primary" /> Sertifikatlar</h2>
             <Button variant="outline" size="sm" onClick={addCertificate} className="gap-2"> <Plus size={16} /> Qo'shish </Button>
           </div>
@@ -172,7 +172,7 @@ export function AdminAbout() {
 
         {}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="p-6 rounded-2xl border border-border/40 bg-card">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
             <h2 className="text-xl font-semibold flex items-center gap-2"><Lightbulb size={20} className="text-primary" /> Qadriyatlar</h2>
             <Button variant="outline" size="sm" onClick={() => addSimpleItem(setValues, values, "Qadriyat")} className="gap-2"> <Plus size={16} /> Qo'shish </Button>
           </div>
@@ -189,7 +189,7 @@ export function AdminAbout() {
         {}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="p-6 rounded-2xl border border-border/40 bg-card">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
               <h3 className="font-semibold flex items-center gap-2"><BookOpen size={18} /> O'rganilmoqda</h3>
               <Button size="sm" variant="ghost" onClick={() => addSimpleItem(setCurrentlyLearning, currentlyLearning, "Mavzu")}><Plus size={16} /></Button>
             </div>
@@ -202,7 +202,7 @@ export function AdminAbout() {
           </div>
 
           <div className="p-6 rounded-2xl border border-border/40 bg-card">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
               <h3 className="font-semibold flex items-center gap-2"><Briefcase size={18} /> Ustida ishlanmoqda</h3>
               <Button size="sm" variant="ghost" onClick={() => addSimpleItem(setCurrentlyWorking, currentlyWorking, "Loyiha")}><Plus size={16} /></Button>
             </div>

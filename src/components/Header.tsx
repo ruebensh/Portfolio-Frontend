@@ -107,14 +107,7 @@ export function Header({ data }: HeaderProps) {
           </nav>
 
           <div className="flex items-center gap-4">
-            <Link
-              href="/admin"
-              className="hidden md:flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold
-                         bg-foreground text-background hover:opacity-90 transition-all shadow-xl"
-            >
-              <LayoutDashboard size={16} />
-              Admin
-            </Link>
+
 
             <button
               className="md:hidden p-2.5 rounded-xl border border-white/10 bg-white/5 text-foreground"
@@ -152,14 +145,7 @@ export function Header({ data }: HeaderProps) {
               
               <hr className="my-2 border-white/5" />
               
-              <Link
-                href="/admin"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-center gap-2 p-4 rounded-2xl bg-white/5 border border-white/10 font-bold text-foreground"
-              >
-                <LayoutDashboard size={20} />
-                Admin Panel
-              </Link>
+
             </nav>
           </motion.div>
         )}
