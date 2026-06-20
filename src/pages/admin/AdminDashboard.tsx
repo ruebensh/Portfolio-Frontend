@@ -5,6 +5,11 @@ import { AdminLayout } from "../../components/admin/AdminLayout";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
+const getAuthHeader = () => {
+  const token = localStorage.getItem("admin_token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 export function AdminDashboard() {
   const [data, setData] = useState({
     projects: [],
@@ -18,7 +23,7 @@ export function AdminDashboard() {
       try {
         const [projectsRes, messagesRes, experienceRes] = await Promise.all([
           fetch(`${API_URL}/projects`),
-          fetch(`${API_URL}/messages`),
+          fetch(`${API_URL}/messages`, { headers: { ...getAuthHeader() } }),
           fetch(`${API_URL}/experience`),
         ]);
 
@@ -28,7 +33,11 @@ export function AdminDashboard() {
           experienceRes.json(),
         ]);
 
-        setData({ projects, messages, experience });
+        setData({ 
+          projects: Array.isArray(projects) ? projects : [], 
+          messages: Array.isArray(messages) ? messages : [], 
+          experience: Array.isArray(experience) ? experience : [] 
+        });
       } catch (err) {
         console.error("Dashboard yuklashda xato:", err);
       } finally {
