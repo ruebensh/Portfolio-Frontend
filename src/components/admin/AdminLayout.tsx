@@ -28,7 +28,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       <AdminSidebar />
 
       {}
-      <main className="pt-20 lg:pt-24 min-h-screen lg:ml-72 p-4 sm:p-6 lg:p-8 relative z-10">
+      <main className="pt-20 lg:pt-24 min-h-screen lg:ml-72 p-4 sm:p-6 lg:p-8">
         <div className="max-w-7xl mx-auto">
           {children}
         </div>

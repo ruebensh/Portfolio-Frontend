@@ -119,7 +119,7 @@ export function AdminSidebar() {
     <>
       <button
         onClick={() => setMobileOpen(!mobileOpen)}
-        className="lg:hidden fixed top-4 left-4 z-[60] p-2.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 shadow-lg backdrop-blur-sm"
+        className="lg:hidden fixed top-3 left-3 z-[100] p-3 rounded-xl bg-background border border-white/10 text-foreground shadow-xl shadow-black/30 active:scale-95 transition-transform"
         aria-label="Toggle Menu"
       >
         {mobileOpen ? <X size={22} /> : <Menu size={22} />}
