@@ -62,17 +62,23 @@ export function Header({ data }: HeaderProps) {
           
           <div className="flex items-center gap-6">
             <Link href="/" className="flex items-center gap-3 group">
-              <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-white/10 shadow-2xl bg-primary/20 flex items-center justify-center transition-transform group-hover:scale-110">
+              <div className="relative flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-br from-primary/80 to-purple-600/80 border border-white/20 shadow-[0_0_20px_rgba(var(--primary),0.3)] transition-all duration-300 group-hover:scale-105 group-hover:shadow-[0_0_30px_rgba(var(--primary),0.5)] overflow-hidden">
+                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20 mix-blend-overlay"></div>
                 {avatarSrc ? (
-                  <img src={avatarSrc} alt={authorName} className="w-full h-full object-cover" />
+                  <img src={avatarSrc} alt={authorName} className="w-full h-full object-cover relative z-10" />
                 ) : (
-                  <span className="text-primary font-bold text-lg">{authorName.charAt(0)}</span>
+                  <Bot size={22} className="text-white relative z-10 drop-shadow-md group-hover:animate-pulse" />
                 )}
-                <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-background rounded-full shadow-[0_0_8px_rgba(34,197,94,0.5)]"></div>
+                {/* Online Status Dot */}
+                <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-green-500 border-[3px] border-background rounded-full shadow-[0_0_10px_rgba(34,197,94,0.8)] z-20"></div>
               </div>
               <div className="flex flex-col">
-                <span className="font-bold text-sm leading-tight tracking-tight">{authorName}</span>
-                <span className="text-[10px] text-primary font-medium tracking-widest uppercase opacity-80">AI Engineer</span>
+                <span className="font-extrabold text-[15px] leading-tight tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70 group-hover:to-primary transition-all">
+                  {authorName}
+                </span>
+                <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-primary/90 flex items-center gap-1">
+                  AI Engineer <Sparkles size={10} className="text-yellow-400/80" />
+                </span>
               </div>
             </Link>
 
