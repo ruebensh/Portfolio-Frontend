@@ -25,8 +25,15 @@ export function AdminMessages() {
       const res = await fetch(`${API_URL}/messages`, {
         headers: { ...getAuthHeader() }
       });
+      
+      if (res.status === 401) {
+        localStorage.removeItem("token");
+        window.location.href = "/#/admin/login";
+        return;
+      }
+      
       const data = await res.json();
-      setMessages(data || []);
+      setMessages(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Xabarlarni yuklashda xato:", err);
     } finally {
