@@ -115,7 +115,7 @@ export function AdminProjects() {
   return (
     <AdminLayout>
       <div className="p-6 space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 sticky top-0 bg-background/80 backdrop-blur z-10 py-2">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 sticky top-0 bg-background/80 backdrop-blur z-20 py-4 pl-14 sm:pl-0">
           <h1 className="text-2xl font-bold">Loyiha boshqaruvi</h1>
           <Button onClick={() => setIsModalOpen(true)} className="gap-2">
             <Plus size={18} /> Yangi qo'shish
