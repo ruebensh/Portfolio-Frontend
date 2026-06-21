@@ -27,6 +27,13 @@ export function AdminDashboard() {
           fetch(`${API_URL}/experience`),
         ]);
 
+        if (messagesRes.status === 401) {
+          localStorage.removeItem("admin_token");
+          window.dispatchEvent(new Event("admin-logout"));
+          window.location.href = "/#/admin/login";
+          return;
+        }
+
         const [projects, messages, experience] = await Promise.all([
           projectsRes.json(),
           messagesRes.json(),
