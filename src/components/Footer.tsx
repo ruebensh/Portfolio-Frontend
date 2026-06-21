@@ -1,5 +1,6 @@
 import { Github, Linkedin, Send, Instagram, Mail } from "lucide-react";
 import { Link } from "../lib/router";
+import { useRef } from "react";
 
 interface FooterProps {
   data: any;
@@ -7,6 +8,21 @@ interface FooterProps {
 
 export function Footer({ data }: FooterProps) {
   const currentYear = new Date().getFullYear();
+  const clickCount = useRef(0);
+  const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleSecretClick = () => {
+    clickCount.current += 1;
+    if (clickTimer.current) clearTimeout(clickTimer.current);
+    if (clickCount.current >= 3) {
+      clickCount.current = 0;
+      window.location.href = "/#/admin";
+      return;
+    }
+    clickTimer.current = setTimeout(() => {
+      clickCount.current = 0;
+    }, 700);
+  };
 
   const socialLinks = [
     { icon: Github, href: data?.github, show: !!data?.github },
@@ -31,11 +47,7 @@ export function Footer({ data }: FooterProps) {
           </div>
           <h3
             className="text-xl font-bold tracking-tight mb-2 cursor-default select-none"
-            onClick={(e) => {
-              if (e.detail === 3) {
-                window.location.href = "/#/admin";
-              }
-            }}
+            onClick={handleSecretClick}
           >
             {data?.author || "Jaloliddin"}
           </h3>
