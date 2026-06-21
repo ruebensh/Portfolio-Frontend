@@ -6,7 +6,7 @@ import { AdminLayout } from "../../components/admin/AdminLayout";
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 const getAuthHeader = () => {
-  const token = localStorage.getItem("admin_token");
+  const token = localStorage.getItem("token");
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
@@ -28,7 +28,7 @@ export function AdminDashboard() {
         ]);
 
         if (messagesRes.status === 401) {
-          localStorage.removeItem("admin_token");
+          localStorage.removeItem("token");
           window.dispatchEvent(new Event("admin-logout"));
           window.location.href = "/#/admin/login";
           return;
