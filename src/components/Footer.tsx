@@ -29,7 +29,14 @@ export function Footer({ data }: FooterProps) {
               </span>
             </div>
           </div>
-          <h3 className="text-xl font-bold tracking-tight mb-2">
+          <h3
+            className="text-xl font-bold tracking-tight mb-2 cursor-default select-none"
+            onClick={(e) => {
+              if (e.detail === 3) {
+                window.location.href = "/#/admin";
+              }
+            }}
+          >
             {data?.author || "Jaloliddin"}
           </h3>
           <p className="text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">
