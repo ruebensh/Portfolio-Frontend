@@ -153,7 +153,7 @@ export function Contact({ data }: ContactProps) {
                     {data.phone}
                   </a>
                 ) : (
-                  <span className="font-medium">+998 88 195 64 04</span>
+                  <span className="font-medium">+998 88 915 64 04</span>
                 )}
               </div>
             </div>
