@@ -132,7 +132,7 @@ export function Contact({ data }: ContactProps) {
                     {data.email}
                   </a>
                 ) : (
-                  <span className="font-medium">example@mail.com</span>
+                  <span className="font-medium">jaloliddinxalimov.0103@mail.com</span>
                 )}
               </div>
             </div>
@@ -153,7 +153,7 @@ export function Contact({ data }: ContactProps) {
                     {data.phone}
                   </a>
                 ) : (
-                  <span className="font-medium">+998 90 000 00 00</span>
+                  <span className="font-medium">+998 88 195 64 04</span>
                 )}
               </div>
             </div>
