@@ -85,6 +85,11 @@ export function LiveStatusWidget() {
   const [links, setLinks] = useState<Record<string, string>>({});
   const [updatedAt, setUpdatedAt] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     const fetchStatus = async () => {
@@ -101,8 +106,9 @@ export function LiveStatusWidget() {
             instagram: data.instagram || "",
           });
         }
-      } catch {
-        /* ignore */
+      } catch (error) {
+        console.log("LiveStatusWidget - API fetch failed:", error);
+        // Default offline holatiga tushadi
       } finally {
         setLoading(false);
       }
@@ -121,7 +127,7 @@ export function LiveStatusWidget() {
     ? activePlatform.glow
     : "rgba(100, 116, 139, 0.3)";
 
-  if (loading) return null;
+  if (!isMounted) return null;
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
