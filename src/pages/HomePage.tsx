@@ -7,6 +7,7 @@ import { ProfileCard } from "../components/home/ProfileCard";
 import { Skills } from "../components/home/Skills";
 import { Experience } from "../components/home/Experience";
 import { Contact } from "../components/home/Contact";
+import { LiveStatusWidget } from "../components/LiveStatusWidget";
 
 // AI Xizmatini import qilamiz
 import { sendMessageToAI } from "../services/aiService";
@@ -368,6 +369,8 @@ export function HomePage() {
       <section id="contact" ref={(el) => (contactSectionRef.current = el)} className={`py-24 bg-white/[0.01] ${pulseContact ? "contact-pulse" : ""}`}>
         <Reveal delay={0.05}><Contact data={settings} /></Reveal>
       </section>
+
+      <LiveStatusWidget />
     </main>
   );
 }
