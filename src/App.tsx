@@ -18,9 +18,8 @@ import { AdminSettings } from "./pages/admin/AdminSettings";
 import { useEffect, useState } from "react";
 import { BlogPage } from "./pages/BlogPage";
 
-// AI Sahifasi komponentini import qiling
+import { AdminLoginPage } from "./pages/admin/AdminLoginPage";
 import { AIChatPage } from "./pages/AIChatPage"; 
-// ChatAI - bu kichik suzuvchi tugma bo'lsa kerak
 import ChatAI from "./components/ChatAI";
 import { NotFoundPage } from "./pages/NotFoundPage";
 
@@ -39,8 +38,6 @@ function AppContent() {
   ].includes(currentPath) || currentPath.startsWith("/project/");
   const [authChecked, setAuthChecked] = useState(false);
   const isAdminRoute = currentPath.startsWith("/admin");
-  // AI sahifasida Header/Footer kerak bo'lsa buni o'zgartirmang, 
-  // agar to'liq ekran (full screen) bo'lsin desangiz isAiPage ni tekshiramiz:
   const isAiPage = currentPath === "/ai-chat";
 
   useEffect(() => {
@@ -63,45 +60,18 @@ function AppContent() {
       return;
     }
 
-    const checkAuth = async () => {
-      const token = localStorage.getItem("token");
-      if (!token || token === "undefined") {
-        const email = prompt("Admin email:");
-        const password = prompt("Admin paroli:");
-        if (!email || !password) {
-          window.location.href = "/";
-          return;
-        }
-        try {
-          const res = await fetch(`${API_URL}/auth/login`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password }),
-          });
-          if (res.ok) {
-            const data = await res.json();
-            localStorage.setItem("token", data.access_token);
-            setAuthChecked(true);
-          } else {
-            alert("Xato! Email yoki parol noto'g'ri.");
-            window.location.href = "/";
-          }
-        } catch (error) {
-          console.error("Server xatosi:", error);
-          alert("Server xatosi!");
-          window.location.href = "/";
-        }
-      } else {
-        setAuthChecked(true);
-      }
-    };
-    checkAuth();
+    const token = localStorage.getItem("token");
+    if (token && token !== "undefined") {
+      setAuthChecked(true);
+    } else {
+      setAuthChecked(false);
+    }
   }, [currentPath, isAdminRoute]);
 
   // Admin yo'nalishlari uchun mantiq
   if (isAdminRoute) {
     if (!authChecked) {
-      return <div className="min-h-screen bg-black" />;
+      return <AdminLoginPage onSuccess={() => setAuthChecked(true)} />;
     }
 
     let AdminContent;
