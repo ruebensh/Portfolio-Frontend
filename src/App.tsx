@@ -22,6 +22,7 @@ import { AdminLoginPage } from "./pages/admin/AdminLoginPage";
 import { AIChatPage } from "./pages/AIChatPage"; 
 import ChatAI from "./components/ChatAI";
 import { NotFoundPage } from "./pages/NotFoundPage";
+import { LiveStatusWidget } from "./components/LiveStatusWidget";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -112,8 +113,9 @@ function AppContent() {
         {!isKnownRoute && <NotFoundPage />}
       </main>
       <Footer />
-      {/* Agar /ai-chat sahifasida bo'lsak, ChatAI (kichik tugma) ni yashirishimiz mumkin */}
       {!isAiPage && <ChatAI />}
+      {/* Live Status Widget - hamma sahifada ko'rinadi */}
+      <LiveStatusWidget />
     </>
   );
 }
