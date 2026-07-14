@@ -260,30 +260,41 @@ export function LiveStatusWidget() {
         onClick={() => setIsOpen((prev) => !prev)}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="relative w-14 h-14 rounded-2xl border border-white/10 bg-black/60 backdrop-blur-xl flex items-center justify-center shadow-2xl overflow-visible"
-        style={{ boxShadow: `0 0 24px ${mainBtnGlow}, 0 8px 32px rgba(0,0,0,0.4)` }}
+        className={`relative flex items-center gap-2.5 rounded-2xl border backdrop-blur-xl shadow-2xl overflow-visible px-4 py-2.5 transition-all ${
+          isOnline && activePlatform
+            ? `bg-black/70 border-white/15`
+            : "bg-black/60 border-white/10"
+        }`}
+        style={{
+          boxShadow: isOnline && activePlatform
+            ? `0 0 20px ${mainBtnGlow}, 0 8px 32px rgba(0,0,0,0.4)`
+            : `0 4px 20px rgba(0,0,0,0.4)`,
+        }}
         title={isOnline ? `Online - ${activePlatform?.label || ""}` : "Offline"}
       >
         {/* Online indicator dot */}
-        <div className="absolute -top-1 -right-1 z-10">
+        <div className="relative">
           {isOnline ? (
-            <div className="relative">
-              <div className="w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-black" />
-              <div className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-50" />
-            </div>
+            <>
+              <div className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
+              <div className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-60" />
+            </>
           ) : (
-            <div className="w-3.5 h-3.5 rounded-full bg-slate-600 border-2 border-black" />
+            <div className="w-2.5 h-2.5 rounded-full bg-slate-600" />
           )}
         </div>
 
         {/* Icon */}
         {isOnline && activePlatform ? (
-          <activePlatform.icon size={22} className={activePlatform.color} />
-        ) : isOnline ? (
-          <Wifi size={22} className="text-emerald-400" />
+          <activePlatform.icon size={18} className={activePlatform.color} />
         ) : (
-          <WifiOff size={22} className="text-slate-500" />
+          <WifiOff size={18} className="text-slate-500" />
         )}
+
+        {/* Label */}
+        <span className={`text-xs font-semibold ${isOnline && activePlatform ? activePlatform.color : "text-slate-500"}`}>
+          {isOnline && activePlatform ? activePlatform.label : "Offline"}
+        </span>
       </motion.button>
     </div>
   );
