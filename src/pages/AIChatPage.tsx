@@ -194,7 +194,8 @@ export function AIChatPage() {
       <style jsx global>{`
         .ai-chat-container {
           display: flex;
-          height: calc(100vh - 60px);
+          height: calc(100vh - 64px);
+          margin-top: 64px;
           background: linear-gradient(135deg, #000000 0%, #0d0d1e 50%, #150a22 100%);
           overflow: hidden;
           font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
@@ -215,7 +216,7 @@ export function AIChatPage() {
           .chat-sidebar {
             position: fixed;
             left: 0;
-            top: 0;
+            top: 64px;
             bottom: 0;
             transform: translateX(-100%);
             width: 260px;
