@@ -382,18 +382,8 @@ export function AIChatPage() {
           </div>
 
           {/* Desktop Header */}
-          <div className="hidden md:flex items-center justify-between px-6 py-4 bg-black/10 backdrop-blur-md border-b border-white/5">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600/30 to-purple-600/30 border border-indigo-400/25 flex items-center justify-center">
-                <Sparkles className="text-indigo-400 animate-pulse" size={18} />
-              </div>
-              <div>
-                <h1 className="text-sm font-bold text-white tracking-wide">
-                  {sessions.find(s => s.id === activeSessionId)?.title || "Yangi suhbat"}
-                </h1>
-                <div className="text-[10px] text-emerald-400 font-medium">Individual suhbat xonasi</div>
-              </div>
-            </div>
+          <div className="hidden md:flex items-center justify-between px-6 py-4 border-b border-white/5 opacity-0 pointer-events-none h-0 p-0 m-0">
+            {/* Bo'sh joy qoldiramiz, shunda padding o'zgarmaydi, lekin ko'rinmaydi */}
           </div>
 
           {/* Xabarlar ro'yxati */}
