@@ -12,14 +12,9 @@ const ChatAI = () => {
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Session ID mantiqi (Xotira individual bo'lishi uchun)
+  // Stateless floating chatbot uchun "temp_" prefiksli vaqtinchalik session ID ishlatamiz
   const [sessionId] = useState(() => {
-    let sId = localStorage.getItem('ruebensh_session_id');
-    if (!sId) {
-      sId = 'sid_' + Math.random().toString(36).substring(2, 11);
-      localStorage.setItem('ruebensh_session_id', sId);
-    }
-    return sId;
+    return 'temp_sid_' + Math.random().toString(36).substring(2, 11);
   });
 
   useEffect(() => {

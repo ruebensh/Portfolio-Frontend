@@ -5,6 +5,8 @@ import { Send, Bot, User, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { sendMessageToAI } from "../services/aiService";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 export function AIChatPage() {
   const [messages, setMessages] = useState<{ role: "user" | "ai"; text: string }[]>([
     {
@@ -15,16 +17,43 @@ export function AIChatPage() {
 
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const [sessionId] = useState(() => {
+  const [sessionId, setSessionId] = useState(() => {
     const existing = localStorage.getItem("ruebensh_session_id");
     if (existing) return existing;
     const newId = "sid_" + Math.random().toString(36).substring(2, 11);
     localStorage.setItem("ruebensh_session_id", newId);
     return newId;
   });
+
+  useEffect(() => {
+    const loadHistory = async () => {
+      setHistoryLoading(true);
+      try {
+        const res = await fetch(`${API_URL}/ai/history/${sessionId}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.length > 0) {
+            setMessages([
+              {
+                role: "ai",
+                text: "Assalomu alaykum! Men Jaloliddinning raqamli yordamchisiman. Bizning avvalgi suhbatimizni esladim. Savolingiz bo'lsa, bemalol davom ettirishimiz mumkin.",
+              },
+              ...data,
+            ]);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load chat history:", err);
+      } finally {
+        setHistoryLoading(false);
+      }
+    };
+    loadHistory();
+  }, [sessionId]);
 
   useEffect(() => {
     if (!isLoading) {
@@ -62,7 +91,17 @@ export function AIChatPage() {
     }
   };
 
-  const clearChat = () => setMessages([messages[0]]);
+  const clearChat = () => {
+    const newId = "sid_" + Math.random().toString(36).substring(2, 11);
+    localStorage.setItem("ruebensh_session_id", newId);
+    setSessionId(newId);
+    setMessages([
+      {
+        role: "ai",
+        text: "Assalomu alaykum! Men Jaloliddinning raqamli yordamchisiman. Men bilan uning tajribasi, loyihalari yoki hayotiy qarashlari haqida suhbatlashishingiz mumkin.",
+      },
+    ]);
+  };
 
   return (
     <>
@@ -207,6 +246,12 @@ export function AIChatPage() {
             className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6 space-y-4 scrollbar-thin scrollbar-thumb-indigo-500/40 scrollbar-track-transparent"
             style={{ overflowY: "auto", }}
           >
+            {historyLoading && (
+              <div className="flex items-center justify-center py-8 text-indigo-400 gap-2">
+                <div className="w-4 h-4 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
+                <span className="text-xs">Suhbat tarixi yuklanmoqda...</span>
+              </div>
+            )}
             <AnimatePresence>
               {messages.map((msg, i) => (
                 <motion.div

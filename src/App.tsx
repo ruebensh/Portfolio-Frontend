@@ -22,11 +22,21 @@ import { BlogPage } from "./pages/BlogPage";
 import { AIChatPage } from "./pages/AIChatPage"; 
 // ChatAI - bu kichik suzuvchi tugma bo'lsa kerak
 import ChatAI from "./components/ChatAI";
+import { NotFoundPage } from "./pages/NotFoundPage";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 function AppContent() {
   const { currentPath } = useRouter();
+  const isKnownRoute = [
+    "/",
+    "/projects",
+    "/certificates",
+    "/resume",
+    "/about",
+    "/blog",
+    "/ai-chat"
+  ].includes(currentPath) || currentPath.startsWith("/project/");
   const [authChecked, setAuthChecked] = useState(false);
   const isAdminRoute = currentPath.startsWith("/admin");
   // AI sahifasida Header/Footer kerak bo'lsa buni o'zgartirmang, 
@@ -129,6 +139,7 @@ function AppContent() {
         {currentPath === "/blog" && <BlogPage />}
         {currentPath === "/ai-chat" && <AIChatPage />}
         {currentPath.startsWith("/project/") && <ProjectDetailPage />}
+        {!isKnownRoute && <NotFoundPage />}
       </main>
       <Footer />
       {/* Agar /ai-chat sahifasida bo'lsak, ChatAI (kichik tugma) ni yashirishimiz mumkin */}
