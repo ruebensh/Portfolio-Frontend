@@ -166,7 +166,7 @@ export function AIChatPage() {
     const userMsg = input.trim();
     setInput("");
     if (inputRef.current) {
-      inputRef.current.style.height = "auto";
+      inputRef.current.style.height = "56px";
     }
     setMessages((prev) => [...prev, { role: "user", text: userMsg }]);
     setIsLoading(true);
@@ -467,22 +467,22 @@ export function AIChatPage() {
                 onChange={(e) => {
                   setInput(e.target.value);
                   const el = e.target;
-                  el.style.height = "auto";
-                  el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
+                  el.style.height = "56px";
+                  el.style.height = `${Math.min(Math.max(el.scrollHeight, 56), 160)}px`;
                 }}
                 onKeyDown={handleKeyDown}
                 placeholder={historyLoading ? "Tarix yuklanmoqda..." : "Yozish uchun bu yerga bosing... (Yuborish: Ctrl+Enter)"}
                 disabled={isLoading || historyLoading}
                 rows={1}
-                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4.5 pl-6 pr-16 text-sm placeholder:text-slate-500 outline-none transition-all focus:border-indigo-500/50 focus:bg-white/10 text-white resize-none min-h-[56px] max-h-[160px] scrollbar-thin scrollbar-thumb-white/5"
+                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-6 pr-16 text-sm placeholder:text-slate-500 outline-none transition-all focus:border-indigo-500/50 focus:bg-white/10 text-white resize-none h-[56px] max-h-[160px] scrollbar-thin scrollbar-thumb-white/5"
               />
               <button
                 type="submit"
                 disabled={isLoading || historyLoading || !input.trim()}
-                className="absolute right-3.5 bottom-3.5 p-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl disabled:opacity-30 disabled:pointer-events-none hover:brightness-110 shadow-lg shadow-indigo-600/20 active:scale-95 transition-all"
+                className="absolute right-3.5 bottom-3 p-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl disabled:opacity-30 disabled:pointer-events-none hover:brightness-110 shadow-lg shadow-indigo-600/20 active:scale-95 transition-all"
                 aria-label="Yuborish"
               >
-                <Send size={16} />
+                <Send size={15} />
               </button>
             </div>
           </form>
