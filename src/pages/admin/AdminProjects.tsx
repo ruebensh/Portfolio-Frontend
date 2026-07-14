@@ -114,15 +114,18 @@ export function AdminProjects() {
 
   return (
     <AdminLayout>
-      <div className="p-6 space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 sticky top-0 bg-background/80 backdrop-blur z-20 py-4 pl-14 sm:pl-0">
-          <h1 className="text-2xl font-bold">Loyiha boshqaruvi</h1>
-          <Button onClick={() => setIsModalOpen(true)} className="gap-2">
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold">Loyiha boshqaruvi</h1>
+            <p className="text-muted-foreground text-sm mt-0.5">{localProjects.length} ta loyiha</p>
+          </div>
+          <Button onClick={() => setIsModalOpen(true)} className="gap-2 w-full sm:w-auto">
             <Plus size={18} /> Yangi qo'shish
           </Button>
         </div>
 
-        {}
+        {/* Add Project Modal */}
         {isModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
             <div className="bg-slate-900 border border-slate-800 w-full max-w-md p-6 rounded-2xl shadow-2xl relative">
@@ -160,45 +163,70 @@ export function AdminProjects() {
           </div>
         )}
 
-        {}
-        <div className="rounded-xl border border-slate-800 bg-slate-950 overflow-hidden">
-          {loading ? (
-            <div className="p-20 text-center"><Loader2 className="animate-spin mx-auto text-blue-500" size={32} /></div>
-          ) : (
-            <table className="w-full text-left text-sm">
-              <thead className="bg-slate-900 text-slate-400">
-                <tr>
-                  <th className="p-4">Rasm</th>
-                  <th className="p-4">Nomi</th>
-                  <th className="p-4">Havola</th>
-                  <th className="p-4 text-right">Amal</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800">
-                {localProjects.length === 0 ? (
-                  <tr><td colSpan={4} className="p-10 text-center">Ma'lumot topilmadi</td></tr>
-                ) : localProjects.map((p) => (
-                  <tr key={p.id} className="hover:bg-slate-900/50 transition-colors group">
-                    <td className="p-4">
-                      <div className="w-12 h-12 rounded bg-slate-800 overflow-hidden flex items-center justify-center">
-                        {p.imageUrl ? (
-                          <img src={p.imageUrl.startsWith('http') ? p.imageUrl : `${API_URL}${p.imageUrl}`} className="w-full h-full object-cover" />
-                        ) : <ImageIcon size={18} className="text-slate-600" />}
-                      </div>
-                    </td>
-                    <td className="p-4 font-medium">{p.title}</td>
-                    <td className="p-4 text-blue-400 truncate max-w-[200px]">{p.liveUrl}</td>
-                    <td className="p-4 text-right">
-                      <button onClick={() => handleDelete(p.id)} className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg">
-                        <Trash2 size={18} />
-                      </button>
-                    </td>
+        {/* Projects list */}
+        {loading ? (
+          <div className="p-20 text-center"><Loader2 className="animate-spin mx-auto text-blue-500" size={32} /></div>
+        ) : localProjects.length === 0 ? (
+          <div className="rounded-2xl border border-border/40 p-16 text-center text-muted-foreground">
+            Hali loyihalar yo'q. Yuqoridagi tugmani bosib qo'shing.
+          </div>
+        ) : (
+          <>
+            {/* Mobile: card layout */}
+            <div className="sm:hidden space-y-3">
+              {localProjects.map((p) => (
+                <div key={p.id} className="rounded-xl border border-border/40 bg-card p-4 flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-lg bg-slate-800 overflow-hidden flex items-center justify-center shrink-0">
+                    {p.imageUrl ? (
+                      <img src={p.imageUrl.startsWith('http') ? p.imageUrl : `${API_URL}${p.imageUrl}`} className="w-full h-full object-cover" />
+                    ) : <ImageIcon size={20} className="text-slate-600" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold truncate">{p.title}</div>
+                    <div className="text-xs text-blue-400 truncate mt-0.5">{p.liveUrl}</div>
+                  </div>
+                  <button onClick={() => handleDelete(p.id)} className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg shrink-0">
+                    <Trash2 size={18} />
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop: table layout */}
+            <div className="hidden sm:block rounded-xl border border-border/40 bg-card overflow-hidden">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-muted/50 text-muted-foreground text-xs uppercase tracking-wider">
+                  <tr>
+                    <th className="p-4 w-16">Rasm</th>
+                    <th className="p-4">Nomi</th>
+                    <th className="p-4">Havola</th>
+                    <th className="p-4 text-right w-16">Amal</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
+                </thead>
+                <tbody className="divide-y divide-border/40">
+                  {localProjects.map((p) => (
+                    <tr key={p.id} className="hover:bg-muted/20 transition-colors group">
+                      <td className="p-4">
+                        <div className="w-10 h-10 rounded-lg bg-muted overflow-hidden flex items-center justify-center">
+                          {p.imageUrl ? (
+                            <img src={p.imageUrl.startsWith('http') ? p.imageUrl : `${API_URL}${p.imageUrl}`} className="w-full h-full object-cover" />
+                          ) : <ImageIcon size={16} className="text-muted-foreground" />}
+                        </div>
+                      </td>
+                      <td className="p-4 font-medium">{p.title}</td>
+                      <td className="p-4 text-blue-400 truncate max-w-[200px]">{p.liveUrl}</td>
+                      <td className="p-4 text-right">
+                        <button onClick={() => handleDelete(p.id)} className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg">
+                          <Trash2 size={16} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
       </div>
     </AdminLayout>
   );

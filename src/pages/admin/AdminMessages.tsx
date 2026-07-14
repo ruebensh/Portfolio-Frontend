@@ -108,7 +108,7 @@ export function AdminMessages() {
   return (
     <AdminLayout>
       <div className="space-y-8">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pl-14 sm:pl-0">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold mb-2">Messages</h1>
             <p className="text-muted-foreground">Foydalanuvchilardan kelgan xabarlar</p>
@@ -119,7 +119,7 @@ export function AdminMessages() {
         </div>
 
         {}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           <div className="p-4 rounded-xl border border-border/40 bg-card shadow-sm">
             <div className="text-2xl font-bold">{messages.length}</div>
             <div className="text-sm text-muted-foreground">Total Messages</div>

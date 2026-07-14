@@ -107,10 +107,10 @@ export function AdminSettings() {
         {}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-6">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Sozlamalar</h1>
-            <p className="text-muted-foreground">Portfolio va aloqa ma'lumotlarini boshqaring</p>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Sozlamalar</h1>
+            <p className="text-muted-foreground text-sm mt-1">Portfolio va aloqa ma'lumotlarini boshqaring</p>
           </div>
-          <Button onClick={handleSave} disabled={saveLoading} className="h-11 px-8">
+          <Button onClick={handleSave} disabled={saveLoading} className="h-11 px-8 w-full sm:w-auto">
             {saveLoading ? <Loader2 className="animate-spin mr-2" /> : <Save className="mr-2" />}
             O'zgarishlarni saqlash
           </Button>
@@ -163,7 +163,7 @@ export function AdminSettings() {
             {}
             <section className="p-6 rounded-2xl border bg-card shadow-sm space-y-4">
               <h3 className="font-semibold text-lg">Asosiy ma'lumotlar</h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-sm">Ism-sharif</label>
                   <Input value={settings.author} onChange={e => setSettings({...settings, author: e.target.value})} />

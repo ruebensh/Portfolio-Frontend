@@ -39,7 +39,7 @@ export function Experience() {
   if (experienceData.length === 0) return null;
 
   return (
-    <section className="max-w-7xl mx-auto px-6 lg:px-8 py-20">
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}

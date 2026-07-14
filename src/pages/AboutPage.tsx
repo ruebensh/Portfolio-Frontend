@@ -282,7 +282,7 @@ export function AboutPage() {
     <div className="min-h-screen pt-24 pb-20 bg-[#020202] text-foreground relative">
       <SoftAboutBackground />
 
-      <div className="max-w-5xl mx-auto px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         {}
         <motion.div
           initial={{ opacity: 0, y: 18 }}
@@ -298,7 +298,7 @@ export function AboutPage() {
               </span>
             </div>
 
-            <h1 className="text-4xl lg:text-6xl font-extrabold tracking-tight mb-4 ab-title">
+            <h1 className="text-3xl sm:text-4xl lg:text-6xl font-extrabold tracking-tight mb-4 ab-title">
               About Me
             </h1>
 

@@ -194,7 +194,7 @@ export function AIChatPage() {
       <style jsx global>{`
         .ai-chat-container {
           display: flex;
-          height: calc(100vh - 64px);
+          height: calc(100vh - 60px);
           background: linear-gradient(135deg, #000000 0%, #0d0d1e 50%, #150a22 100%);
           overflow: hidden;
           font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
@@ -213,13 +213,13 @@ export function AIChatPage() {
 
         @media (max-width: 768px) {
           .chat-sidebar {
-            position: absolute;
+            position: fixed;
             left: 0;
-            top: 64px;
+            top: 0;
             bottom: 0;
             transform: translateX(-100%);
             width: 260px;
-            background: rgba(10, 10, 20, 0.95);
+            background: rgba(10, 10, 20, 0.98);
           }
           .chat-sidebar.open {
             transform: translateX(0);
@@ -466,7 +466,7 @@ export function AIChatPage() {
                 onChange={(e) => setInput(e.target.value)}
                 placeholder={historyLoading ? "Tarix yuklanmoqda..." : "Yozish uchun bu yerga bosing..."}
                 disabled={isLoading || historyLoading}
-                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4.5 pl-6 pr-16 text-sm placeholder:text-slate-500 outline-none transition-all focus:border-indigo-500/50 focus:bg-white/10 text-white"
+                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-6 pr-16 text-sm placeholder:text-slate-500 outline-none transition-all focus:border-indigo-500/50 focus:bg-white/10 text-white"
               />
               <button
                 type="submit"

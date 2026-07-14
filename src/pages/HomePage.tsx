@@ -296,7 +296,7 @@ export function HomePage() {
       <PageBackground />
 
       <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
-        <div className="relative max-w-7xl mx-auto px-6 lg:px-8 py-32 text-center">
+        <div className="relative max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-20 sm:py-28 lg:py-32 text-center">
           <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border/40 bg-background/50 backdrop-blur-sm mb-6">
             <Sparkles size={16} className="text-primary" />
             <span className="text-sm text-muted-foreground">Xush Kelibsiz & Welcome</span>
@@ -328,17 +328,17 @@ export function HomePage() {
       </section>
 
       {/* --- YANGI AI INTERACTIVE SECTION --- */}
-      <section className="py-12 px-6">
+      <section className="py-8 sm:py-12 px-5 sm:px-6">
         <Reveal delay={0.1}>
-          <div className="max-w-4xl mx-auto p-8 rounded-3xl border border-primary/20 bg-primary/5 backdrop-blur-xl relative overflow-hidden group">
+          <div className="max-w-4xl mx-auto p-6 sm:p-8 rounded-3xl border border-primary/20 bg-primary/5 backdrop-blur-xl relative overflow-hidden group">
             <div className="absolute -right-20 -top-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl group-hover:bg-primary/20 transition-all duration-700" />
-            <div className="relative z-10 flex flex-col md:flex-row gap-8 items-center">
+            <div className="relative z-10 flex flex-col gap-6">
               <div className="flex-1 text-left">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-primary/20 rounded-lg text-primary"><Bot size={24} /></div>
-                  <h2 className="text-2xl font-bold premium-title text-white">Ask Ruebensh AI</h2>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 bg-primary/20 rounded-lg text-primary"><Bot size={22} /></div>
+                  <h2 className="text-xl sm:text-2xl font-bold premium-title text-white">Ask Ruebensh AI</h2>
                 </div>
-                <p className="text-muted-foreground mb-6 text-sm">Men va mani loyihalarim yoki tajribam haqida shaxsiy AI yordamchimdan so'rang.</p>
+                <p className="text-muted-foreground mb-5 text-sm">Men va mani loyihalarim yoki tajribam haqida shaxsiy AI yordamchimdan so'rang.</p>
                 <form onSubmit={handleAskAI} className="relative">
                   <input type="text" value={aiInput} onChange={(e) => setAiInput(e.target.value)} placeholder="Masalan: Ruebensh niki nimani anglatadi?" className="w-full bg-background/50 border border-border/40 rounded-2xl px-5 py-4 pr-14 focus:ring-2 focus:ring-primary outline-none text-white transition-all text-sm" />
                   <button disabled={isAiLoading} className="absolute right-2 top-2 p-3 bg-primary text-primary-foreground rounded-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50">
@@ -347,8 +347,8 @@ export function HomePage() {
                 </form>
               </div>
               {aiResponse && (
-                <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="flex-1 bg-background/40 border border-border/20 p-6 rounded-2xl backdrop-blur-md relative">
-                  <p className="text-sm leading-relaxed italic text-foreground text-left text-gray-300">"{aiResponse}"</p>
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-background/40 border border-border/20 p-5 rounded-2xl backdrop-blur-md">
+                  <p className="text-sm leading-relaxed italic text-gray-300 text-left">"{aiResponse}"</p>
                 </motion.div>
               )}
             </div>

@@ -94,10 +94,10 @@ export function AdminDashboard() {
 
   return (
     <AdminLayout>
-      <div className="space-y-8">
+      <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
-          <p className="text-muted-foreground">Xush kelibsiz! Portfolioingiz holati haqida umumiy ma'lumot.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-1">Dashboard</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">Xush kelibsiz! Portfolioingiz holati haqida umumiy ma'lumot.</p>
         </div>
 
         {}

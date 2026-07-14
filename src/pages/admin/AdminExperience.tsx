@@ -123,7 +123,7 @@ export function AdminExperience() {
   return (
     <AdminLayout>
       <div className="space-y-8 pb-20">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sticky top-0 z-20 bg-background/80 backdrop-blur py-4 border-b border-border/40 pl-14 sm:pl-0">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sticky top-0 z-20 bg-background/80 backdrop-blur py-4 border-b border-border/40 pl-0">
           <div>
             <h1 className="text-3xl font-bold mb-1">Experience</h1>
             <p className="text-sm text-muted-foreground">Professional karerangizni boshqaring</p>

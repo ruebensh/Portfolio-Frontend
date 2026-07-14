@@ -262,7 +262,7 @@ export function ProjectsPage() {
     <div className="min-h-screen pt-24 pb-20 bg-[#020202] text-foreground relative">
       <SoftProjectsBackground />
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {}
         <motion.div
           initial={{ opacity: 0, y: 18 }}
@@ -278,7 +278,7 @@ export function ProjectsPage() {
               </span>
             </div>
 
-            <h1 className="text-4xl lg:text-6xl font-extrabold tracking-tight mb-4 pp-title">
+            <h1 className="text-3xl sm:text-4xl lg:text-6xl font-extrabold tracking-tight mb-4 pp-title">
               All Projects
             </h1>
 

@@ -76,7 +76,7 @@ export function AdminSkills() {
   return (
     <AdminLayout>
       <div className="space-y-8">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pl-14 sm:pl-0">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pl-0">
           <div>
             <h1 className="text-3xl font-bold mb-2">Skills</h1>
             <p className="text-muted-foreground">Texnik ko'nikmalaringizni boshqaring</p>
