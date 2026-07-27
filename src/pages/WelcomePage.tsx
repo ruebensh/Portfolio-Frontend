@@ -19,7 +19,7 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 w-full h-screen overflow-hidden bg-[#0a0608] select-none text-white font-inter flex items-center justify-center"
+      className="fixed inset-0 z-50 w-full h-screen overflow-hidden bg-[#0a0608] select-none text-white font-inter flex flex-col items-center justify-between py-12 md:py-16"
       style={{ height: "100vh", minHeight: "100vh" }}
     >
       {/* Background Video */}
@@ -37,38 +37,35 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
         />
       </video>
 
-      {/* Dark Ambient Overlay */}
-      <div className="absolute inset-0 bg-black/35 backdrop-blur-[1px] z-10 pointer-events-none" />
+      {/* Subtle Dark Ambient Overlay */}
+      <div className="absolute inset-0 bg-black/25 z-10 pointer-events-none" />
 
-      {/* Ambient background glow */}
-      <div className="absolute w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-[140px] pointer-events-none animate-pulse z-10" />
+      {/* Ambient Radial Glow behind Name */}
+      <div className="absolute top-[20%] w-[700px] h-[350px] bg-indigo-500/15 rounded-full blur-[140px] pointer-events-none animate-pulse z-10" />
 
-      {/* Center Ultra-Clean Glass Card */}
+      {/* Top/Center: Large Glass Text Name */}
       <div
-        className={`relative z-20 flex flex-col items-center justify-center text-center px-8 py-14 sm:px-16 sm:py-20 rounded-[3rem] liquid-glass border border-white/20 shadow-[0_30px_100px_rgba(0,0,0,0.8)] backdrop-blur-2xl transition-all duration-700 max-w-[90vw] sm:max-w-3xl ${
-          isEntering
-            ? "scale-110 opacity-0 blur-md pointer-events-none"
-            : "hover:border-white/35"
+        className={`relative z-20 pt-10 sm:pt-16 px-4 text-center transition-all duration-700 ${
+          isEntering ? "opacity-0 -translate-y-12 blur-md" : "opacity-100 translate-y-0"
         }`}
-        style={{
-          boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.25), 0 25px 90px rgba(0, 0, 0, 0.7)",
-        }}
       >
-        {/* Shimmer top border line */}
-        <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-white/50 to-transparent pointer-events-none" />
-
-        {/* Large Glass Text Name */}
-        <h1 className="font-instrument text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-normal tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white via-white/95 to-white/60 drop-shadow-[0_10px_35px_rgba(255,255,255,0.35)] text-glow py-2">
+        <h1 className="font-instrument text-5xl sm:text-7xl md:text-8xl lg:text-[110px] font-normal tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white via-white/95 to-white/70 drop-shadow-[0_12px_45px_rgba(255,255,255,0.45)] text-glow whitespace-nowrap">
           Jaloliddin Xalimov
         </h1>
+      </div>
 
-        {/* Glass Effect Enter Button */}
+      {/* Bottom: Glass Effect Enter Button */}
+      <div
+        className={`relative z-20 pb-6 sm:pb-10 transition-all duration-700 ${
+          isEntering ? "opacity-0 translate-y-12 blur-md" : "opacity-100 translate-y-0"
+        }`}
+      >
         <button
           onClick={handleEnter}
-          className="mt-8 sm:mt-12 liquid-glass border border-white/30 bg-white/10 hover:bg-white/25 hover:border-white/50 text-white px-9 py-4 rounded-full font-semibold text-sm sm:text-base tracking-wider button-glow flex items-center gap-3 hover:scale-105 transition-all cursor-pointer group shadow-2xl backdrop-blur-md"
+          className="liquid-glass border border-white/35 bg-white/10 hover:bg-white/25 hover:border-white/60 text-white px-10 py-4.5 rounded-full font-semibold text-base sm:text-lg tracking-wider button-glow flex items-center gap-3.5 hover:scale-105 transition-all cursor-pointer group shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-xl"
         >
           <span>Portfolioga kirish</span>
-          <ArrowRight size={18} className="group-hover:translate-x-1.5 transition-transform" />
+          <ArrowRight size={20} className="group-hover:translate-x-1.5 transition-transform" />
         </button>
       </div>
 
