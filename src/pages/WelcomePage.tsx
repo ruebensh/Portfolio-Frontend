@@ -124,7 +124,8 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 z-50 h-screen w-full overflow-y-auto snap-y snap-mandatory bg-[#0a0608] select-none scrollbar-hide text-white font-inter"
+      className="fixed inset-0 z-50 w-full overflow-y-auto snap-y snap-mandatory bg-[#0a0608] select-none scrollbar-hide text-white font-inter"
+      style={{ height: "100vh", minHeight: "100vh" }}
     >
       {/* ─── FIXED NAVBAR ─── */}
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-5 pointer-events-auto">
@@ -192,7 +193,14 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
       </nav>
 
       {/* ─── SECTION 1: HERO ─── */}
-      <section className="relative h-screen w-full snap-start flex items-center justify-center overflow-hidden">
+      <section
+        className="relative w-full snap-start flex-shrink-0 flex items-center justify-center overflow-hidden"
+        style={{
+          height: "100vh",
+          minHeight: "100vh",
+          background: "radial-gradient(ellipse at center, #0b1329 0%, #040714 50%, #010206 100%)",
+        }}
+      >
         {/* Background Video */}
         <video
           ref={videoRef}
@@ -261,8 +269,10 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
       {/* ─── SECTION 2: QUOTE SECTION (PARALLAX SCROLL) ─── */}
       <section
         ref={quoteSectionRef}
-        className="relative h-screen w-full snap-start flex items-center justify-center overflow-hidden"
+        className="relative w-full snap-start flex-shrink-0 flex items-center justify-center overflow-hidden"
         style={{
+          height: "100vh",
+          minHeight: "100vh",
           background:
             "linear-gradient(to bottom, #010A17 0%, #0A4267 30%, #20658E 60%, #6BADC4 100%)",
         }}
@@ -317,7 +327,6 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
           </button>
         </div>
       </section>
-
       {/* ─── TRANSITION FADE OVERLAY ─── */}
       <div
         className={`fixed inset-0 z-50 bg-[#0a0608] pointer-events-none transition-opacity duration-700 ${
