@@ -49,7 +49,7 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
           isEntering ? "opacity-0 -translate-y-12 blur-md" : "opacity-100 translate-y-0"
         }`}
       >
-        <h1 className="font-instrument text-5xl sm:text-7xl md:text-8xl lg:text-[110px] font-normal tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white via-white/95 to-white/70 drop-shadow-[0_12px_45px_rgba(255,255,255,0.45)] text-glow whitespace-nowrap">
+        <h1 className="font-instrument text-5xl sm:text-7xl md:text-8xl lg:text-[110px] font-semibold tracking-wide text-white drop-shadow-[0_0_50px_rgba(255,255,255,0.9)] text-glow whitespace-nowrap">
           Jaloliddin Xalimov
         </h1>
       </div>
