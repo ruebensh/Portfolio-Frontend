@@ -7,7 +7,6 @@ import { ProfileCard } from "../components/home/ProfileCard";
 import { Skills } from "../components/home/Skills";
 import { Experience } from "../components/home/Experience";
 import { Contact } from "../components/home/Contact";
-import { CesiumGlobe } from "../components/CesiumGlobe";
 
 // AI Xizmatini import qilamiz
 import { sendMessageToAI } from "../services/aiService";
@@ -333,16 +332,7 @@ export function HomePage() {
 
   return (
     <main className="relative min-h-screen bg-[#020202] selection:bg-primary/30 overflow-x-hidden">
-      <HomeEntranceReveal />
       <PageBackground />
-
-      {/* Cesium 3D Globe Background */}
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <CesiumGlobe />
-        {/* Gradient vignette overlay to blend globe with page content */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#020202]/60 via-transparent to-[#020202]/90 pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#020202]/60 via-transparent to-[#020202]/60 pointer-events-none" />
-      </div>
 
       <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
         <div className="relative max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-20 sm:py-28 lg:py-32 text-center">
