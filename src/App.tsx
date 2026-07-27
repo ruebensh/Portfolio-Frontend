@@ -23,11 +23,18 @@ import { AIChatPage } from "./pages/AIChatPage";
 import ChatAI from "./components/ChatAI";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { LiveStatusWidget } from "./components/LiveStatusWidget";
+import { WelcomePage } from "./pages/WelcomePage";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 function AppContent() {
   const { currentPath } = useRouter();
+  const [welcomeDismissed, setWelcomeDismissed] = useState(() => {
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem("welcomeDismissed") === "true";
+    }
+    return false;
+  });
   const isKnownRoute = [
     "/",
     "/projects",
@@ -94,6 +101,18 @@ function AppContent() {
         {/* Admin paneldan AI chat tugmasini olib tashlashingiz ham mumkin */}
         <ChatAI />
       </>
+    );
+  }
+
+  // Welcome Page
+  if (!welcomeDismissed) {
+    return (
+      <WelcomePage
+        onEnter={() => {
+          sessionStorage.setItem("welcomeDismissed", "true");
+          setWelcomeDismissed(true);
+        }}
+      />
     );
   }
 
