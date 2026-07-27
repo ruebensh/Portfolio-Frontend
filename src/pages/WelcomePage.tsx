@@ -96,29 +96,34 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
     };
   }, []);
 
-  // 2. Setup the scratch canvas
+  // 2. Setup the scratch canvas with ResizeObserver for robust sizing
   useEffect(() => {
     const canvas = scratchCanvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const resizeScratch = () => {
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = rect.width;
-      canvas.height = rect.height;
-      
-      // Draw overlay
-      drawOverlay(ctx, canvas.width, canvas.height);
-    };
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        // Use contentRect or fallback to offsetWidth/offsetHeight
+        const width = entry.contentRect.width || canvas.offsetWidth || 320;
+        const height = entry.contentRect.height || canvas.offsetHeight || 180;
+        
+        if (width > 0 && height > 0) {
+          canvas.width = width;
+          canvas.height = height;
+          drawOverlay(ctx, width, height);
+          checkScratchPercentage(); // Initial check
+        }
+      }
+    });
 
-    resizeScratch();
-    window.addEventListener("resize", resizeScratch);
+    resizeObserver.observe(canvas);
 
     return () => {
-      window.removeEventListener("resize", resizeScratch);
+      resizeObserver.disconnect();
     };
-  }, [imageLoaded]);
+  }, [settings]);
 
   const drawOverlay = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
     // Premium dark gradient overlay
