@@ -24,7 +24,6 @@ import ChatAI from "./components/ChatAI";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { LiveStatusWidget } from "./components/LiveStatusWidget";
 import { WelcomePage } from "./pages/WelcomePage";
-import { ParticleRevealOverlay } from "./components/ParticleRevealOverlay";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -120,7 +119,6 @@ function AppContent() {
   // Foydalanuvchi yo'nalishlari
   return (
     <>
-      <ParticleRevealOverlay />
       <Header />
       <main className={isAiPage ? "" : "pt-16"}>
         {currentPath === "/" && <HomePage />}
