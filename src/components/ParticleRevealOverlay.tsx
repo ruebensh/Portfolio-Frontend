@@ -1,31 +1,42 @@
 import { useEffect, useState } from "react";
 
 export function ParticleRevealOverlay() {
-  const [opacity, setOpacity] = useState(1);
-  const [mounted, setMounted] = useState(true);
+  const [active, setActive] = useState(true);
+  const [fading, setFading] = useState(false);
 
   useEffect(() => {
-    // Start 1-second reverse fade-in from pitch black onto Home Page
-    const rAF = requestAnimationFrame(() => {
-      setOpacity(0);
+    // Start inverse fade-in immediately on mount
+    const frame = requestAnimationFrame(() => {
+      setFading(true);
     });
 
+    // Remove overlay once 2.5s inverse fade finishes
     const timer = setTimeout(() => {
-      setMounted(false);
-    }, 1050);
+      setActive(false);
+    }, 2600);
 
     return () => {
-      cancelAnimationFrame(rAF);
+      cancelAnimationFrame(frame);
       clearTimeout(timer);
     };
   }, []);
 
-  if (!mounted) return null;
+  if (!active) return null;
 
   return (
     <div
-      className="fixed inset-0 z-[100] bg-[#000000] pointer-events-none transition-opacity duration-1000 ease-in-out"
-      style={{ opacity }}
-    />
+      className={`fixed inset-0 z-[100] pointer-events-none overflow-hidden bg-black transition-all duration-[2500ms] ease-in-out ${
+        fading ? "opacity-0 backdrop-blur-none" : "opacity-100 backdrop-blur-3xl"
+      }`}
+    >
+      {/* Soft atmospheric cosmic glow fading out with pitch black */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div
+          className={`w-[400px] h-[400px] sm:w-[700px] sm:h-[700px] rounded-full bg-indigo-500/10 blur-3xl transition-all duration-[2500ms] ease-in-out ${
+            fading ? "scale-150 opacity-0" : "scale-100 opacity-100"
+          }`}
+        />
+      </div>
+    </div>
   );
 }

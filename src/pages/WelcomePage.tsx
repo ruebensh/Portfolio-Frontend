@@ -45,23 +45,22 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
           "#ffffff",
         ];
 
-        // Particles distributed uniformly across the entire screen
         for (let i = 0; i < particleCount; i++) {
           const px = Math.random() * width;
           const py = Math.random() * height;
 
           const angle = Math.random() * Math.PI * 2;
-          const speed = Math.random() * 24 + 4;
+          const speed = Math.random() * 20 + 3;
 
           particles.push({
             x: px,
             y: py,
-            vx: Math.cos(angle) * speed + (Math.random() - 0.5) * 6,
-            vy: Math.sin(angle) * speed + (Math.random() - 0.5) * 6,
+            vx: Math.cos(angle) * speed + (Math.random() - 0.5) * 5,
+            vy: Math.sin(angle) * speed + (Math.random() - 0.5) * 5,
             size: Math.random() * 2.2 + 0.6,
             color: colors[Math.floor(Math.random() * colors.length)],
-            alpha: Math.random() * 0.8 + 0.2,
-            decay: Math.random() * 0.014 + 0.007,
+            alpha: Math.random() * 0.85 + 0.15,
+            decay: Math.random() * 0.007 + 0.003, // Extended 2.5s particle life
           });
         }
 
@@ -81,8 +80,8 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
             p.x += p.vx;
             p.y += p.vy;
 
-            p.vx *= 0.93;
-            p.vy *= 0.93;
+            p.vx *= 0.95;
+            p.vy *= 0.95;
 
             p.alpha -= p.decay;
 
@@ -100,10 +99,10 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
       }
     }
 
-    // Complete transition after 1000ms (1 second fade-to-black)
+    // Complete transition after 2500ms of slow particle fade out
     setTimeout(() => {
       onEnter();
-    }, 1000);
+    }, 2500);
   };
 
   return (
@@ -118,8 +117,8 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
         loop
         muted
         playsInline
-        className={`absolute inset-0 w-full h-full object-cover transition-all duration-1000 ease-in-out ${
-          isEntering ? "scale-125 opacity-0 blur-3xl" : "scale-100 opacity-100"
+        className={`absolute inset-0 w-full h-full object-cover transition-all duration-[2500ms] ease-in-out ${
+          isEntering ? "scale-150 opacity-0 blur-3xl" : "scale-100 opacity-100"
         }`}
       >
         <source
@@ -134,23 +133,25 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
         className="fixed inset-0 z-50 pointer-events-none"
       />
 
-      {/* Dark Ambient Overlay */}
+      {/* Dark Ambient Overlay transitioning to pitch black + backdrop blur */}
       <div
-        className={`absolute inset-0 z-10 pointer-events-none transition-all duration-1000 ease-in-out ${
-          isEntering ? "bg-black/90 opacity-100" : "bg-black/25 opacity-100"
+        className={`absolute inset-0 z-10 pointer-events-none transition-all duration-[2500ms] ease-in-out ${
+          isEntering
+            ? "bg-black/95 backdrop-blur-3xl opacity-100"
+            : "bg-black/25 opacity-100"
         }`}
       />
 
       {/* Ambient Radial Glow behind Name */}
       <div
-        className={`absolute top-[20%] w-[700px] h-[350px] bg-indigo-500/15 rounded-full blur-[140px] pointer-events-none animate-pulse z-10 transition-all duration-1000 ${
+        className={`absolute top-[20%] w-[700px] h-[350px] bg-indigo-500/15 rounded-full blur-[140px] pointer-events-none animate-pulse z-10 transition-all duration-[2500ms] ease-in-out ${
           isEntering ? "scale-150 opacity-0 blur-3xl" : "opacity-100"
         }`}
       />
 
       {/* Top/Center: Large Glass Text Name */}
       <div
-        className={`relative z-20 pt-10 sm:pt-16 px-4 text-center transition-all duration-1000 ease-in-out ${
+        className={`relative z-20 pt-10 sm:pt-16 px-4 text-center transition-all duration-[2500ms] ease-in-out ${
           isEntering
             ? "scale-150 opacity-0 blur-3xl -translate-y-16"
             : "scale-100 opacity-100 translate-y-0"
@@ -163,7 +164,7 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
 
       {/* Bottom: Glass Effect Enter Button */}
       <div
-        className={`relative z-20 pb-6 sm:pb-10 transition-all duration-1000 ease-in-out ${
+        className={`relative z-20 pb-6 sm:pb-10 transition-all duration-[2500ms] ease-in-out ${
           isEntering
             ? "scale-50 opacity-0 blur-3xl translate-y-16"
             : "scale-100 opacity-100 translate-y-0"
@@ -178,9 +179,9 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
         </button>
       </div>
 
-      {/* Final 1-Second Fade to Pitch Black Screen */}
+      {/* Final Slow Pitch Black Screen Overlay */}
       <div
-        className={`fixed inset-0 z-50 bg-[#000000] pointer-events-none transition-opacity duration-1000 ease-in-out ${
+        className={`fixed inset-0 z-40 bg-[#000000] pointer-events-none transition-opacity duration-[2500ms] ease-in-out ${
           isEntering ? "opacity-100" : "opacity-0"
         }`}
       />
