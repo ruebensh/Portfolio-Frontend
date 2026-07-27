@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
-import { Volume2, VolumeX } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Sparkles, ArrowRight } from "lucide-react";
 
 interface WelcomePageProps {
   onEnter: () => void;
@@ -7,11 +7,10 @@ interface WelcomePageProps {
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-export const WelcomePage: React.FC<WelcomePageProps> = ({ onEnter }) => {
-  const [isExiting, setIsExiting] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
+export function WelcomePage({ onEnter }: WelcomePageProps) {
   const [settings, setSettings] = useState<any>(null);
+  const [isEntering, setIsEntering] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
     fetch(`${API_URL}/settings`)
@@ -20,174 +19,179 @@ export const WelcomePage: React.FC<WelcomePageProps> = ({ onEnter }) => {
       .catch(() => {});
   }, []);
 
-  const handleStart = useCallback(() => {
-    if (isExiting) return;
-    setIsExiting(true);
+  // Real-time Canvas Earth & Stars Background (100% Reliable, no black screen)
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let w = (canvas.width = window.innerWidth);
+    let h = (canvas.height = window.innerHeight);
+
+    let animationId: number;
+    let angle = 0;
+
+    const stars = Array.from({ length: 220 }, () => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      size: Math.random() * 1.8 + 0.2,
+      alpha: Math.random(),
+      speed: Math.random() * 0.02 + 0.005,
+    }));
+
+    const draw = () => {
+      // Space background gradient
+      const bgGrad = ctx.createRadialGradient(w / 2, h / 2, 50, w / 2, h / 2, Math.max(w, h));
+      bgGrad.addColorStop(0, "#0b1329");
+      bgGrad.addColorStop(0.5, "#040714");
+      bgGrad.addColorStop(1, "#010206");
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, w, h);
+
+      // Stars
+      ctx.fillStyle = "#ffffff";
+      stars.forEach((star) => {
+        star.alpha += star.speed;
+        ctx.globalAlpha = Math.abs(Math.sin(star.alpha));
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+
+      // Rotating Earth / Planet Atmosphere Glow in background
+      angle += 0.003;
+      const planetX = w / 2;
+      const planetY = h / 2;
+      const planetRadius = Math.min(w, h) * 0.38;
+
+      // Outer atmosphere glow
+      const glowGrad = ctx.createRadialGradient(
+        planetX,
+        planetY,
+        planetRadius * 0.8,
+        planetX,
+        planetY,
+        planetRadius * 1.45
+      );
+      glowGrad.addColorStop(0, "rgba(59, 130, 246, 0.4)");
+      glowGrad.addColorStop(0.5, "rgba(99, 102, 241, 0.2)");
+      glowGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+      ctx.fillStyle = glowGrad;
+      ctx.beginPath();
+      ctx.arc(planetX, planetY, planetRadius * 1.45, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Earth body gradient
+      const earthGrad = ctx.createRadialGradient(
+        planetX - planetRadius * 0.3,
+        planetY - planetRadius * 0.3,
+        planetRadius * 0.1,
+        planetX,
+        planetY,
+        planetRadius
+      );
+      earthGrad.addColorStop(0, "#1d4ed8");
+      earthGrad.addColorStop(0.4, "#0f172a");
+      earthGrad.addColorStop(0.85, "#020617");
+      earthGrad.addColorStop(1, "#000000");
+
+      ctx.fillStyle = earthGrad;
+      ctx.beginPath();
+      ctx.arc(planetX, planetY, planetRadius, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Rotating planet grid / texture lines
+      ctx.strokeStyle = "rgba(147, 197, 253, 0.15)";
+      ctx.lineWidth = 1.5;
+      for (let i = -3; i <= 3; i++) {
+        ctx.beginPath();
+        ctx.ellipse(
+          planetX,
+          planetY + i * (planetRadius / 4),
+          planetRadius * Math.cos((i * Math.PI) / 8),
+          planetRadius * 0.25,
+          angle + i * 0.2,
+          0,
+          Math.PI * 2
+        );
+        ctx.stroke();
+      }
+
+      animationId = requestAnimationFrame(draw);
+    };
+
+    draw();
+
+    const handleResize = () => {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+    };
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      cancelAnimationFrame(animationId);
+    };
+  }, []);
+
+  const name = settings?.author || "Jaloliddin Xalimov";
+
+  const handleEnter = () => {
+    if (isEntering) return;
+    setIsEntering(true);
     setTimeout(() => {
       onEnter();
     }, 800);
-  }, [isExiting, onEnter]);
-
-  const brandName = settings?.author || "Jaloliddin Xalimov";
+  };
 
   return (
-    <div className="relative w-full h-screen bg-[#0a0608] overflow-hidden select-none font-inter">
-      {/* ─── 1. Background Video (Rotating Earth) ─── */}
-      <video
-        autoPlay
-        loop
-        muted={isMuted}
-        playsInline
-        src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260613_180732_a54afbf6-b30d-470e-861f-669871f09f67.mp4"
-        className="absolute inset-0 w-full h-full object-cover"
-      />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#010206] overflow-hidden select-none">
+      {/* Earth & Cosmos Canvas Background */}
+      <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" />
 
-      {/* ─── 2. Dark Overlay ─── */}
-      <div className="absolute inset-0 bg-black/20 pointer-events-none" />
+      {/* Ambient background glow */}
+      <div className="absolute w-[650px] h-[650px] bg-indigo-600/15 rounded-full blur-[150px] pointer-events-none animate-pulse" />
 
-      {/* ─── 3. Fixed Navbar ─── */}
-      <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-5">
-        {/* Left: Brand Name in Dancing Script */}
-        <div className="font-dancing text-white text-2xl md:text-3xl tracking-wide drop-shadow-md">
-          {brandName}
-        </div>
-
-        {/* Center: Desktop Nav Links */}
-        <nav className="hidden md:flex items-center gap-12">
-          {["About", "Projects", "Services", "Contact"].map((link) => (
-            <button
-              key={link}
-              onClick={handleStart}
-              className="text-white/80 hover:text-white text-sm tracking-wide transition-colors cursor-pointer"
-            >
-              {link}
-            </button>
-          ))}
-        </nav>
-
-        {/* Right: Desktop Pill Button */}
-        <div className="hidden md:block">
-          <button
-            onClick={handleStart}
-            className="bg-white text-black px-8 py-3.5 rounded-full font-medium text-sm tracking-wide hover:bg-white/90 transition-all duration-300 button-glow cursor-pointer"
-          >
-            Portfolioga kirish
-          </button>
-        </div>
-
-        {/* Right: Mobile Hamburger Button */}
-        <button
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          aria-label="Toggle Navigation Menu"
-          className="md:hidden z-50 relative w-10 h-10 flex flex-col justify-center items-center gap-[6px] focus:outline-none"
-        >
-          <span
-            className={`w-6 h-[2px] bg-white rounded-full transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-              isMobileMenuOpen ? "rotate-45 translate-y-[8px]" : ""
-            }`}
-          />
-          <span
-            className={`w-6 h-[2px] bg-white rounded-full transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-              isMobileMenuOpen ? "opacity-0 scale-0" : ""
-            }`}
-          />
-          <span
-            className={`w-6 h-[2px] bg-white rounded-full transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-              isMobileMenuOpen ? "-rotate-45 -translate-y-[8px]" : ""
-            }`}
-          />
-        </button>
-      </header>
-
-      {/* ─── Mobile Slide-in Drawer ─── */}
+      {/* Main Glass Card with Large Name */}
       <div
-        className={`fixed top-0 right-0 bottom-0 z-40 w-[85%] max-w-[340px] bg-[#0a0608]/95 backdrop-blur-xl border-l border-white/10 p-8 flex flex-col justify-between transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-          isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
+        onClick={handleEnter}
+        className={`relative z-10 cursor-pointer group px-8 py-12 sm:px-16 sm:py-20 rounded-[2.5rem] backdrop-blur-2xl bg-white/[0.05] border border-white/20 shadow-[0_30px_100px_rgba(0,0,0,0.8)] transition-all duration-700 ease-out flex flex-col items-center justify-center text-center max-w-[90vw] sm:max-w-2xl ${
+          isEntering
+            ? "scale-[25] opacity-0 rotate-[360deg] pointer-events-none"
+            : "hover:scale-105 hover:bg-white/[0.08] hover:border-white/40 hover:shadow-indigo-500/20"
         }`}
+        style={{
+          boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.25), 0 25px 90px rgba(0, 0, 0, 0.7)",
+        }}
       >
-        <div className="pt-20 flex flex-col gap-6">
-          {["About", "Projects", "Services", "Contact"].map((link, idx) => (
-            <button
-              key={link}
-              onClick={() => {
-                setIsMobileMenuOpen(false);
-                handleStart();
-              }}
-              style={{
-                transitionDelay: `${150 + idx * 75}ms`,
-              }}
-              className={`text-left text-white text-xl font-light tracking-wide hover:text-white/70 transition-all duration-300 ${
-                isMobileMenuOpen
-                  ? "opacity-100 translate-x-0"
-                  : "opacity-0 translate-x-4"
-              }`}
-            >
-              {link}
-            </button>
-          ))}
+        {/* Shimmer top border */}
+        <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-white/50 to-transparent pointer-events-none" />
+
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/20 bg-white/10 backdrop-blur-md mb-6 sm:mb-8 shadow-inner">
+          <Sparkles size={14} className="text-indigo-400 animate-spin" />
+          <span className="text-xs text-white/90 tracking-widest uppercase font-medium">Welcome to Portfolio</span>
         </div>
 
-        <div
-          style={{ transitionDelay: "450ms" }}
-          className={`transition-all duration-300 ${
-            isMobileMenuOpen
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-4"
-          }`}
-        >
-          <button
-            onClick={() => {
-              setIsMobileMenuOpen(false);
-              handleStart();
-            }}
-            className="w-full bg-white text-black py-4 rounded-full font-medium text-sm tracking-wide button-glow cursor-pointer text-center"
-          >
-            Portfolioga kirish
-          </button>
-        </div>
-      </div>
-
-      {/* ─── 4. Center Content ─── */}
-      <main className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center -mt-[60px] md:-mt-[120px] pointer-events-none">
-        <h1 className="font-instrument text-white text-[36px] md:text-7xl lg:text-[110px] leading-[0.9] tracking-tight text-center text-glow max-w-5xl pointer-events-auto">
-          Gentle touch. Radiant presence.
+        {/* Large Glass Text Name */}
+        <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white via-white/95 to-white/60 drop-shadow-[0_10px_35px_rgba(255,255,255,0.35)]">
+          {name}
         </h1>
 
-        <p className="text-white/70 text-sm md:text-base text-center mt-5 md:mt-7 max-w-xl pointer-events-auto font-light">
-          Expert software engineering & AI solutions, delivered with warmth and intention.
-        </p>
-
-        <div className="mt-6 md:mt-9 pointer-events-auto">
-          <button
-            onClick={handleStart}
-            className="bg-white text-black px-8 py-3.5 rounded-full font-medium text-sm tracking-wide hover:bg-white/90 transition-all duration-300 button-glow cursor-pointer"
-          >
-            Begin your renewal
-          </button>
-        </div>
-      </main>
-
-      {/* ─── 5. Sound Indicator (Desktop Only) ─── */}
-      <div className="hidden md:flex absolute bottom-8 left-8 z-30 items-center gap-3">
-        <button
-          onClick={() => setIsMuted(!isMuted)}
-          className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white/80 hover:text-white hover:border-white/40 transition-all cursor-pointer backdrop-blur-sm bg-white/5"
-          title={isMuted ? "Unmute sound" : "Mute sound"}
-        >
-          {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
-        </button>
-        <div className="text-white/60 text-xs leading-tight font-light">
-          <div>Experience</div>
-          <div>{isMuted ? "without sound" : "with sound"}</div>
+        {/* Click CTA Button */}
+        <div className="mt-8 sm:mt-12 inline-flex items-center gap-3 px-7 py-3.5 rounded-full bg-white text-black font-semibold text-sm shadow-xl group-hover:bg-white/90 group-hover:scale-105 transition-all">
+          <span>Portfolioga kirish</span>
+          <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
         </div>
       </div>
 
-      {/* ─── Transition Exit Overlay ─── */}
+      {/* Transition Overlay */}
       <div
-        className={`absolute inset-0 z-50 bg-[#0a0608] pointer-events-none transition-opacity duration-700 ease-in-out ${
-          isExiting ? "opacity-100" : "opacity-0"
+        className={`fixed inset-0 z-50 bg-[#020202] pointer-events-none transition-opacity duration-700 ${
+          isEntering ? "opacity-100" : "opacity-0"
         }`}
       />
     </div>
   );
-};
+}
