@@ -100,10 +100,10 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
       }
     }
 
-    // Complete transition after 1300ms of 100,000 particle disintegration
+    // Complete transition after 1000ms (1 second fade-to-black)
     setTimeout(() => {
       onEnter();
-    }, 1300);
+    }, 1000);
   };
 
   return (
@@ -118,8 +118,8 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
         loop
         muted
         playsInline
-        className={`absolute inset-0 w-full h-full object-cover transition-all duration-1200 ease-out ${
-          isEntering ? "scale-150 opacity-0 blur-3xl" : "scale-100 opacity-100"
+        className={`absolute inset-0 w-full h-full object-cover transition-all duration-1000 ease-in-out ${
+          isEntering ? "scale-125 opacity-0 blur-3xl" : "scale-100 opacity-100"
         }`}
       >
         <source
@@ -128,18 +128,16 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
         />
       </video>
 
-      {/* 100,000 Particle Shatter Canvas Overlay */}
+      {/* 150,000 Particle Shatter Canvas Overlay */}
       <canvas
         ref={canvasRef}
         className="fixed inset-0 z-50 pointer-events-none"
       />
 
-      {/* Dark Ambient Overlay transitioning to pitch black + backdrop blur */}
+      {/* Dark Ambient Overlay */}
       <div
-        className={`absolute inset-0 z-10 pointer-events-none transition-all duration-1200 ease-out ${
-          isEntering
-            ? "bg-black/95 backdrop-blur-3xl opacity-100"
-            : "bg-black/25 opacity-100"
+        className={`absolute inset-0 z-10 pointer-events-none transition-all duration-1000 ease-in-out ${
+          isEntering ? "bg-black/90 opacity-100" : "bg-black/25 opacity-100"
         }`}
       />
 
@@ -152,7 +150,7 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
 
       {/* Top/Center: Large Glass Text Name */}
       <div
-        className={`relative z-20 pt-10 sm:pt-16 px-4 text-center transition-all duration-1200 ease-out ${
+        className={`relative z-20 pt-10 sm:pt-16 px-4 text-center transition-all duration-1000 ease-in-out ${
           isEntering
             ? "scale-150 opacity-0 blur-3xl -translate-y-16"
             : "scale-100 opacity-100 translate-y-0"
@@ -165,7 +163,7 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
 
       {/* Bottom: Glass Effect Enter Button */}
       <div
-        className={`relative z-20 pb-6 sm:pb-10 transition-all duration-1200 ease-out ${
+        className={`relative z-20 pb-6 sm:pb-10 transition-all duration-1000 ease-in-out ${
           isEntering
             ? "scale-50 opacity-0 blur-3xl translate-y-16"
             : "scale-100 opacity-100 translate-y-0"
@@ -180,9 +178,9 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
         </button>
       </div>
 
-      {/* Final Fade Screen to Pure Pitch Black */}
+      {/* Final 1-Second Fade to Pitch Black Screen */}
       <div
-        className={`fixed inset-0 z-40 bg-[#000000] pointer-events-none transition-opacity duration-1200 ease-out ${
+        className={`fixed inset-0 z-50 bg-[#000000] pointer-events-none transition-opacity duration-1000 ease-in-out ${
           isEntering ? "opacity-100" : "opacity-0"
         }`}
       />
