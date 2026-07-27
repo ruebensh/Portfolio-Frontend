@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Sparkles, MousePointerClick, RefreshCw } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 
 interface WelcomePageProps {
   onEnter: () => void;
@@ -8,10 +7,11 @@ interface WelcomePageProps {
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-// ─── Kosmik fon ───────────────────────────────────────────────────────────────
+// ─── Nebula Background ────────────────────────────────────────────────────────
 
-function CosmicBackground() {
+function NebulaBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const mouseRef = useRef({ x: 0.5, y: 0.5, tx: 0.5, ty: 0.5 });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -19,50 +19,152 @@ function CosmicBackground() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    let raf = 0;
-    let w = window.innerWidth;
-    let h = window.innerHeight;
+    let raf = 0, w = 0, h = 0;
+    const DPR = Math.min(2, window.devicePixelRatio || 1);
 
     const resize = () => {
-      w = window.innerWidth;
-      h = window.innerHeight;
-      canvas.width = w;
-      canvas.height = h;
+      w = window.innerWidth; h = window.innerHeight;
+      canvas.width = w * DPR; canvas.height = h * DPR;
+      canvas.style.width = `${w}px`; canvas.style.height = `${h}px`;
+      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     };
     resize();
     window.addEventListener("resize", resize);
 
-    type Star = { x: number; y: number; r: number; speed: number; alpha: number };
-    const stars: Star[] = Array.from({ length: 180 }, () => ({
-      x: Math.random() * w,
-      y: Math.random() * h,
-      r: Math.random() * 1.4 + 0.3,
-      speed: Math.random() * 0.04 + 0.008,
-      alpha: Math.random() * Math.PI * 2,
-    }));
+    // Yulduzlar — 3 qatlam (chuqurlik)
+    type Star = { x: number; y: number; z: number; r: number; a: number; da: number; vy: number };
+    const layers: Star[][] = [[], [], []];
+    const counts = [300, 150, 60];
+    const speeds = [0.06, 0.14, 0.28];
+    const sizes  = [0.4, 0.8, 1.4];
 
-    const tick = () => {
-      ctx.fillStyle = "rgba(2,2,2,0.18)";
+    layers.forEach((layer, li) => {
+      for (let i = 0; i < counts[li]; i++) {
+        layer.push({
+          x: Math.random() * w, y: Math.random() * h,
+          z: li, r: sizes[li] * (0.6 + Math.random() * 0.8),
+          a: Math.random() * Math.PI * 2, da: 0.003 + Math.random() * 0.008,
+          vy: speeds[li] * (0.5 + Math.random() * 0.5),
+        });
+      }
+    });
+
+    // Meteor
+    type Meteor = { x: number; y: number; vx: number; vy: number; life: number; maxLife: number; trail: number };
+    const meteors: Meteor[] = [];
+    const spawnMeteor = () => {
+      if (Math.random() > 0.015) return;
+      const angle = Math.PI * 1.2 + (Math.random() - 0.5) * 0.3;
+      const speed = 12 + Math.random() * 8;
+      meteors.push({
+        x: Math.random() * w * 0.8 + w * 0.1,
+        y: Math.random() * h * 0.3,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        life: 0, maxLife: 30 + Math.random() * 25,
+        trail: 120 + Math.random() * 120,
+      });
+      if (meteors.length > 5) meteors.shift();
+    };
+
+    const onMove = (e: PointerEvent) => {
+      mouseRef.current.tx = e.clientX / w;
+      mouseRef.current.ty = e.clientY / h;
+    };
+    window.addEventListener("pointermove", onMove, { passive: true });
+
+    const tick = (t: number) => {
+      ctx.clearRect(0, 0, w, h);
+
+      // Nebula glow — mouse parallax
+      const m = mouseRef.current;
+      m.x += (m.tx - m.x) * 0.04;
+      m.y += (m.ty - m.y) * 0.04;
+
+      // Deep space gradient
+      const bg = ctx.createRadialGradient(
+        w * m.x, h * m.y, 0,
+        w * 0.5, h * 0.5, Math.max(w, h) * 0.9
+      );
+      bg.addColorStop(0, "rgba(15,10,35,1)");
+      bg.addColorStop(0.4, "rgba(6,4,20,1)");
+      bg.addColorStop(1, "rgba(2,2,8,1)");
+      ctx.fillStyle = bg;
       ctx.fillRect(0, 0, w, h);
 
-      for (const s of stars) {
-        s.y += s.speed;
-        if (s.y > h) { s.y = 0; s.x = Math.random() * w; }
-        s.alpha += 0.018;
-        const a = Math.sin(s.alpha) * 0.4 + 0.5;
-        ctx.globalAlpha = a;
-        ctx.fillStyle = "#fff";
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-        ctx.fill();
+      // Nebula clouds
+      const nebulaPoints = [
+        { cx: w * 0.2, cy: h * 0.3, rx: w * 0.35, ry: h * 0.4, c: "rgba(60,30,120,0.06)" },
+        { cx: w * 0.8, cy: h * 0.6, rx: w * 0.3,  ry: h * 0.35, c: "rgba(20,60,120,0.05)" },
+        { cx: w * 0.5, cy: h * 0.8, rx: w * 0.4,  ry: h * 0.3,  c: "rgba(80,20,80,0.04)"  },
+      ];
+      for (const nb of nebulaPoints) {
+        const g = ctx.createRadialGradient(nb.cx + m.x * 30, nb.cy + m.y * 20, 0, nb.cx, nb.cy, Math.max(nb.rx, nb.ry));
+        g.addColorStop(0, nb.c);
+        g.addColorStop(1, "transparent");
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, w, h);
       }
-      ctx.globalAlpha = 1;
+
+      // Yulduzlar
+      for (const layer of layers) {
+        for (const s of layer) {
+          s.a += s.da;
+          s.y += s.vy;
+          if (s.y > h + 4) { s.y = -4; s.x = Math.random() * w; }
+
+          const px = s.x + (m.x - 0.5) * s.z * 18;
+          const py = s.y + (m.y - 0.5) * s.z * 12;
+          const alpha = (0.3 + Math.sin(s.a) * 0.25) * (0.4 + s.z * 0.3);
+
+          // Glow
+          const glow = ctx.createRadialGradient(px, py, 0, px, py, s.r * 5);
+          glow.addColorStop(0, `rgba(255,255,255,${alpha * 0.6})`);
+          glow.addColorStop(1, "transparent");
+          ctx.fillStyle = glow;
+          ctx.beginPath(); ctx.arc(px, py, s.r * 5, 0, Math.PI * 2); ctx.fill();
+
+          ctx.fillStyle = `rgba(255,255,255,${Math.min(1, alpha * 1.2)})`;
+          ctx.beginPath(); ctx.arc(px, py, Math.max(0.4, s.r), 0, Math.PI * 2); ctx.fill();
+
+          // Cross flicker for bright stars
+          if (s.z === 2 && Math.sin(s.a) > 0.7) {
+            ctx.strokeStyle = `rgba(255,255,255,${alpha * 0.4})`;
+            ctx.lineWidth = 0.8;
+            ctx.beginPath(); ctx.moveTo(px - 7, py); ctx.lineTo(px + 7, py); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(px, py - 7); ctx.lineTo(px, py + 7); ctx.stroke();
+          }
+        }
+      }
+
+      // Meteorlar
+      spawnMeteor();
+      ctx.globalCompositeOperation = "lighter";
+      for (let i = meteors.length - 1; i >= 0; i--) {
+        const mt = meteors[i];
+        mt.life++; mt.x += mt.vx; mt.y += mt.vy;
+        const k = 1 - mt.life / mt.maxLife;
+        const appear = Math.min(1, mt.life / 8);
+        const a = Math.max(0, k * 0.5) * appear;
+        const tx = mt.x - mt.vx * (mt.trail / 10);
+        const ty = mt.y - mt.vy * (mt.trail / 10);
+        const grad = ctx.createLinearGradient(mt.x, mt.y, tx, ty);
+        grad.addColorStop(0, `rgba(200,210,255,${a})`);
+        grad.addColorStop(0.3, `rgba(180,200,255,${a * 0.4})`);
+        grad.addColorStop(1, "rgba(255,255,255,0)");
+        ctx.strokeStyle = grad; ctx.lineWidth = 1.5 + k;
+        ctx.beginPath(); ctx.moveTo(mt.x, mt.y); ctx.lineTo(tx, ty); ctx.stroke();
+        if (mt.life > mt.maxLife || mt.x < -400 || mt.y > h + 300) meteors.splice(i, 1);
+      }
+      ctx.globalCompositeOperation = "source-over";
+
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
 
     return () => {
       window.removeEventListener("resize", resize);
+      window.removeEventListener("pointermove", onMove);
       cancelAnimationFrame(raf);
     };
   }, []);
@@ -70,143 +172,69 @@ function CosmicBackground() {
   return <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" />;
 }
 
-// ─── Scratch Canvas ───────────────────────────────────────────────────────────
+// ─── Spotlight Reveal ─────────────────────────────────────────────────────────
 
-function ScratchLayer({
-  onPercent,
-  revealed,
+function SpotlightReveal({
+  avatarSrc,
+  cardRef,
 }: {
-  onPercent: (p: number) => void;
-  revealed: boolean;
+  avatarSrc: string;
+  cardRef: React.RefObject<HTMLDivElement>;
 }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const drawing = useRef(false);
-  const initialized = useRef(false);
+  const [pos, setPos] = useState({ x: 50, y: 50 });
+  const [inside, setInside] = useState(false);
+  const rafRef = useRef(0);
 
-  const drawOverlay = useCallback((canvas: HTMLCanvasElement) => {
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    const w = canvas.width;
-    const h = canvas.height;
-
-    // Gradient overlay
-    const grad = ctx.createLinearGradient(0, 0, w, h);
-    grad.addColorStop(0, "#0f1120");
-    grad.addColorStop(0.5, "#1a1f35");
-    grad.addColorStop(1, "#0f1120");
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, w, h);
-
-    // Grid
-    ctx.strokeStyle = "rgba(255,255,255,0.04)";
-    ctx.lineWidth = 1;
-    for (let x = 0; x < w; x += 22) {
-      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
-    }
-    for (let y = 0; y < h; y += 22) {
-      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
-    }
-
-    // Glow border
-    ctx.strokeStyle = "rgba(99,102,241,0.25)";
-    ctx.lineWidth = 1.5;
-    ctx.strokeRect(10, 10, w - 20, h - 20);
-
-    // Text
-    ctx.textAlign = "center";
-    ctx.fillStyle = "rgba(255,255,255,0.8)";
-    ctx.font = `bold ${Math.max(12, w * 0.035)}px Inter, sans-serif`;
-    ctx.fillText("Rasmni ochish uchun chizing ✦", w / 2, h / 2 - 10);
-    ctx.fillStyle = "rgba(255,255,255,0.35)";
-    ctx.font = `${Math.max(10, w * 0.025)}px Inter, sans-serif`;
-    ctx.fillText("sichqoncha yoki barmog'ingiz bilan", w / 2, h / 2 + 16);
-  }, []);
-
-  // Canvas o'lchamini to'g'ri o'rnatish
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas || initialized.current) return;
+    const card = cardRef.current;
+    if (!card) return;
 
-    const parent = canvas.parentElement;
-    if (!parent) return;
-
-    const rect = parent.getBoundingClientRect();
-    if (rect.width === 0 || rect.height === 0) return;
-
-    canvas.width = rect.width;
-    canvas.height = rect.height;
-    drawOverlay(canvas);
-    initialized.current = true;
-  });
-
-  const checkPercent = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const cols = 20, rows = 12;
-    let transparent = 0;
-    const w = canvas.width, h = canvas.height;
-
-    for (let c = 0; c < cols; c++) {
-      for (let r = 0; r < rows; r++) {
-        const px = Math.floor((w / cols) * (c + 0.5));
-        const py = Math.floor((h / rows) * (r + 0.5));
-        const pixel = ctx.getImageData(px, py, 1, 1).data;
-        if (pixel[3] < 10) transparent++;
-      }
-    }
-    onPercent((transparent / (cols * rows)) * 100);
-  }, [onPercent]);
-
-  const getPos = (e: React.MouseEvent | React.TouchEvent) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return { x: 0, y: 0 };
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
-
-    if ("touches" in e) {
-      return {
-        x: (e.touches[0].clientX - rect.left) * scaleX,
-        y: (e.touches[0].clientY - rect.top) * scaleY,
-      };
-    }
-    return {
-      x: (e.clientX - rect.left) * scaleX,
-      y: (e.clientY - rect.top) * scaleY,
+    const onMove = (e: MouseEvent) => {
+      const rect = card.getBoundingClientRect();
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(() => {
+        setPos({
+          x: ((e.clientX - rect.left) / rect.width) * 100,
+          y: ((e.clientY - rect.top) / rect.height) * 100,
+        });
+      });
     };
-  };
 
-  const scratchAt = useCallback((e: React.MouseEvent | React.TouchEvent) => {
-    if (!drawing.current) return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    const onEnter = () => setInside(true);
+    const onLeave = () => setInside(false);
 
-    const { x, y } = getPos(e);
-    ctx.globalCompositeOperation = "destination-out";
-    ctx.beginPath();
-    ctx.arc(x, y, Math.max(28, canvas.width * 0.06), 0, Math.PI * 2);
-    ctx.fill();
-    checkPercent();
-  }, [checkPercent]);
+    card.addEventListener("mousemove", onMove);
+    card.addEventListener("mouseenter", onEnter);
+    card.addEventListener("mouseleave", onLeave);
+
+    return () => {
+      card.removeEventListener("mousemove", onMove);
+      card.removeEventListener("mouseenter", onEnter);
+      card.removeEventListener("mouseleave", onLeave);
+      cancelAnimationFrame(rafRef.current);
+    };
+  }, [cardRef]);
 
   return (
-    <canvas
-      ref={canvasRef}
-      onMouseDown={(e) => { drawing.current = true; scratchAt(e); }}
-      onMouseUp={() => { drawing.current = false; }}
-      onMouseLeave={() => { drawing.current = false; }}
-      onMouseMove={scratchAt}
-      onTouchStart={(e) => { drawing.current = true; scratchAt(e); }}
-      onTouchEnd={() => { drawing.current = false; }}
-      onTouchMove={scratchAt}
-      className="absolute inset-0 z-10 w-full h-full touch-none transition-opacity duration-700"
-      style={{ opacity: revealed ? 0 : 1, pointerEvents: revealed ? "none" : "auto" }}
-    />
+    <div
+      className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none transition-opacity duration-500"
+      style={{ opacity: inside ? 1 : 0 }}
+    >
+      <img
+        src={avatarSrc}
+        alt=""
+        className="absolute inset-0 w-full h-full object-cover"
+        style={{ filter: "brightness(0.9) saturate(1.15)" }}
+      />
+      {/* Mask — faqat kursor atrofida ko'rinadigan */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background: `radial-gradient(circle 140px at ${pos.x}% ${pos.y}%, transparent 0%, rgba(5,3,15,0.97) 100%)`,
+          transition: "background 0.01s linear",
+        }}
+      />
+    </div>
   );
 }
 
@@ -214,9 +242,7 @@ function ScratchLayer({
 
 export function WelcomePage({ onEnter }: WelcomePageProps) {
   const [settings, setSettings] = useState<any>(null);
-  const [scratchedPercent, setScratchedPercent] = useState(0);
   const [entering, setEntering] = useState(false);
-  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     fetch(`${API_URL}/settings`)
@@ -229,166 +255,193 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
     ? settings.avatarUrl.startsWith("http") ? settings.avatarUrl : `${API_URL}${settings.avatarUrl}`
     : "/avatar.jpg";
 
-  const revealed = scratchedPercent >= 35;
+  // 3D tilt
+  const cardRef = useRef<HTMLDivElement>(null);
+  const rotX = useMotionValue(0);
+  const rotY = useMotionValue(0);
+  const springX = useSpring(rotX, { stiffness: 200, damping: 28 });
+  const springY = useSpring(rotY, { stiffness: 200, damping: 28 });
 
-  const handleEnter = useCallback(() => {
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const el = cardRef.current;
+    if (!el || entering) return;
+    const rect = el.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    rotX.set(-y * 14);
+    rotY.set(x * 14);
+  }, [rotX, rotY, entering]);
+
+  const handleMouseLeave = useCallback(() => {
+    rotX.set(0);
+    rotY.set(0);
+  }, [rotX, rotY]);
+
+  // Spin + expand
+  const handleClick = useCallback(() => {
     if (entering) return;
     setEntering(true);
-    setTimeout(() => setExpanded(true), 100);
-    setTimeout(() => onEnter(), 1000);
+    setTimeout(() => onEnter(), 1100);
   }, [entering, onEnter]);
 
+  // Shimmer position
+  const shimmerX = useTransform(springY, [-7, 7], ["-40%", "140%"]);
+
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#020202] select-none overflow-hidden">
-      <CosmicBackground />
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-[#02020a]">
+      <NebulaBackground />
 
       {/* Expand overlay */}
-      <AnimatePresence>
-        {expanded && (
-          <motion.div
-            className="fixed inset-0 z-[60] bg-[#020202]"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, ease: "easeIn" }}
-          />
-        )}
-      </AnimatePresence>
-
-      <div className="relative z-10 flex flex-col items-center gap-6 w-full max-w-3xl px-4 text-center">
-
-        {/* Badge */}
+      {entering && (
         <motion.div
-          initial={{ opacity: 0, y: -16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="flex items-center gap-2 px-4 py-2 rounded-full border border-indigo-500/20 bg-indigo-500/5 backdrop-blur-md"
-        >
-          <Sparkles size={14} className="text-indigo-400" />
-          <span className="text-xs font-medium text-indigo-300 tracking-wider uppercase">
-            Welcome to my Space
-          </span>
-        </motion.div>
+          className="fixed inset-0 z-[60] bg-[#020202]"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.55, delay: 0.5, ease: "easeIn" }}
+        />
+      )}
 
-        {/* Sarlavha */}
-        <motion.h1
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-          className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white"
-        >
-          {settings?.author || "Jaloliddin"} Portfoliosiga{" "}
-          <span
-            className="text-transparent bg-clip-text"
-            style={{ backgroundImage: "linear-gradient(90deg, #818cf8, #a78bfa, #f472b6)" }}
-          >
-            Xush Kelibsiz!
-          </span>
-        </motion.h1>
+      <div className="relative z-10 flex flex-col items-center gap-8">
 
-        {/* 16:9 Scratch karta */}
+        {/* 16:9 Glassmorphism 3D karta */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.88, y: 24 }}
+          initial={{ opacity: 0, scale: 0.82, y: 32 }}
           animate={
             entering
-              ? { scale: 22, opacity: 0, y: 0 }
+              ? { rotateY: 720, scale: 26, opacity: 0 }
               : { opacity: 1, scale: 1, y: 0 }
           }
           transition={
             entering
-              ? { duration: 0.9, ease: [0.4, 0, 0.2, 1] }
-              : { duration: 0.85, delay: 0.2, ease: [0.22, 1, 0.36, 1] }
+              ? { duration: 1.0, ease: [0.4, 0, 0.2, 1] }
+              : { duration: 1.0, ease: [0.22, 1, 0.36, 1] }
           }
-          className="relative rounded-2xl overflow-hidden cursor-pointer shadow-2xl"
           style={{
-            width: "min(640px, 90vw)",
-            aspectRatio: "16/9",
-            boxShadow: "0 0 0 1px rgba(99,102,241,0.15), 0 40px 80px rgba(0,0,0,0.7), 0 0 80px rgba(99,102,241,0.07)",
+            rotateX: entering ? 0 : springX,
+            rotateY: entering ? undefined : springY,
+            transformStyle: "preserve-3d",
+            perspective: 900,
           }}
-          onClick={revealed ? handleEnter : undefined}
-          whileHover={revealed && !entering ? { scale: 1.02 } : {}}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+          onClick={handleClick}
+          className="cursor-pointer"
         >
-          {/* Avatar — orqa qatlam */}
-          <img
-            src={avatarSrc}
-            alt="Profile"
-            className="absolute inset-0 w-full h-full object-cover"
-          />
+          <div
+            ref={cardRef}
+            className="relative rounded-2xl overflow-hidden"
+            style={{
+              width: "min(480px, 88vw)",
+              aspectRatio: "16/9",
+              background: "linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.02) 50%, rgba(255,255,255,0.05) 100%)",
+              border: "1px solid rgba(255,255,255,0.10)",
+              boxShadow: `
+                0 0 0 1px rgba(120,100,255,0.12),
+                0 30px 70px rgba(0,0,0,0.8),
+                0 0 80px rgba(80,60,200,0.08),
+                inset 0 1px 0 rgba(255,255,255,0.08)
+              `,
+              backdropFilter: "blur(20px)",
+            }}
+          >
+            {/* Spotlight avatar reveal */}
+            <SpotlightReveal avatarSrc={avatarSrc} cardRef={cardRef as React.RefObject<HTMLDivElement>} />
 
-          {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+            {/* Glass grid */}
+            <div
+              className="absolute inset-0 pointer-events-none opacity-[0.06]"
+              style={{
+                backgroundImage:
+                  "linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)",
+                backgroundSize: "28px 28px",
+              }}
+            />
 
-          {/* Info */}
-          <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 text-left pointer-events-none">
-            <div className="text-white font-bold text-base sm:text-xl">
-              {settings?.author || "Jaloliddin Xalimov"}
-            </div>
-            <div className="text-indigo-300 text-xs sm:text-sm mt-0.5">
-              {settings?.title || "AI · ML Engineer · Startup Builder"}
-            </div>
-          </div>
+            {/* Shimmer highlight — tilt bilan harakat qiladi */}
+            <motion.div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background: "linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.07) 50%, transparent 70%)",
+                x: shimmerX,
+              }}
+            />
 
-          {/* Scratch layer */}
-          <ScratchLayer onPercent={setScratchedPercent} revealed={revealed} />
+            {/* Corner accents */}
+            {[
+              "top-0 left-0",
+              "top-0 right-0 rotate-90",
+              "bottom-0 left-0 -rotate-90",
+              "bottom-0 right-0 rotate-180",
+            ].map((pos, i) => (
+              <div key={i} className={`absolute ${pos} w-5 h-5 pointer-events-none`}>
+                <div className="absolute top-2 left-2 w-3 h-px bg-white/20" />
+                <div className="absolute top-2 left-2 w-px h-3 bg-white/20" />
+              </div>
+            ))}
 
-          {/* Enter overlay — revealed bo'lganda */}
-          <AnimatePresence>
-            {revealed && !entering && (
+            {/* Mazmun */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 pointer-events-none">
               <motion.div
+                initial={{ opacity: 0, scale: 0.7 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.5, duration: 0.5, type: "spring" }}
+                className="w-12 h-12 rounded-full overflow-hidden border border-white/15 shadow-xl"
+                style={{ boxShadow: "0 0 20px rgba(120,100,255,0.3)" }}
+              >
+                <img src={avatarSrc} alt="" className="w-full h-full object-cover" />
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.65, duration: 0.6 }}
+                className="text-center"
+              >
+                <div
+                  className="text-white/90 font-semibold text-sm sm:text-base tracking-wide"
+                  style={{ textShadow: "0 0 24px rgba(255,255,255,0.15)" }}
+                >
+                  {settings?.author || "Jaloliddin Xalimov"}
+                </div>
+                <div className="text-white/30 text-[10px] sm:text-xs mt-0.5 tracking-widest uppercase">
+                  AI · ML · Builder
+                </div>
+              </motion.div>
+
+              {/* Pulse dot */}
+              <motion.div
+                className="flex items-center gap-1.5 mt-1"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none"
-                style={{ background: "rgba(0,0,0,0.35)" }}
+                transition={{ delay: 1.1 }}
               >
                 <motion.div
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                  className="flex flex-col items-center gap-2"
-                >
-                  <MousePointerClick size={28} className="text-white" />
-                  <span className="text-white font-semibold text-sm tracking-wide">
-                    Kirish uchun bosing
-                  </span>
-                </motion.div>
+                  className="w-1.5 h-1.5 rounded-full bg-indigo-400"
+                  animate={{ opacity: [0.4, 1, 0.4], scale: [0.8, 1.2, 0.8] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                />
+                <span className="text-[9px] text-white/25 tracking-widest uppercase">
+                  bosib kirish
+                </span>
+                <motion.div
+                  className="w-1.5 h-1.5 rounded-full bg-indigo-400"
+                  animate={{ opacity: [0.4, 1, 0.4], scale: [0.8, 1.2, 0.8] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                />
               </motion.div>
-            )}
-          </AnimatePresence>
+            </div>
+          </div>
         </motion.div>
 
-        {/* Hint */}
-        <motion.div
+        {/* Hint matn */}
+        <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="h-8 flex items-center justify-center"
+          transition={{ delay: 1.3 }}
+          className="text-white/20 text-[11px] tracking-widest uppercase"
         >
-          {!revealed ? (
-            <div className="flex items-center gap-2 text-xs text-white/30">
-              <RefreshCw size={12} className="animate-spin text-indigo-400/60" />
-              <span>
-                Rasmni ochish uchun ustidan surting —{" "}
-                <span className="text-indigo-400/70">
-                  {Math.round(scratchedPercent)}% / 35%
-                </span>
-              </span>
-            </div>
-          ) : (
-            <motion.div
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex items-center gap-2 text-xs text-white/40"
-            >
-              <span>yoki</span>
-              <button
-                onClick={handleEnter}
-                className="text-indigo-400 hover:text-indigo-300 underline underline-offset-2 transition-colors"
-              >
-                to'g'ridan kirish
-              </button>
-            </motion.div>
-          )}
-        </motion.div>
+          kursor olib keling · bosib kiring
+        </motion.p>
       </div>
     </div>
   );
