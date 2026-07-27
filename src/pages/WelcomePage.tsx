@@ -31,7 +31,7 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
 
   const avatarSrc = settings?.avatarUrl
     ? (settings.avatarUrl.startsWith("http") ? settings.avatarUrl : `${API_URL}${settings.avatarUrl}`)
-    : "/placeholder-avatar.jpg"; // fallback
+    : "/avatar.jpg"; // fallback
 
   // 1. Cosmic background animation
   useEffect(() => {
