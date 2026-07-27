@@ -20,6 +20,7 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
   const [isEntering, setIsEntering] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const darkRef = useRef<HTMLDivElement | null>(null);
 
   const handleEnter = () => {
     if (isEntering) return;
@@ -32,7 +33,8 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
         const width = (canvas.width = window.innerWidth);
         const height = (canvas.height = window.innerHeight);
 
-        const particleCount = 15000;
+        // 60,000 particles (4x of previous 15,000)
+        const particleCount = 60000;
         const particles: Particle[] = [];
 
         const colors = [
@@ -42,41 +44,49 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
           "#bae6fd",
           "#818cf8",
           "#c084fc",
+          "#a5b4fc",
           "#ffffff",
+          "#ddd6fe",
         ];
 
-        // Center origin for radial explosion
         const cx = width / 2;
         const cy = height / 2;
 
         for (let i = 0; i < particleCount; i++) {
           const angle = Math.random() * Math.PI * 2;
-          const dist = Math.random() < 0.75
-            ? Math.random() * (width * 0.35)
-            : Math.random() * (width * 0.65);
+          const dist = Math.random() < 0.6
+            ? Math.random() * (width * 0.3)
+            : Math.random() * (width * 0.7);
 
           const px = cx + Math.cos(angle) * dist;
-          const py = cy + Math.sin(angle) * (dist * 0.6);
+          const py = cy + Math.sin(angle) * (dist * 0.55);
 
-          const outAngle = Math.atan2(py - cy, px - cx) + (Math.random() - 0.5) * 0.6;
-          const speed = Math.random() * 22 + 5;
+          const outAngle = Math.atan2(py - cy, px - cx) + (Math.random() - 0.5) * 0.7;
+          const speed = Math.random() * 28 + 4;
 
           particles.push({
             x: px,
             y: py,
-            vx: Math.cos(outAngle) * speed + (Math.random() - 0.5) * 5,
-            vy: Math.sin(outAngle) * speed + (Math.random() - 0.5) * 5,
-            size: Math.random() * 2.8 + 0.8,
+            vx: Math.cos(outAngle) * speed + (Math.random() - 0.5) * 6,
+            vy: Math.sin(outAngle) * speed + (Math.random() - 0.5) * 6,
+            size: Math.random() * 2.5 + 0.5,
             color: colors[Math.floor(Math.random() * colors.length)],
-            alpha: Math.random() * 0.7 + 0.3,
-            decay: Math.random() * 0.016 + 0.009,
+            alpha: Math.random() * 0.8 + 0.2,
+            decay: Math.random() * 0.012 + 0.006,
           });
         }
 
-        let animId: number;
+        let frame = 0;
 
         const animate = () => {
           ctx.clearRect(0, 0, width, height);
+          frame++;
+
+          // Darken background cleanly without blur
+          if (darkRef.current) {
+            const darkness = Math.min(frame / 60, 1);
+            darkRef.current.style.opacity = `${darkness}`;
+          }
 
           let activeCount = 0;
 
@@ -88,10 +98,8 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
 
             p.x += p.vx;
             p.y += p.vy;
-
-            p.vx *= 0.94;
-            p.vy *= 0.94;
-
+            p.vx *= 0.95;
+            p.vy *= 0.95;
             p.alpha -= p.decay;
 
             ctx.globalAlpha = Math.max(0, p.alpha);
@@ -100,18 +108,17 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
           }
 
           if (activeCount > 0) {
-            animId = requestAnimationFrame(animate);
+            requestAnimationFrame(animate);
           }
         };
 
-        animId = requestAnimationFrame(animate);
+        requestAnimationFrame(animate);
       }
     }
 
-    // Complete transition after 1200ms of particle disintegration
     setTimeout(() => {
       onEnter();
-    }, 1200);
+    }, 1500);
   };
 
   return (
@@ -119,15 +126,15 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
       className="fixed inset-0 z-50 w-full h-screen overflow-hidden bg-[#0a0608] select-none text-white font-inter flex flex-col items-center justify-between py-12 md:py-16"
       style={{ height: "100vh", minHeight: "100vh" }}
     >
-      {/* Background Video */}
+      {/* Background Video - Darkens without blur */}
       <video
         ref={videoRef}
         autoPlay
         loop
         muted
         playsInline
-        className={`absolute inset-0 w-full h-full object-cover transition-all duration-1000 ${
-          isEntering ? "scale-125 opacity-0 blur-2xl" : "scale-100 opacity-100"
+        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+          isEntering ? "opacity-0" : "opacity-100"
         }`}
       >
         <source
@@ -136,18 +143,21 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
         />
       </video>
 
-      {/* 15,000 Particle Shatter Canvas Overlay */}
+      {/* 60,000 Particle Shatter Canvas Overlay */}
       <canvas
         ref={canvasRef}
         className="fixed inset-0 z-50 pointer-events-none"
       />
 
-      {/* Subtle Dark Ambient Overlay */}
+      {/* Darkening overlay */}
       <div
-        className={`absolute inset-0 bg-black/25 z-10 pointer-events-none transition-opacity duration-700 ${
-          isEntering ? "opacity-0" : "opacity-100"
-        }`}
+        ref={darkRef}
+        className="fixed inset-0 z-30 bg-black pointer-events-none transition-opacity duration-1000"
+        style={{ opacity: 0 }}
       />
+
+      {/* Subtle Dark Ambient Overlay */}
+      <div className="absolute inset-0 bg-black/25 z-10 pointer-events-none" />
 
       {/* Ambient Radial Glow behind Name */}
       <div
@@ -160,7 +170,7 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
       <div
         className={`relative z-20 pt-10 sm:pt-16 px-4 text-center transition-all duration-1000 ease-out ${
           isEntering
-            ? "scale-150 opacity-0 blur-xl -translate-y-12"
+            ? "scale-150 opacity-0 -translate-y-16"
             : "scale-100 opacity-100 translate-y-0"
         }`}
       >
@@ -173,7 +183,7 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
       <div
         className={`relative z-20 pb-6 sm:pb-10 transition-all duration-1000 ease-out ${
           isEntering
-            ? "scale-75 opacity-0 blur-xl translate-y-12"
+            ? "scale-75 opacity-0 translate-y-16"
             : "scale-100 opacity-100 translate-y-0"
         }`}
       >
@@ -185,13 +195,6 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
           <ArrowRight size={20} className="group-hover:translate-x-1.5 transition-transform" />
         </button>
       </div>
-
-      {/* Final Fade Screen */}
-      <div
-        className={`fixed inset-0 z-40 bg-[#0a0608] pointer-events-none transition-opacity duration-1000 ${
-          isEntering ? "opacity-100" : "opacity-0"
-        }`}
-      />
     </div>
   );
 }

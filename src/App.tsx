@@ -24,17 +24,20 @@ import ChatAI from "./components/ChatAI";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { LiveStatusWidget } from "./components/LiveStatusWidget";
 import { WelcomePage } from "./pages/WelcomePage";
+import { ParticleRevealOverlay } from "./components/ParticleRevealOverlay";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 function AppContent() {
   const { currentPath } = useRouter();
+  const [justEnteredFromWelcome, setJustEnteredFromWelcome] = useState(false);
   const [welcomeDismissed, setWelcomeDismissed] = useState(() => {
     if (typeof window !== "undefined") {
       return sessionStorage.getItem("welcomeDismissed") === "true";
     }
     return false;
   });
+
   const isKnownRoute = [
     "/",
     "/projects",
@@ -98,7 +101,6 @@ function AppContent() {
     return (
       <>
         {AdminContent}
-        {/* Admin paneldan AI chat tugmasini olib tashlashingiz ham mumkin */}
         <ChatAI />
       </>
     );
@@ -110,6 +112,7 @@ function AppContent() {
       <WelcomePage
         onEnter={() => {
           sessionStorage.setItem("welcomeDismissed", "true");
+          setJustEnteredFromWelcome(true);
           setWelcomeDismissed(true);
         }}
       />
@@ -119,8 +122,15 @@ function AppContent() {
   // Foydalanuvchi yo'nalishlari
   return (
     <>
+      {justEnteredFromWelcome && <ParticleRevealOverlay />}
       <Header />
-      <main className={isAiPage ? "" : "pt-16"}>
+      <main
+        className={`${isAiPage ? "" : "pt-16"} ${
+          justEnteredFromWelcome
+            ? "animate-[fadeInZoom_1.2s_ease-out_forwards]"
+            : ""
+        }`}
+      >
         {currentPath === "/" && <HomePage />}
         {currentPath === "/projects" && <ProjectsPage />}
         {currentPath === "/certificates" && <CertificatesPage />} 
@@ -133,7 +143,6 @@ function AppContent() {
       </main>
       <Footer />
       {!isAiPage && <ChatAI />}
-      {/* Live Status Widget - hamma sahifada ko'rinadi */}
       <LiveStatusWidget />
     </>
   );
