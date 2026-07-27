@@ -49,8 +49,8 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
           isEntering ? "opacity-0 -translate-y-12 blur-md" : "opacity-100 translate-y-0"
         }`}
       >
-        <h1 className="font-instrument text-5xl sm:text-7xl md:text-8xl lg:text-[110px] font-semibold tracking-wide text-white drop-shadow-[0_0_50px_rgba(255,255,255,0.9)] text-glow whitespace-nowrap">
-          Jaloliddin Xalimov
+        <h1 className="glass-3d-text text-4xl sm:text-6xl md:text-7xl lg:text-[95px] tracking-widest whitespace-nowrap">
+          JALOLIDDIN XALIMOV
         </h1>
       </div>
 
