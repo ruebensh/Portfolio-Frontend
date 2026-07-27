@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { ArrowRight } from "lucide-react";
 
 interface WelcomePageProps {
@@ -13,118 +13,106 @@ interface Particle {
   size: number;
   color: string;
   alpha: number;
-  life: number;
-  maxLife: number;
-  rotation: number;
-  rotSpeed: number;
+  decay: number;
 }
 
 export function WelcomePage({ onEnter }: WelcomePageProps) {
   const [isEntering, setIsEntering] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const particlesRef = useRef<Particle[]>([]);
-  const animFrameRef = useRef<number | null>(null);
 
   const handleEnter = () => {
     if (isEntering) return;
     setIsEntering(true);
 
-    // Trigger particle shatter explosion effect
     const canvas = canvasRef.current;
     if (canvas) {
       const ctx = canvas.getContext("2d");
-      const w = (canvas.width = window.innerWidth);
-      const h = (canvas.height = window.innerHeight);
+      if (ctx) {
+        const width = (canvas.width = window.innerWidth);
+        const height = (canvas.height = window.innerHeight);
 
-      const particleCount = 140;
-      const particles: Particle[] = [];
+        const particleCount = 15000;
+        const particles: Particle[] = [];
 
-      for (let i = 0; i < particleCount; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const speed = Math.random() * 14 + 4;
         const colors = [
-          "rgba(255, 255, 255, ",
-          "rgba(199, 210, 254, ",
-          "rgba(147, 197, 253, ",
-          "rgba(224, 231, 255, ",
+          "#ffffff",
+          "#f0f9ff",
+          "#e0f2fe",
+          "#bae6fd",
+          "#818cf8",
+          "#c084fc",
+          "#ffffff",
         ];
-        const colorBase = colors[Math.floor(Math.random() * colors.length)];
 
-        const startX = w / 2 + (Math.random() - 0.5) * (w * 0.6);
-        const startY = h / 2 + (Math.random() - 0.5) * (h * 0.4);
+        // Center origin for radial explosion
+        const cx = width / 2;
+        const cy = height / 2;
 
-        particles.push({
-          x: startX,
-          y: startY,
-          vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * speed - Math.random() * 3,
-          size: Math.random() * 7 + 2,
-          color: colorBase,
-          alpha: 1,
-          life: 0,
-          maxLife: 45 + Math.random() * 30,
-          rotation: Math.random() * Math.PI * 2,
-          rotSpeed: (Math.random() - 0.5) * 0.25,
-        });
-      }
+        for (let i = 0; i < particleCount; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const dist = Math.random() < 0.75
+            ? Math.random() * (width * 0.35)
+            : Math.random() * (width * 0.65);
 
-      particlesRef.current = particles;
+          const px = cx + Math.cos(angle) * dist;
+          const py = cy + Math.sin(angle) * (dist * 0.6);
 
-      const renderShatter = () => {
-        if (!ctx) return;
-        ctx.clearRect(0, 0, w, h);
+          const outAngle = Math.atan2(py - cy, px - cx) + (Math.random() - 0.5) * 0.6;
+          const speed = Math.random() * 22 + 5;
 
-        let activeCount = 0;
-        particlesRef.current.forEach((p) => {
-          p.life++;
-          p.x += p.vx;
-          p.y += p.vy;
-          p.vy += 0.1;
-          p.vx *= 0.98;
-          p.rotation += p.rotSpeed;
-          p.alpha = Math.max(0, 1 - p.life / p.maxLife);
-
-          if (p.alpha > 0) {
-            activeCount++;
-            ctx.save();
-            ctx.translate(p.x, p.y);
-            ctx.rotate(p.rotation);
-            ctx.fillStyle = `${p.color}${p.alpha})`;
-
-            ctx.shadowColor = "rgba(255, 255, 255, 0.9)";
-            ctx.shadowBlur = 14;
-
-            ctx.beginPath();
-            ctx.moveTo(0, -p.size * 1.5);
-            ctx.lineTo(p.size, 0);
-            ctx.lineTo(0, p.size * 1.5);
-            ctx.lineTo(-p.size, 0);
-            ctx.closePath();
-            ctx.fill();
-
-            ctx.restore();
-          }
-        });
-
-        if (activeCount > 0) {
-          animFrameRef.current = requestAnimationFrame(renderShatter);
+          particles.push({
+            x: px,
+            y: py,
+            vx: Math.cos(outAngle) * speed + (Math.random() - 0.5) * 5,
+            vy: Math.sin(outAngle) * speed + (Math.random() - 0.5) * 5,
+            size: Math.random() * 2.8 + 0.8,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            alpha: Math.random() * 0.7 + 0.3,
+            decay: Math.random() * 0.016 + 0.009,
+          });
         }
-      };
 
-      animFrameRef.current = requestAnimationFrame(renderShatter);
+        let animId: number;
+
+        const animate = () => {
+          ctx.clearRect(0, 0, width, height);
+
+          let activeCount = 0;
+
+          for (let i = 0; i < particles.length; i++) {
+            const p = particles[i];
+            if (p.alpha <= 0) continue;
+
+            activeCount++;
+
+            p.x += p.vx;
+            p.y += p.vy;
+
+            p.vx *= 0.94;
+            p.vy *= 0.94;
+
+            p.alpha -= p.decay;
+
+            ctx.globalAlpha = Math.max(0, p.alpha);
+            ctx.fillStyle = p.color;
+            ctx.fillRect(p.x, p.y, p.size, p.size);
+          }
+
+          if (activeCount > 0) {
+            animId = requestAnimationFrame(animate);
+          }
+        };
+
+        animId = requestAnimationFrame(animate);
+      }
     }
 
+    // Complete transition after 1200ms of particle disintegration
     setTimeout(() => {
       onEnter();
-    }, 950);
+    }, 1200);
   };
-
-  useEffect(() => {
-    return () => {
-      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-    };
-  }, []);
 
   return (
     <div
@@ -139,7 +127,7 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
         muted
         playsInline
         className={`absolute inset-0 w-full h-full object-cover transition-all duration-1000 ${
-          isEntering ? "scale-125 opacity-0 blur-xl" : "scale-100 opacity-100"
+          isEntering ? "scale-125 opacity-0 blur-2xl" : "scale-100 opacity-100"
         }`}
       >
         <source
@@ -148,24 +136,32 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
         />
       </video>
 
-      {/* Particle Shatter Canvas Overlay */}
+      {/* 15,000 Particle Shatter Canvas Overlay */}
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 pointer-events-none z-30"
+        className="fixed inset-0 z-50 pointer-events-none"
       />
 
       {/* Subtle Dark Ambient Overlay */}
-      <div className="absolute inset-0 bg-black/25 z-10 pointer-events-none" />
+      <div
+        className={`absolute inset-0 bg-black/25 z-10 pointer-events-none transition-opacity duration-700 ${
+          isEntering ? "opacity-0" : "opacity-100"
+        }`}
+      />
 
       {/* Ambient Radial Glow behind Name */}
-      <div className="absolute top-[20%] w-[700px] h-[350px] bg-indigo-500/15 rounded-full blur-[140px] pointer-events-none animate-pulse z-10" />
+      <div
+        className={`absolute top-[20%] w-[700px] h-[350px] bg-indigo-500/15 rounded-full blur-[140px] pointer-events-none animate-pulse z-10 transition-all duration-700 ${
+          isEntering ? "scale-150 opacity-0" : "opacity-100"
+        }`}
+      />
 
       {/* Top/Center: Large Glass Text Name */}
       <div
-        className={`relative z-20 pt-10 sm:pt-16 px-4 text-center transition-all duration-700 ${
+        className={`relative z-20 pt-10 sm:pt-16 px-4 text-center transition-all duration-1000 ease-out ${
           isEntering
-            ? "opacity-0 scale-125 blur-xl rotate-1 pointer-events-none"
-            : "opacity-100 scale-100"
+            ? "scale-150 opacity-0 blur-xl -translate-y-12"
+            : "scale-100 opacity-100 translate-y-0"
         }`}
       >
         <h1 className="glass-3d-text text-4xl sm:text-6xl md:text-7xl lg:text-[95px] tracking-widest whitespace-nowrap">
@@ -175,10 +171,10 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
 
       {/* Bottom: Glass Effect Enter Button */}
       <div
-        className={`relative z-20 pb-6 sm:pb-10 transition-all duration-700 ${
+        className={`relative z-20 pb-6 sm:pb-10 transition-all duration-1000 ease-out ${
           isEntering
-            ? "opacity-0 scale-75 blur-xl pointer-events-none"
-            : "opacity-100 scale-100"
+            ? "scale-75 opacity-0 blur-xl translate-y-12"
+            : "scale-100 opacity-100 translate-y-0"
         }`}
       >
         <button
@@ -190,9 +186,9 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
         </button>
       </div>
 
-      {/* Transition Overlay */}
+      {/* Final Fade Screen */}
       <div
-        className={`fixed inset-0 z-50 bg-[#0a0608] pointer-events-none transition-opacity duration-1000 ${
+        className={`fixed inset-0 z-40 bg-[#0a0608] pointer-events-none transition-opacity duration-1000 ${
           isEntering ? "opacity-100" : "opacity-0"
         }`}
       />
