@@ -1,190 +1,289 @@
-import { useCallback, useState } from "react";
-import { ArrowRight } from "lucide-react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 
 interface WelcomePageProps {
   onEnter: () => void;
 }
 
-export const WelcomePage: React.FC<WelcomePageProps> = ({ onEnter }) => {
-  const [isExiting, setIsExiting] = useState(false);
+// ─── Button Component ───
+const Button: React.FC<{
+  children: React.ReactNode;
+  onClick?: () => void;
+  className?: string;
+}> = ({ children, onClick, className = "" }) => (
+  <button
+    onClick={onClick}
+    className={`bg-white text-black px-8 py-3.5 rounded-full font-medium text-sm tracking-wide hover:bg-white/90 transition-all duration-300 button-glow cursor-pointer ${className}`}
+  >
+    {children}
+  </button>
+);
 
-  const handleEnter = useCallback(() => {
-    if (isExiting) return;
-    setIsExiting(true);
-    setTimeout(() => onEnter(), 900);
-  }, [isExiting, onEnter]);
+// ─── SECTION 1: Hero ───
+const Hero: React.FC<{ onEnter: () => void }> = ({ onEnter }) => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <div className="h-screen w-full bg-black p-3 md:p-4" style={{ fontFamily: "'Inter', sans-serif" }}>
-      <div className="w-full h-full rounded-2xl flex flex-col overflow-hidden relative bg-black">
+    <section className="relative h-screen w-full overflow-hidden flex items-center justify-center bg-[#0a0608]">
+      {/* Background Video */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260613_180732_a54afbf6-b30d-470e-861f-669871f09f67.mp4"
+        className="absolute inset-0 w-full h-full object-cover"
+      />
 
-        {/* ─── Background Video ─── */}
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260717_120352_eb988725-1351-43b3-8095-16e4a1005e3d.mp4"
-          className="absolute inset-0 w-full h-full object-cover anim-fade"
-          style={{ animationDelay: "0.2s" }}
-        />
+      {/* Dark Overlay */}
+      <div className="absolute inset-0 bg-black/20" />
 
-        {/* ─── Navbar ─── */}
-        <nav className="relative z-10 flex items-center justify-between px-6 md:px-10 pt-6 md:pt-8">
-          {/* Logo Block */}
-          <div className="anim-stagger flex flex-col items-start" style={{ animationDelay: "0.1s" }}>
-            {/* Vortex SVG Logo */}
-            <svg
-              viewBox="0 0 256 256"
-              className="w-14 h-14 md:w-16 md:h-16"
-              fill="white"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path d="M128 0 C128 0, 128 128, 0 128 C0 128, 128 128, 128 0Z" opacity="0.9" />
-              <path d="M128 0 C128 0, 128 128, 256 128 C256 128, 128 128, 128 0Z" opacity="0.7" />
-              <path d="M128 256 C128 256, 128 128, 0 128 C0 128, 128 128, 128 256Z" opacity="0.7" />
-              <path d="M128 256 C128 256, 128 128, 256 128 C256 128, 128 128, 128 256Z" opacity="0.5" />
-            </svg>
-            <span className="text-white text-[10px] md:text-xs tracking-[0.4em] mt-1 font-light">
-              J A L O L I D D I N
-            </span>
-          </div>
+      {/* Fixed Navbar */}
+      <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-5">
+        {/* Brand */}
+        <span className="font-dancing text-white text-2xl md:text-3xl select-none">
+          Serene
+        </span>
 
-          {/* Nav Buttons */}
-          <div className="anim-stagger flex items-center gap-3" style={{ animationDelay: "0.2s" }}>
-            <button
-              className="hidden md:block px-5 py-2.5 text-white text-sm hover:bg-white/10 btn-cut-border"
-              onClick={handleEnter}
+        {/* Desktop Nav Links */}
+        <nav className="hidden md:flex items-center gap-12">
+          {["About", "Services", "Journal", "Contact"].map((link) => (
+            <a
+              key={link}
+              href={`#${link.toLowerCase()}`}
+              className="text-white/80 hover:text-white text-sm tracking-wide transition-colors"
             >
-              <span>Portfolio</span>
-            </button>
-            <button
-              className="hidden md:block px-5 py-2.5 bg-white text-black text-sm hover:bg-white/90 btn-cut"
-              onClick={handleEnter}
-            >
-              My Projects
-            </button>
-          </div>
+              {link}
+            </a>
+          ))}
         </nav>
 
-        {/* ─── Main Content ─── */}
-        <div className="relative z-10 flex-1 flex flex-col justify-between px-6 md:px-10 pb-8 md:pb-10">
-
-          {/* Top Section */}
-          <div className="flex-1 flex items-center relative">
-
-            {/* Left Column (hidden below lg) */}
-            <div
-              className="anim-stagger hidden lg:flex flex-col gap-6 absolute left-0 top-[18%]"
-              style={{ animationDelay: "0.4s" }}
-            >
-              <p className="text-white/80 text-base leading-relaxed max-w-[220px]">
-                Come with me
-                <br />
-                exploring the
-                <br />
-                horizon
-              </p>
-              <div className="flex flex-col gap-2 mt-4">
-                <div className="flex items-center gap-1">
-                  <div className="w-4 h-4 rounded-full border border-white/40" />
-                  <div className="w-4 h-4 rounded-full border border-white/40" />
-                </div>
-                <div className="flex items-center gap-2 mt-2">
-                  <span className="text-white/70 text-xs">
-                    Perpetual
-                    <br />
-                    Immersion
-                  </span>
-                  <span className="text-white/50 text-xs">01</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Center Heading */}
-            <div
-              className="anim-stagger w-full text-center"
-              style={{ animationDelay: "0.5s" }}
-            >
-              <h1
-                className="text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-normal leading-[1.1] tracking-[-0.04em]"
-                style={{ textShadow: "0 2px 12px rgba(0,0,0,0.25)" }}
-              >
-                Forging Tomorrow
-                <br />
-                Virtual Horizon
-                <br />
-                Jaloliddin Xalimov
-              </h1>
-            </div>
-          </div>
-
-          {/* Bottom Row */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center mt-8">
-
-            {/* Col 1 — Description */}
-            <div
-              className="anim-stagger flex items-center justify-center md:justify-end"
-              style={{ animationDelay: "0.7s" }}
-            >
-              <p className="text-white text-sm leading-relaxed max-w-[260px] text-center md:text-left md:ml-auto">
-                We push past conventions, reshaping the virtual terrain with next-level technologies.
-              </p>
-            </div>
-
-            {/* Col 2 — Net Dynamics + CTA */}
-            <div
-              className="anim-stagger flex flex-col items-center gap-8 md:gap-24"
-              style={{ animationDelay: "0.85s" }}
-            >
-              <span className="text-white text-2xl md:text-3xl font-medium">
-                Net Dynamics
-              </span>
-              <button
-                onClick={handleEnter}
-                className="w-full max-w-[280px] py-3.5 bg-white flex items-center justify-center gap-2 text-black hover:bg-white/90 transition-colors group btn-cut"
-              >
-                <span className="text-sm font-medium">Discover Now</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </button>
-            </div>
-
-            {/* Col 3 — Social Buttons */}
-            <div
-              className="anim-stagger flex items-center justify-center md:justify-end gap-3"
-              style={{ animationDelay: "1s" }}
-            >
-              {/* X (Twitter) */}
-              <button className="w-10 h-10 bg-white flex items-center justify-center text-black hover:bg-white/90 transition-colors btn-cut-sm">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                </svg>
-              </button>
-
-              {/* LinkedIn */}
-              <button className="w-10 h-10 bg-white flex items-center justify-center text-black hover:bg-white/90 transition-colors btn-cut-sm">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-                </svg>
-              </button>
-
-              {/* Facebook */}
-              <button className="w-10 h-10 bg-white flex items-center justify-center text-black hover:bg-white/90 transition-colors btn-cut-sm">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                </svg>
-              </button>
-            </div>
-          </div>
+        {/* Desktop Right Button */}
+        <div className="hidden md:block">
+          <Button onClick={onEnter}>Book a consultation</Button>
         </div>
 
-        {/* ─── Exit Overlay (fade to black on enter) ─── */}
+        {/* Mobile Hamburger Icon */}
+        <button
+          onClick={() => setMobileMenuOpen((prev) => !prev)}
+          className="md:hidden relative z-50 w-10 h-10 flex flex-col justify-center items-center gap-1.5 focus:outline-none cursor-pointer"
+          aria-label="Toggle Menu"
+        >
+          <span
+            className={`w-6 h-[2px] bg-white transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              mobileMenuOpen ? "rotate-45 translate-y-[8px]" : ""
+            }`}
+          />
+          <span
+            className={`w-6 h-[2px] bg-white transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              mobileMenuOpen ? "opacity-0 scale-0" : ""
+            }`}
+          />
+          <span
+            className={`w-6 h-[2px] bg-white transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              mobileMenuOpen ? "-rotate-45 -translate-y-[8px]" : ""
+            }`}
+          />
+        </button>
+
+        {/* Mobile Slide-in Menu */}
         <div
-          className={`absolute inset-0 z-50 bg-black pointer-events-none transition-opacity duration-[800ms] ease-in-out rounded-2xl ${
-            isExiting ? "opacity-100" : "opacity-0"
+          className={`fixed inset-y-0 right-0 z-40 w-[85%] max-w-[340px] bg-[#0a0608]/95 backdrop-blur-xl border-l border-white/10 flex flex-col justify-between p-8 pt-24 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+            mobileMenuOpen ? "translate-x-0" : "translate-x-full"
           }`}
-        />
+        >
+          <div className="flex flex-col gap-6">
+            {["About", "Services", "Journal", "Contact"].map((link, idx) => (
+              <a
+                key={link}
+                href={`#${link.toLowerCase()}`}
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-white/90 hover:text-white text-xl tracking-wide font-light transition-all"
+                style={{
+                  transitionDelay: `${150 + idx * 75}ms`,
+                  opacity: mobileMenuOpen ? 1 : 0,
+                  transform: mobileMenuOpen ? "translateX(0)" : "translateX(20px)",
+                }}
+              >
+                {link}
+              </a>
+            ))}
+          </div>
+
+          <div
+            style={{
+              transitionDelay: "450ms",
+              opacity: mobileMenuOpen ? 1 : 0,
+              transform: mobileMenuOpen ? "translateY(0)" : "translateY(20px)",
+              transitionProperty: "opacity, transform",
+              transitionDuration: "400ms",
+            }}
+          >
+            <Button onClick={() => { setMobileMenuOpen(false); onEnter(); }} className="w-full">
+              Book a consultation
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      {/* Center Content */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center px-6 -mt-[120px] pointer-events-auto z-20">
+        <h1 className="font-instrument text-white text-[36px] md:text-7xl lg:text-[110px] leading-[0.9] tracking-tight text-center text-glow">
+          Gentle touch. Radiant presence.
+        </h1>
+        <p className="text-white/70 text-sm md:text-base text-center mt-5 md:mt-7 max-w-xl">
+          Expert beauty and holistic wellness, delivered with warmth and intention.
+        </p>
+        <Button onClick={onEnter} className="mt-6 md:mt-9">
+          Begin your renewal
+        </Button>
       </div>
+
+      {/* Sound Indicator (Desktop only) */}
+      <div className="hidden md:flex items-center gap-3 absolute bottom-8 left-8 z-20 pointer-events-none">
+        <div className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center">
+          <div className="w-3 h-[2px] bg-white/80 rounded-full animate-pulse" />
+        </div>
+        <div className="text-white/60 text-xs leading-tight">
+          <div>Experience</div>
+          <div>with sound</div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// ─── SECTION 2: Quote Section (Parallax Scroll) ───
+const QuoteSection: React.FC = () => {
+  const sectionRef = useRef<HTMLElement>(null);
+  const rainbowRef = useRef<HTMLImageElement>(null);
+  const leftCloudRef = useRef<HTMLImageElement>(null);
+  const rightCloudRef = useRef<HTMLImageElement>(null);
+
+  // Parallax targets & current values for smooth lerp
+  const animState = useRef({
+    targetProgress: 0,
+    currentProgress: 0,
+    rainbowY: 120,
+    leftX: -200,
+    rightX: 200,
+    leftOpacity: 0,
+    rightOpacity: 0,
+    cloudY: 0,
+  });
+
+  const updateParallax = useCallback(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const rect = section.getBoundingClientRect();
+    const windowHeight = window.innerHeight;
+    
+    // Progress bounded 0 to 1
+    const rawProgress = (windowHeight - rect.top) / (windowHeight + rect.height);
+    const progress = Math.max(0, Math.min(1, rawProgress));
+    animState.current.targetProgress = progress;
+
+    // Lerp calculation
+    const state = animState.current;
+    state.currentProgress += (state.targetProgress - state.currentProgress) * 0.06;
+
+    // Rainbow Y movement: +120px down to -160px
+    state.rainbowY = 120 - state.currentProgress * 280;
+
+    // Cloud activation range: progress 0.12 - 0.92
+    const inView = state.currentProgress > 0.08 && state.currentProgress < 0.95;
+    const targetCloudX = inView ? 0 : 200;
+    const targetCloudOpacity = inView ? 1 : 0;
+
+    state.leftX += (-targetCloudX - state.leftX) * 0.04;
+    state.rightX += (targetCloudX - state.rightX) * 0.04;
+    state.leftOpacity += (targetCloudOpacity - state.leftOpacity) * 0.05;
+    state.rightOpacity += (targetCloudOpacity - state.rightOpacity) * 0.05;
+    state.cloudY = state.currentProgress * -50;
+
+    // Apply GPU accelerated transforms
+    if (rainbowRef.current) {
+      rainbowRef.current.style.transform = `translate3d(0, ${state.rainbowY}px, 0)`;
+    }
+    if (leftCloudRef.current) {
+      leftCloudRef.current.style.transform = `translate3d(${state.leftX}px, ${state.cloudY}px, 0)`;
+      leftCloudRef.current.style.opacity = `${state.leftOpacity}`;
+    }
+    if (rightCloudRef.current) {
+      rightCloudRef.current.style.transform = `scaleX(-1) translate3d(${state.rightX}px, ${state.cloudY}px, 0)`;
+      rightCloudRef.current.style.opacity = `${state.rightOpacity}`;
+    }
+  }, []);
+
+  useEffect(() => {
+    let animFrameId: number;
+
+    const loop = () => {
+      updateParallax();
+      animFrameId = requestAnimationFrame(loop);
+    };
+    loop();
+
+    return () => cancelAnimationFrame(animFrameId);
+  }, [updateParallax]);
+
+  return (
+    <section
+      ref={sectionRef}
+      className="relative h-screen w-full overflow-hidden flex items-center justify-center"
+      style={{
+        background: "linear-gradient(180deg, #010A17 0%, #0A4267 30%, #20658E 60%, #6BADC4 100%)",
+      }}
+    >
+      {/* 1. Rainbow Image */}
+      <img
+        ref={rainbowRef}
+        src="https://soft-zoom-63098134.figma.site/_assets/v11/8d520a7515d06cbfc403d0125e3d05b1a7ccd29c.png"
+        alt="Rainbow"
+        className="absolute inset-x-0 top-0 w-full z-30 pointer-events-none will-change-transform"
+      />
+
+      {/* 2. Left Cloud */}
+      <img
+        ref={leftCloudRef}
+        src="https://soft-zoom-63098134.figma.site/_assets/v11/0d6dfd3f90b930f21726f2ed56a3320d79b7a797.png"
+        alt="Cloud Left"
+        className="absolute left-0 bottom-[10%] z-10 hidden sm:block w-[500px] md:w-[650px] pointer-events-none will-change-transform"
+        style={{ marginLeft: "-50%" }}
+      />
+
+      {/* 3. Right Cloud */}
+      <img
+        ref={rightCloudRef}
+        src="https://soft-zoom-63098134.figma.site/_assets/v11/0d6dfd3f90b930f21726f2ed56a3320d79b7a797.png"
+        alt="Cloud Right"
+        className="absolute right-0 bottom-[15%] z-10 hidden sm:block w-[500px] md:w-[650px] pointer-events-none will-change-transform"
+        style={{ marginRight: "-75%" }}
+      />
+
+      {/* 4. Quote Content */}
+      <div className="relative z-20 max-w-4xl text-center px-6 md:px-10 py-12">
+        <blockquote className="font-instrument text-white text-xl sm:text-2xl md:text-4xl lg:text-[42px] leading-[1.45] md:leading-[1.5]">
+          “Serene was founded on a belief in beauty that honors your nature. We
+          pursue refined outcomes, considered approaches, and lasting vitality. We
+          spend time learning what matters to you before deciding what serves you
+          best. No rushing, no excess -- just support that lets you feel
+          radiant.”
+        </blockquote>
+        <div className="mt-6 md:mt-8 text-white/80 text-sm md:text-base tracking-wide font-sans">
+          Dr. Mia Callahan -- Founder
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// ─── Main WelcomePage Export ───
+export const WelcomePage: React.FC<WelcomePageProps> = ({ onEnter }) => {
+  return (
+    <div className="bg-[#0a0608] min-h-screen w-full select-none overflow-x-hidden font-inter">
+      <Hero onEnter={onEnter} />
+      <QuoteSection />
     </div>
   );
 };
