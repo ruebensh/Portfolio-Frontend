@@ -32,7 +32,7 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
         const width = (canvas.width = window.innerWidth);
         const height = (canvas.height = window.innerHeight);
 
-        const particleCount = 100000;
+        const particleCount = 150000;
         const particles: Particle[] = [];
 
         const colors = [
@@ -45,27 +45,19 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
           "#ffffff",
         ];
 
-        // Center origin for 100,000 particle shockwave explosion
-        const cx = width / 2;
-        const cy = height / 2;
-
+        // Particles distributed uniformly across the entire screen
         for (let i = 0; i < particleCount; i++) {
+          const px = Math.random() * width;
+          const py = Math.random() * height;
+
           const angle = Math.random() * Math.PI * 2;
-          const dist = Math.random() < 0.8
-            ? Math.random() * (width * 0.4)
-            : Math.random() * (width * 0.7);
-
-          const px = cx + Math.cos(angle) * dist;
-          const py = cy + Math.sin(angle) * (dist * 0.65);
-
-          const outAngle = Math.atan2(py - cy, px - cx) + (Math.random() - 0.5) * 0.8;
-          const speed = Math.random() * 26 + 4;
+          const speed = Math.random() * 24 + 4;
 
           particles.push({
             x: px,
             y: py,
-            vx: Math.cos(outAngle) * speed + (Math.random() - 0.5) * 6,
-            vy: Math.sin(outAngle) * speed + (Math.random() - 0.5) * 6,
+            vx: Math.cos(angle) * speed + (Math.random() - 0.5) * 6,
+            vy: Math.sin(angle) * speed + (Math.random() - 0.5) * 6,
             size: Math.random() * 2.2 + 0.6,
             color: colors[Math.floor(Math.random() * colors.length)],
             alpha: Math.random() * 0.8 + 0.2,
