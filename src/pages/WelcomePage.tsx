@@ -62,9 +62,9 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
       >
         <button
           onClick={handleEnter}
-          className="liquid-glass border border-white/35 bg-white/10 hover:bg-white/25 hover:border-white/60 text-white px-10 py-4.5 rounded-full font-semibold text-base sm:text-lg tracking-wider button-glow flex items-center gap-3.5 hover:scale-105 transition-all cursor-pointer group shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-xl"
+          className="glass-3d-button text-white px-10 py-4.5 rounded-full font-bold text-base sm:text-lg tracking-widest uppercase flex items-center gap-3.5 cursor-pointer group"
         >
-          <span>Portfolioga kirish</span>
+          <span>ENTER PORTFOLIO</span>
           <ArrowRight size={20} className="group-hover:translate-x-1.5 transition-transform" />
         </button>
       </div>
