@@ -2,9 +2,10 @@
   import { defineConfig } from 'vite';
   import react from '@vitejs/plugin-react-swc';
   import path from 'path';
+  import cesium from 'vite-plugin-cesium';
 
   export default defineConfig({
-    plugins: [react()],
+    plugins: [react(), cesium()],
     resolve: {
       extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
       alias: {
@@ -52,6 +53,7 @@
     build: {
       target: 'esnext',
       outDir: 'build',
+      chunkSizeWarningLimit: 5000,
     },
     server: {
       port: 3000,
