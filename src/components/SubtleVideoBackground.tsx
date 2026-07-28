@@ -6,7 +6,7 @@
  * Uses a random video from /backgrounds/1.mp4, 2.mp4, 3.mp4 on every mount.
  */
 
-const VIDEOS = ["/backgrounds/1.mp4", "/backgrounds/2.mp4", "/backgrounds/3.mp4"];
+const VIDEOS = ["/backgrounds/1.mp4", "/backgrounds/3.mp4"];
 
 /** Pick a deterministic video based on an optional index, or random */
 function pickVideo(index?: number): string {
@@ -34,13 +34,13 @@ export function SubtleVideoBackground({ index }: Props) {
         muted
         playsInline
         className="absolute inset-0 w-full h-full object-cover"
-        style={{ opacity: 0.15, filter: "blur(1px) brightness(0.5)" }}
+        style={{ opacity: 0.8, filter: "brightness(0.8)" }}
       >
         <source src={src} type="video/mp4" />
       </video>
 
-      {/* Dark scrim — keeps text readable while video texture is still visible */}
-      <div className="absolute inset-0" style={{ backgroundColor: "rgba(2,2,2,0.88)" }} />
+      {/* Light scrim — 20% overlay so video is clearly visible */}
+      <div className="absolute inset-0" style={{ backgroundColor: "rgba(2,2,2,0.20)" }} />
     </div>
   );
 }

@@ -119,14 +119,14 @@ function AppContent() {
 
   const getVideoIndex = (path: string) => {
     switch (path) {
-      case "/": return 0;
-      case "/projects": return 1;
-      case "/certificates": return 2;
-      case "/about": return 0;
-      case "/blog": return 1;
+      case "/": return 0;           // 1.mp4
+      case "/projects": return 1;   // 3.mp4
+      case "/certificates": return 0; // 1.mp4
+      case "/about": return 1;      // 3.mp4
+      case "/blog": return 0;       // 1.mp4
       case "/resume": return undefined;
       case "/ai-chat": return undefined;
-      default: return 1;
+      default: return 1;            // 3.mp4
     }
   };
 
