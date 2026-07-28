@@ -104,8 +104,8 @@ export function AdminCertificates() {
         </div>
 
         {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-            <div className="bg-slate-900 border border-slate-800 w-full max-w-md p-6 rounded-2xl shadow-2xl relative">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-2xl p-4">
+            <div className="pp-glass border border-white/20 w-full max-w-md p-6 sm:p-8 rounded-3xl shadow-[0_30px_100px_rgba(0,0,0,0.8)] relative bg-black/40">
               <button 
                 onClick={() => setIsModalOpen(false)} 
                 className="absolute right-4 top-4 text-slate-400 hover:text-white transition-colors"

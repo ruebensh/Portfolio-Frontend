@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, ExternalLink, Award, Calendar, Building2 } from "lucide-react";
+import { Loader2, ExternalLink, Award, Calendar, Building2, X } from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -202,12 +202,12 @@ const item = {
 export function CertificatesPage() {
   const [certs, setCerts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedCert, setSelectedCert] = useState<any | null>(null);
 
   useEffect(() => {
     fetch(`${API_URL}/certificates`)
       .then((res) => res.json())
       .then((data) => {
-        // Achievement modelidan kelayotgan ma'lumotlarni massiv ekanligini tekshiramiz
         setCerts(Array.isArray(data) ? data : []);
         setLoading(false);
       })
@@ -285,7 +285,10 @@ export function CertificatesPage() {
                   whileHover={{ y: -10 }}
                   transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                 >
-                  <div className="group h-full rounded-[2.5rem] overflow-hidden border border-white/10 bg-white/5 hover:bg-white/7 transition-all duration-500 shadow-[0_25px_100px_rgba(0,0,0,.5)] flex flex-col">
+                  <div 
+                    onClick={() => setSelectedCert({ ...cert, fileUrl, isPdf })}
+                    className="group h-full pp-glass rounded-[2.5rem] overflow-hidden flex flex-col cursor-pointer"
+                  >
                     
                     {/* Media Preview */}
                     <div className="relative aspect-[4/3] overflow-hidden bg-zinc-900">
@@ -336,15 +339,13 @@ export function CertificatesPage() {
                       </div>
 
                       <div className="mt-auto">
-                        <a
-                          href={fileUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <button
+                          type="button"
                           className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-primary hover:border-primary text-white transition-all duration-300 font-bold group/btn"
                         >
                           {isPdf ? "Open Document" : "Full Preview"}
                           <ExternalLink size={16} className="group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
-                        </a>
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -353,6 +354,73 @@ export function CertificatesPage() {
             })}
           </AnimatePresence>
         </motion.div>
+
+        {/* Certificate Modal Preview with Glassmorphism */}
+        <AnimatePresence>
+          {selectedCert && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/75 backdrop-blur-2xl"
+              onClick={() => setSelectedCert(null)}
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                transition={{ type: "spring", stiffness: 350, damping: 28 }}
+                onClick={(e) => e.stopPropagation()}
+                className="pp-glass rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col border border-white/20 shadow-[0_30px_100px_rgba(0,0,0,0.8)] relative"
+              >
+                {/* Header */}
+                <div className="p-6 border-b border-white/10 flex items-center justify-between bg-black/30 backdrop-blur-xl">
+                  <div>
+                    <h2 className="text-2xl font-bold text-white">{selectedCert.title}</h2>
+                    <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
+                      <Building2 size={14} className="text-primary" /> {selectedCert.issuer} • <Calendar size={14} /> {selectedCert.date}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setSelectedCert(null)}
+                    className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+
+                {/* Body */}
+                <div className="p-6 overflow-y-auto flex-1 flex items-center justify-center bg-black/20">
+                  {selectedCert.isPdf ? (
+                    <iframe
+                      src={`${selectedCert.fileUrl}#view=FitH`}
+                      className="w-full h-[60vh] rounded-2xl border border-white/10"
+                      title={selectedCert.title}
+                    />
+                  ) : (
+                    <img
+                      src={selectedCert.fileUrl}
+                      alt={selectedCert.title}
+                      className="max-h-[65vh] w-auto object-contain rounded-2xl border border-white/10 shadow-2xl"
+                    />
+                  )}
+                </div>
+
+                {/* Footer */}
+                <div className="p-4 border-t border-white/10 flex justify-end gap-4 bg-black/30 backdrop-blur-xl">
+                  <a
+                    href={selectedCert.fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-6 py-2.5 rounded-xl bg-primary text-primary-foreground font-bold flex items-center gap-2 hover:opacity-90 transition-opacity"
+                  >
+                    To'liq ko'rish <ExternalLink size={16} />
+                  </a>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Empty State */}
         {certs.length === 0 && (

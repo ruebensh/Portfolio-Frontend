@@ -127,9 +127,9 @@ export function AdminProjects() {
 
         {/* Add Project Modal */}
         {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-            <div className="bg-slate-900 border border-slate-800 w-full max-w-md p-6 rounded-2xl shadow-2xl relative">
-              <button onClick={() => setIsModalOpen(false)} className="absolute right-4 top-4 text-slate-400 hover:text-white">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-2xl p-4">
+            <div className="pp-glass border border-white/20 w-full max-w-md p-6 sm:p-8 rounded-3xl shadow-[0_30px_100px_rgba(0,0,0,0.8)] relative bg-black/40">
+              <button onClick={() => setIsModalOpen(false)} className="absolute right-5 top-5 text-slate-400 hover:text-white p-1 rounded-full hover:bg-white/10 transition-colors">
                 <X size={20} />
               </button>
               <h2 className="text-xl font-semibold mb-6">Yangi loyiha yaratish</h2>

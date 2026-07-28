@@ -353,7 +353,7 @@ export function ProjectsPage() {
                   transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                 >
                   <Link href={`/project/${project.id}`}>
-                    <div className="group h-full rounded-3xl overflow-hidden border border-white/10 bg-white/5 hover:bg-white/7 transition-all duration-300 shadow-[0_18px_80px_rgba(0,0,0,.40)]">
+                    <div className="group h-full pp-glass rounded-3xl overflow-hidden shadow-[0_18px_80px_rgba(0,0,0,.40)]">
                       {}
                       <div className="relative aspect-video overflow-hidden">
                         <img
