@@ -220,20 +220,6 @@ function PageBackground() {
         .page-vignette { background: radial-gradient(70% 55% at 50% 25%, rgba(255,255,255,.02), transparent 62%), radial-gradient(85% 80% at 50% 50%, transparent, rgba(0,0,0,.75)); }
       `}</style>
 
-      {/* Full-screen video background — subtle, barely visible */}
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover opacity-15"
-      >
-        <source src="/backgrounds/1.mp4" type="video/mp4" />
-      </video>
-
-      {/* Heavy dark scrim so video stays in the background */}
-      <div className="absolute inset-0 bg-[#020202]/80" />
-
       {/* Existing atmospheric layers on top */}
       <div className="absolute inset-0 page-aurora" />
       <div className="absolute inset-0 page-grid" />

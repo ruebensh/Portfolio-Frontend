@@ -1,0 +1,43 @@
+/**
+ * SubtleVideoBackground
+ * ─────────────────────
+ * Reusable ultra-subtle looping video background.
+ * Stays completely in the background — opacity ~12% with an 85% dark scrim.
+ * Uses a random video from /backgrounds/1.mp4, 2.mp4, 3.mp4 on every mount.
+ */
+
+const VIDEOS = ["/backgrounds/1.mp4", "/backgrounds/2.mp4", "/backgrounds/3.mp4"];
+
+/** Pick a deterministic video based on an optional index, or random */
+function pickVideo(index?: number): string {
+  if (index !== undefined) return VIDEOS[index % VIDEOS.length];
+  return VIDEOS[Math.floor(Math.random() * VIDEOS.length)];
+}
+
+interface Props {
+  /** 0 | 1 | 2 — pick a specific video. Omit for random. */
+  index?: number;
+}
+
+export function SubtleVideoBackground({ index }: Props) {
+  const src = pickVideo(index);
+
+  return (
+    <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+      {/* Video layer — barely visible */}
+      <video
+        key={src}
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover opacity-[0.12]"
+      >
+        <source src={src} type="video/mp4" />
+      </video>
+
+      {/* Heavy dark scrim — keeps video from distracting */}
+      <div className="absolute inset-0 bg-[#020202]/85" />
+    </div>
+  );
+}

@@ -24,6 +24,7 @@ import ChatAI from "./components/ChatAI";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { LiveStatusWidget } from "./components/LiveStatusWidget";
 import { WelcomePage } from "./pages/WelcomePage";
+import { SubtleVideoBackground } from "./components/SubtleVideoBackground";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -116,9 +117,23 @@ function AppContent() {
     );
   }
 
+  const getVideoIndex = (path: string) => {
+    switch (path) {
+      case "/": return 0;
+      case "/projects": return 1;
+      case "/certificates": return 2;
+      case "/about": return 0;
+      case "/blog": return 1;
+      case "/resume": return 2;
+      case "/ai-chat": return 0;
+      default: return 1;
+    }
+  };
+
   // Foydalanuvchi yo'nalishlari
   return (
     <>
+      <SubtleVideoBackground index={getVideoIndex(currentPath)} />
       <Header />
       <main className={isAiPage ? "" : "pt-16"}>
         {currentPath === "/" && <HomePage />}
