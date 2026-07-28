@@ -106,17 +106,15 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
       <video
         ref={videoRef}
         autoPlay
-        loop
         muted
         playsInline
+        onEnded={handleEnter}
         className={`absolute inset-0 w-full h-full object-cover transition-all duration-[2500ms] ease-in-out ${
           isEntering ? "scale-150 opacity-0 blur-3xl" : "scale-100 opacity-100"
         }`}
       >
-        <source
-          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260613_180732_a54afbf6-b30d-470e-861f-669871f09f67.mp4"
-          type="video/mp4"
-        />
+        <source src="/backgrounds/welcome.mp4" type="video/mp4" />
+        <source src="/backgrounds/1.mp4" type="video/mp4" />
       </video>
 
       {/* Particle canvas (above video, below UI) */}
