@@ -24,20 +24,20 @@ export function SubtleVideoBackground({ index }: Props) {
 
   return (
     <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-      {/* Video layer — barely visible */}
+      {/* Video layer — ultra subtle, darkened, and blurred so text is 100% readable */}
       <video
         key={src}
         autoPlay
         loop
         muted
         playsInline
-        className="absolute inset-0 w-full h-full object-cover opacity-[0.12]"
+        className="absolute inset-0 w-full h-full object-cover opacity-[0.04] blur-sm brightness-[0.35] contrast-75"
       >
         <source src={src} type="video/mp4" />
       </video>
 
-      {/* Heavy dark scrim — keeps video from distracting */}
-      <div className="absolute inset-0 bg-[#020202]/85" />
+      {/* Heavy 95% dark scrim — guarantees perfect text contrast */}
+      <div className="absolute inset-0 bg-[#020202]/95" />
     </div>
   );
 }
