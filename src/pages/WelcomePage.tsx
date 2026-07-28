@@ -20,7 +20,7 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 w-screen h-[100vh] h-[100dvh] overflow-hidden bg-black select-none flex items-center justify-center">
+    <div className="fixed inset-0 z-50 w-screen h-[100vh] h-[100dvh] overflow-hidden bg-black select-none flex flex-col items-center justify-end pb-16 sm:pb-24 md:pb-28">
       {/* ── Responsiv Dual-Layer Video (Blurred Fill + Full Uncropped Main Video) ── */}
       <div className="absolute inset-0 w-full h-full overflow-hidden bg-black">
         {/* 1-QAVAT: Yuqori va pastki bo'shliqlarni to'ldiradigan hira (blurred) orqa fon video */}
