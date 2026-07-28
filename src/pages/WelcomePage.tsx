@@ -21,15 +21,30 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
 
   return (
     <div className="fixed inset-0 z-50 w-screen h-[100vh] h-[100dvh] overflow-hidden bg-black select-none flex items-center justify-center">
-      {/* ── Responsiv Video Background (Mobile, Tablet, Desktop) ─────── */}
-      <div className="absolute inset-0 w-full h-full overflow-hidden">
+      {/* ── Responsiv Dual-Layer Video (Blurred Fill + Full Uncropped Main Video) ── */}
+      <div className="absolute inset-0 w-full h-full overflow-hidden bg-black">
+        {/* 1-QAVAT: Yuqori va pastki bo'shliqlarni to'ldiradigan hira (blurred) orqa fon video */}
+        <video
+          autoPlay
+          muted
+          playsInline
+          loop
+          className={`absolute inset-0 w-full h-full object-cover scale-125 blur-3xl opacity-70 brightness-90 transition-all duration-[2000ms] ease-in-out ${
+            isEntering ? "scale-150 opacity-0" : "scale-125 opacity-70"
+          }`}
+        >
+          <source src="/backgrounds/welcome.mp4" type="video/mp4" />
+          <source src="/backgrounds/1.mp4" type="video/mp4" />
+        </video>
+
+        {/* 2-QAVAT: Video to'liq, qirqilmasdan (uncropped) ko'rinadigan asosiy video */}
         <video
           ref={videoRef}
           autoPlay
           muted
           playsInline
           onEnded={handleEnter}
-          className={`absolute top-1/2 left-1/2 min-w-full min-h-full w-auto h-auto max-w-none -translate-x-1/2 -translate-y-1/2 object-cover transition-all duration-[2000ms] ease-in-out ${
+          className={`relative z-10 w-full h-full object-contain transition-all duration-[2000ms] ease-in-out ${
             isEntering ? "scale-110 blur-2xl opacity-0" : "scale-100 opacity-100"
           }`}
         >
