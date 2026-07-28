@@ -20,42 +20,55 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 w-full h-screen overflow-hidden bg-black select-none flex items-center justify-center">
-      {/* ── Full-Screen Background Video ─────────────────────────────── */}
-      <video
-        ref={videoRef}
-        autoPlay
-        muted
-        playsInline
-        onEnded={handleEnter}
-        className={`absolute inset-0 w-full h-full object-cover transition-all duration-[2000ms] ease-in-out ${
-          isEntering ? "scale-110 blur-2xl opacity-0" : "scale-100 opacity-100"
-        }`}
-      >
-        <source src="/backgrounds/welcome.mp4" type="video/mp4" />
-        <source src="/backgrounds/1.mp4" type="video/mp4" />
-      </video>
+    <div className="fixed inset-0 z-50 w-screen h-[100vh] h-[100dvh] overflow-hidden bg-black select-none flex items-center justify-center">
+      {/* ── Responsiv Video Background (Mobile, Tablet, Desktop) ─────── */}
+      <div className="absolute inset-0 w-full h-full overflow-hidden">
+        <video
+          ref={videoRef}
+          autoPlay
+          muted
+          playsInline
+          onEnded={handleEnter}
+          className={`absolute top-1/2 left-1/2 min-w-full min-h-full w-auto h-auto max-w-none -translate-x-1/2 -translate-y-1/2 object-cover transition-all duration-[2000ms] ease-in-out ${
+            isEntering ? "scale-110 blur-2xl opacity-0" : "scale-100 opacity-100"
+          }`}
+        >
+          <source src="/backgrounds/welcome.mp4" type="video/mp4" />
+          <source src="/backgrounds/1.mp4" type="video/mp4" />
+        </video>
+      </div>
 
-      {/* Yengil ambient va gradient scrim */}
-      <div className="absolute inset-0 z-10 bg-black/30 pointer-events-none" />
+      {/* Yengil ambient qorong'i maska */}
+      <div className="absolute inset-0 z-10 bg-black/35 backdrop-brightness-[0.85] pointer-events-none" />
 
-      {/* ── Ekran Markazida Faqat Bitta ENTER PORTFOLIO Tugmasi ──────── */}
+      {/* ── Ekran Markazida "ENTER PORTFOLIO" Tugmasi ─────────────────── */}
       <div
-        className={`relative z-20 transition-all duration-[2000ms] ease-in-out ${
+        className={`relative z-20 transition-all duration-[2000ms] ease-in-out flex flex-col items-center justify-center p-4 ${
           isEntering
-            ? "scale-75 opacity-0 blur-xl translate-y-6"
+            ? "scale-75 opacity-0 blur-xl translate-y-8"
             : "scale-100 opacity-100 translate-y-0"
         }`}
       >
+        {/* Orqa fon nuriy aura (Glow Effect) */}
+        <div className="absolute w-[280px] h-[90px] sm:w-[420px] sm:h-[130px] rounded-full bg-gradient-to-r from-indigo-500/35 via-purple-500/40 to-cyan-500/35 blur-[40px] sm:blur-[65px] animate-pulse pointer-events-none" />
+
+        {/* Premium Shishali Tugma */}
         <button
           onClick={handleEnter}
-          className="glass-3d-button text-white px-12 py-5 rounded-full font-bold text-lg sm:text-xl tracking-[0.25em] uppercase flex items-center gap-4 cursor-pointer group shadow-[0_20px_60px_rgba(0,0,0,0.6)]"
+          className="relative group overflow-hidden rounded-full border border-white/40 hover:border-white/80 bg-white/10 hover:bg-white/20 backdrop-blur-2xl px-7 py-3.5 sm:px-10 sm:py-4.5 md:px-12 md:py-5 flex items-center gap-3.5 sm:gap-4.5 text-white font-extrabold text-xs sm:text-base md:text-lg tracking-[0.2em] sm:tracking-[0.28em] uppercase transition-all duration-500 shadow-[0_15px_45px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.6)] hover:shadow-[0_20px_60px_rgba(99,102,241,0.4),inset_0_1px_2px_rgba(255,255,255,0.9)] hover:scale-[1.04] active:scale-95 cursor-pointer"
         >
-          <span>ENTER PORTFOLIO</span>
-          <ArrowRight
-            size={22}
-            className="group-hover:translate-x-2 transition-transform duration-300"
-          />
+          {/* Shimmer yorug'lik chizig'i effekti */}
+          <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none" />
+
+          <span className="relative z-10 text-shadow-sm">ENTER PORTFOLIO</span>
+
+          {/* Strelkali frosted badge */}
+          <span className="relative z-10 w-7 h-7 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full bg-white/15 border border-white/30 flex items-center justify-center group-hover:bg-white group-hover:text-black group-hover:rotate-[-45deg] transition-all duration-500 shadow-sm">
+            <ArrowRight
+              size={18}
+              className="sm:w-5 sm:h-5 transition-transform duration-300"
+            />
+          </span>
         </button>
       </div>
 
