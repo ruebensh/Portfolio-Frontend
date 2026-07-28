@@ -213,16 +213,32 @@ function PageBackground() {
         .shimmer-btn:hover::after { transform: translateX(120%); }
         .glass-btn { box-shadow: 0 18px 50px rgba(0,0,0,.35); transition: transform 220ms ease, box-shadow 220ms ease; }
         .glass-btn:hover { transform: translateY(-2px); box-shadow: 0 22px 65px rgba(0,0,0,.45); }
-        .page-aurora { filter: blur(70px); opacity: .36; background: radial-gradient(40% 40% at 20% 30%, rgba(99,102,241,.14), transparent 60%), radial-gradient(45% 45% at 80% 35%, rgba(168,85,247,.10), transparent 60%), radial-gradient(50% 50% at 45% 75%, rgba(34,197,94,.05), transparent 62%); animation: auroraShift 14s ease-in-out infinite alternate; transform: translateZ(0); }
+        .page-aurora { filter: blur(70px); opacity: .22; background: radial-gradient(40% 40% at 20% 30%, rgba(99,102,241,.14), transparent 60%), radial-gradient(45% 45% at 80% 35%, rgba(168,85,247,.10), transparent 60%), radial-gradient(50% 50% at 45% 75%, rgba(34,197,94,.05), transparent 62%); animation: auroraShift 14s ease-in-out infinite alternate; transform: translateZ(0); }
         @keyframes auroraShift { 0% { transform: translate3d(-2%, -1%, 0) scale(1); } 100% { transform: translate3d(2%, 1%, 0) scale(1.05); } }
-        .page-grid { background-image: linear-gradient(to right, rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,.05) 1px, transparent 1px); background-size: 30px 30px; mask-image: radial-gradient(60% 55% at 50% 18%, black, transparent 72%); opacity: .20; animation: gridBreath 8s ease-in-out infinite; }
-        @keyframes gridBreath { 0%,100% { opacity: .16; transform: translateY(0); } 50% { opacity: .24; transform: translateY(6px); } }
-        .page-vignette { background: radial-gradient(70% 55% at 50% 25%, rgba(255,255,255,.02), transparent 62%), radial-gradient(85% 80% at 50% 50%, transparent, rgba(0,0,0,.68)); }
+        .page-grid { background-image: linear-gradient(to right, rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,.05) 1px, transparent 1px); background-size: 30px 30px; mask-image: radial-gradient(60% 55% at 50% 18%, black, transparent 72%); opacity: .12; animation: gridBreath 8s ease-in-out infinite; }
+        @keyframes gridBreath { 0%,100% { opacity: .10; transform: translateY(0); } 50% { opacity: .16; transform: translateY(6px); } }
+        .page-vignette { background: radial-gradient(70% 55% at 50% 25%, rgba(255,255,255,.02), transparent 62%), radial-gradient(85% 80% at 50% 50%, transparent, rgba(0,0,0,.75)); }
       `}</style>
+
+      {/* Full-screen video background */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover opacity-40"
+      >
+        <source src="/backgrounds/1.mp4" type="video/mp4" />
+      </video>
+
+      {/* Dark scrim over video so content stays readable */}
+      <div className="absolute inset-0 bg-[#020202]/60" />
+
+      {/* Existing atmospheric layers on top */}
       <div className="absolute inset-0 page-aurora" />
       <div className="absolute inset-0 page-grid" />
       <div className="absolute inset-0 page-vignette" />
-      <canvas ref={canvasRef} className="absolute inset-0 opacity-70" />
+      <canvas ref={canvasRef} className="absolute inset-0 opacity-55" />
     </div>
   );
 }
