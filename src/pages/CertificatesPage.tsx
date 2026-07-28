@@ -140,11 +140,24 @@ function SoftCertificatesBackground() {
             radial-gradient(95% 95% at 50% 50%, transparent, rgba(0,0,0,.74));
         }
         .pp-glass {
-          background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.08);
-          backdrop-filter: blur(14px);
-          -webkit-backdrop-filter: blur(14px);
-          box-shadow: 0 20px 80px rgba(0,0,0,.35);
+          background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.05) 100%);
+          border: 1px solid rgba(255,255,255,0.18);
+          backdrop-filter: blur(24px) saturate(1.5);
+          -webkit-backdrop-filter: blur(24px) saturate(1.5);
+          box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.18),
+            inset 0 -1px 0 rgba(0,0,0,0.1),
+            0 25px 60px rgba(0,0,0,0.45),
+            0 0 0 1px rgba(255,255,255,0.04);
+          transition: box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+        .pp-glass:hover {
+          border-color: rgba(255,255,255,0.26);
+          box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.25),
+            inset 0 -1px 0 rgba(0,0,0,0.1),
+            0 30px 70px rgba(0,0,0,0.5),
+            0 0 0 1px rgba(255,255,255,0.06);
         }
         .pp-title {
           background: linear-gradient(90deg, rgba(255,255,255,1), rgba(255,255,255,.65), rgba(255,255,255,1));
