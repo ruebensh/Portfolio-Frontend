@@ -33,13 +33,14 @@ export function SubtleVideoBackground({ index }: Props) {
         loop
         muted
         playsInline
-        className="absolute inset-0 w-full h-full object-cover opacity-[0.04] blur-sm brightness-[0.35] contrast-75"
+        className="absolute inset-0 w-full h-full object-cover"
+        style={{ opacity: 0.04, filter: "blur(2px) brightness(0.3) contrast(0.7)" }}
       >
         <source src={src} type="video/mp4" />
       </video>
 
       {/* Heavy 95% dark scrim — guarantees perfect text contrast */}
-      <div className="absolute inset-0 bg-[#020202]/95" />
+      <div className="absolute inset-0" style={{ backgroundColor: "rgba(2,2,2,0.95)" }} />
     </div>
   );
 }
