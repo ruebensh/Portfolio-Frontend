@@ -15,12 +15,14 @@ function pickVideo(index?: number): string {
 }
 
 interface Props {
-  /** 0 | 1 | 2 — pick a specific video. Omit for random. */
+  /** 0 | 1 | 2 — pick a specific video. If undefined, renders nothing. */
   index?: number;
 }
 
 export function SubtleVideoBackground({ index }: Props) {
-  const src = pickVideo(index);
+  if (index === undefined) return null;
+
+  const src = VIDEOS[index % VIDEOS.length];
 
   return (
     <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">

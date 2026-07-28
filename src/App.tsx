@@ -124,8 +124,8 @@ function AppContent() {
       case "/certificates": return 2;
       case "/about": return 0;
       case "/blog": return 1;
-      case "/resume": return 2;
-      case "/ai-chat": return 0;
+      case "/resume": return undefined;
+      case "/ai-chat": return undefined;
       default: return 1;
     }
   };
