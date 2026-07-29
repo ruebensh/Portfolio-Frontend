@@ -68,7 +68,7 @@ export function Footer({ data }: FooterProps) {
             className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/25 mb-4 border border-white/20 hover:scale-105 transition-transform cursor-pointer"
           >
             <span className="text-white font-black text-2xl tracking-tighter">
-              <Image src="/images/avatar.png" alt="Jaloliddin" />
+              {authorName.charAt(0)}
             </span>
           </div>
 
