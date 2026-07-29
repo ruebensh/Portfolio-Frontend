@@ -26,7 +26,7 @@ export function Footer({ data }: FooterProps) {
 
   // Standart / Backend havolalar
   const authorName = data?.author || "Jaloliddin Xalimov";
-  const authorRole = data?.description || "Full-Stack Developer & AI Engineer";
+  const authorRole = data?.description || "Data Science & Machine Learning Engineer";
 
   const socialLinks = [
     {
@@ -44,17 +44,17 @@ export function Footer({ data }: FooterProps) {
       icon: Send,
       href: data?.telegram
         ? `https://t.me/${data.telegram.replace("@", "")}`
-        : "https://t.me/ruebensh",
+        : "https://t.me/jaloliddin_xalimov",
     },
     {
       name: "Instagram",
       icon: Instagram,
-      href: data?.instagram || "https://instagram.com",
+      href: data?.instagram || "https://instagram.com/jaloliddin_xalimov",
     },
     {
       name: "Email",
       icon: Mail,
-      href: data?.email ? `mailto:${data.email}` : "mailto:jaloliddin@example.com",
+      href: data?.email ? `mailto:${data.email}` : "mailto:jaloliddinxalimov.0103@example.com",
     },
   ];
 
