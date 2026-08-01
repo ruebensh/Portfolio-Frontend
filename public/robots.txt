@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://xalimov.vercel.app/sitemap.xml
