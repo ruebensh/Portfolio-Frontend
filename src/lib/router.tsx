@@ -17,24 +17,32 @@ export const useRouter = () => useContext(RouterContext);
 export function Router({ children }: { children: ReactNode }) {
   const [currentPath, setCurrentPath] = useState(() => {
     if (typeof window !== 'undefined') {
-      return window.location.hash.slice(1) || '/';
+      // Hash o'rniga haqiqiy path-ni olamiz
+      return window.location.pathname || '/';
     }
     return '/';
   });
 
   useEffect(() => {
-    const handleHashChange = () => {
-      setCurrentPath(window.location.hash.slice(1) || '/');
+    // Brauzerda "Orqaga" yoki "Oldinga" bosilganda sahifani ushlash
+    const handlePopState = () => {
+      setCurrentPath(window.location.pathname || '/');
       window.scrollTo(0, 0);
     };
 
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
   const navigate = (path: string) => {
-    window.location.hash = path;
+    if (typeof window !== 'undefined') {
+      // PushState yordamida sahifani URL-ni o'zgartiramiz (sahifa yangilanmaydi)
+      window.history.pushState({}, '', path);
+      setCurrentPath(path);
+      window.scrollTo(0, 0);
+    }
   };
+
   const getParams = () => {
     const params: Record<string, string> = {};
     const pathSegments = currentPath.split('/').filter(Boolean);
@@ -60,13 +68,15 @@ interface LinkProps {
 }
 
 export function Link({ href, children, className }: LinkProps) {
+  const { navigate } = useRouter();
+
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    window.location.hash = href;
+    navigate(href); // Bizning yangi toza navigatsiya funksiyamiz
   };
 
   return (
-    <a href={`#${href}`} onClick={handleClick} className={className}>
+    <a href={href} onClick={handleClick} className={className}>
       {children}
     </a>
   );
