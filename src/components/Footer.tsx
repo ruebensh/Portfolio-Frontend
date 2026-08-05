@@ -16,7 +16,7 @@ export function Footer({ data }: FooterProps) {
     if (clickTimer.current) clearTimeout(clickTimer.current);
     if (clickCount.current >= 3) {
       clickCount.current = 0;
-      window.location.href = "/#/admin";
+      window.location.href = "/admin";
       return;
     }
     clickTimer.current = setTimeout(() => {
