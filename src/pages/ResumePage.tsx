@@ -1,68 +1,291 @@
-import { FileDown, ArrowLeft, Maximize2, ZoomIn } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { 
+  FileDown, 
+  ArrowLeft, 
+  Maximize2, 
+  ChevronLeft, 
+  ChevronRight, 
+  Play, 
+  Pause, 
+  Columns, 
+  FileText, 
+  Presentation,
+  Download
+} from "lucide-react";
 import { Link } from "../lib/router";
 
 export function ResumePage() {
-  // Public papkangizdagi PDF nomi bilan bir xil ekanligiga ishonch hosil qiling
-  const resumeUrl = "/Jaloliddin_Xalimov_CV.pdf"; 
+  const resumeUrl = "/Jaloliddin_Xalimov_CV.pdf";
+  const portfolioPdfUrl = "/Jaloliddin_Xalimov_Portfolio.pdf";
+
+  // Slaydlar ro'yxati (public/portfolio-slides/ ichidan)
+  // Agar rasm hali yuklanmagan bo'lsa, chiroyli demo slaydlar ko'rsatiladi
+  const [slides] = useState<string[]>([
+    "/portfolio-slides/slide1.jpg",
+    "/portfolio-slides/slide2.jpg",
+    "/portfolio-slides/slide3.jpg",
+    "/portfolio-slides/slide4.jpg",
+    "/portfolio-slides/slide5.jpg",
+  ]);
+
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [activeTab, setActiveTab] = useState<"split" | "cv" | "portfolio">("split");
+  const [imageErrors, setImageErrors] = useState<Record<number, boolean>>({});
+
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // 5 soniyali avto-slayd shou
+  useEffect(() => {
+    if (isPlaying) {
+      timerRef.current = setInterval(() => {
+        setCurrentSlide((prev) => (prev + 1) % slides.length);
+      }, 5000);
+    }
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [isPlaying, slides.length]);
+
+  // Klaviatura o'qlari bilan boshqarish
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") {
+        nextSlide();
+      } else if (e.key === "ArrowLeft") {
+        prevSlide();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [slides.length]);
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % slides.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+  };
+
+  const togglePlay = () => {
+    setIsPlaying(!isPlaying);
+  };
+
+  const handleImageError = (index: number) => {
+    setImageErrors((prev) => ({ ...prev, [index]: true }));
+  };
 
   return (
-    <div className="min-h-screen bg-[#020202] pt-20 pb-4 px-2 sm:px-6 flex flex-col">
-      <div className="max-w-[1400px] mx-auto w-full flex-1 flex flex-col">
+    <div className="min-h-screen bg-[#030303] text-white pt-20 pb-6 px-3 sm:px-6 flex flex-col font-sans">
+      <div className="max-w-[1600px] mx-auto w-full flex-1 flex flex-col">
         
-        {/* Navigatsiya va Boshqaruv Paneli */}
-        <div className="flex flex-wrap justify-between items-center mb-4 bg-white/5 p-3 rounded-2xl border border-white/10 backdrop-blur-md gap-4">
+        {/* ================= TOP PANEL & NAVIGATION ================= */}
+        <div className="flex flex-wrap justify-between items-center mb-4 bg-white/5 p-3 rounded-2xl border border-white/10 backdrop-blur-xl gap-4 shadow-2xl">
+          
+          {/* Asosiy sahifaga qaytish */}
           <Link 
             href="/" 
-            className="flex items-center gap-2 text-muted-foreground hover:text-white transition-all group px-3 py-1.5 rounded-xl hover:bg-white/5"
+            className="flex items-center gap-2 text-muted-foreground hover:text-white transition-all group px-3.5 py-2 rounded-xl hover:bg-white/5 text-sm"
           >
             <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-            <span className="text-sm font-medium">Asosiyga qaytish</span>
+            <span className="font-medium">Asosiyga qaytish</span>
           </Link>
-          
-          <div className="flex items-center gap-2 sm:gap-4">
-            <div className="hidden md:flex items-center gap-2 text-[10px] text-primary font-bold uppercase tracking-[0.2em] px-4 border-r border-white/10">
-              <ZoomIn size={12} /> Full View Mode
-            </div>
-            
-            <a 
-              href={resumeUrl} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 px-4 py-2 bg-white/5 text-white rounded-xl border border-white/10 hover:bg-white/10 transition-all text-sm group"
+
+          {/* Ko'rish Rejimlari (Split / CV / Portfolio) */}
+          <div className="hidden md:flex items-center bg-black/40 p-1 rounded-xl border border-white/10 text-xs">
+            <button
+              onClick={() => setActiveTab("split")}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium transition-all ${
+                activeTab === "split" ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" : "text-muted-foreground hover:text-white"
+              }`}
             >
-              <Maximize2 size={16} className="group-hover:scale-110 transition-transform" /> 
-              <span className="hidden sm:inline">To'liq ekran</span>
-            </a>
-            
+              <Columns size={14} /> Split View
+            </button>
+            <button
+              onClick={() => setActiveTab("cv")}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium transition-all ${
+                activeTab === "cv" ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" : "text-muted-foreground hover:text-white"
+              }`}
+            >
+              <FileText size={14} /> CV Only
+            </button>
+            <button
+              onClick={() => setActiveTab("portfolio")}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium transition-all ${
+                activeTab === "portfolio" ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" : "text-muted-foreground hover:text-white"
+              }`}
+            >
+              <Presentation size={14} /> Portfolio Only
+            </button>
+          </div>
+
+          {/* Yuklab olish tugmalari */}
+          <div className="flex items-center gap-2.5">
             <a 
               href={resumeUrl} 
               download 
-              className="flex items-center gap-2 px-6 py-2 bg-primary text-primary-foreground rounded-xl font-bold hover:scale-[1.02] active:scale-95 shadow-lg shadow-primary/20 transition-all text-sm"
+              className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/15 text-white rounded-xl font-semibold border border-white/10 transition-all text-xs sm:text-sm active:scale-95"
             >
-              <FileDown size={18} /> Download CV
+              <FileDown size={16} /> CV (PDF)
+            </a>
+            
+            <a 
+              href={portfolioPdfUrl} 
+              download 
+              className="flex items-center gap-2 px-5 py-2 bg-primary text-primary-foreground rounded-xl font-bold hover:scale-[1.02] active:scale-95 shadow-lg shadow-primary/25 transition-all text-xs sm:text-sm"
+            >
+              <Download size={16} /> Portfolio (PDF)
             </a>
           </div>
         </div>
 
-        {/* PDF KONTEYNER - EKRANNI TO'LIQ EGALLAYDI */}
-        <div className="flex-1 w-full rounded-2xl border border-white/10 overflow-hidden bg-[#1a1a1a] shadow-[0_0_50px_rgba(0,0,0,0.5)]">
-          <iframe 
-            src={`${resumeUrl}#view=FitH&navpanes=0&toolbar=1`} 
-            className="w-full h-full border-none shadow-inner"
-            style={{ 
-              height: "calc(100vh - 180px)", // Dinamik balandlik: Ekran balandligi minus header va panel
-              display: "block" 
-            }}
-            title="Jaloliddin Xalimov Resume"
-          />
+        {/* Mobile Tab Switcher */}
+        <div className="flex md:hidden mb-4 bg-white/5 p-1 rounded-xl border border-white/10 text-xs">
+          <button
+            onClick={() => setActiveTab("cv")}
+            className={`flex-1 py-2 text-center rounded-lg font-medium ${activeTab === "cv" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+          >
+            CV Hujjat
+          </button>
+          <button
+            onClick={() => setActiveTab("portfolio")}
+            className={`flex-1 py-2 text-center rounded-lg font-medium ${activeTab === "portfolio" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+          >
+            Portfolio Presentation
+          </button>
         </div>
-        
+
+        {/* ================= MAIN CONTENT CONTAINER ================= */}
+        <div className="flex-1 w-full grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch min-h-[650px]">
+          
+          {/* ================= CHAP TOMON: CV PDF VIEWER ================= */}
+          {(activeTab === "split" || activeTab === "cv") && (
+            <div className={`flex flex-col rounded-2xl border border-white/10 overflow-hidden bg-[#141414] shadow-2xl ${activeTab === "cv" ? "col-span-full" : ""}`}>
+              <div className="bg-white/5 px-4 py-2.5 border-b border-white/10 flex justify-between items-center text-xs text-muted-foreground">
+                <span className="flex items-center gap-2 font-mono text-white/80">
+                  <FileText size={14} className="text-primary" /> Jaloliddin_Xalimov_CV.pdf
+                </span>
+                <a href={resumeUrl} target="_blank" rel="noreferrer" className="hover:text-white flex items-center gap-1">
+                  <Maximize2 size={12} /> To'liq oynada
+                </a>
+              </div>
+              <div className="flex-1 w-full relative min-h-[500px]">
+                <iframe 
+                  src={`${resumeUrl}#view=FitH&navpanes=0&toolbar=1`} 
+                  className="w-full h-full border-none"
+                  style={{ height: "100%", minHeight: "550px" }}
+                  title="Jaloliddin Xalimov Resume"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* ================= O'NG TOMON: PPTX SLIDESHOW VIEWER ================= */}
+          {(activeTab === "split" || activeTab === "portfolio") && (
+            <div className={`flex flex-col rounded-2xl border border-white/10 overflow-hidden bg-[#111111] shadow-2xl relative group ${activeTab === "portfolio" ? "col-span-full" : ""}`}>
+              
+              {/* Slideshow Top Header */}
+              <div className="bg-white/5 px-4 py-2.5 border-b border-white/10 flex justify-between items-center text-xs">
+                <span className="flex items-center gap-2 font-mono text-white/80">
+                  <Presentation size={14} className="text-primary" /> Portfolio Deck (Presentation)
+                </span>
+                
+                <div className="flex items-center gap-3">
+                  <span className="text-[11px] font-mono text-white/60 bg-black/40 px-2 py-0.5 rounded-full border border-white/5">
+                    {currentSlide + 1} / {slides.length}
+                  </span>
+                  
+                  <button 
+                    onClick={togglePlay}
+                    className="flex items-center gap-1 text-[11px] bg-white/10 hover:bg-white/20 text-white px-2.5 py-1 rounded-lg transition-all"
+                    title={isPlaying ? "Vaqtinchalik to'xtatish" : "Avto-slaydni boshlash"}
+                  >
+                    {isPlaying ? <Pause size={12} className="text-primary" /> : <Play size={12} />}
+                    <span>{isPlaying ? "Autoplay ON" : "Play"}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Slide Main View */}
+              <div 
+                className="flex-1 relative flex items-center justify-center p-4 bg-black/60 overflow-hidden group/slide min-h-[450px]"
+                onMouseEnter={() => setIsPlaying(false)}
+                onMouseLeave={() => setIsPlaying(true)}
+              >
+                {imageErrors[currentSlide] ? (
+                  /* Rasm hali joylanmagan bo'lsa zaxira chiroyli slayd kartasi */
+                  <div className="w-full h-full min-h-[400px] flex flex-col justify-center items-center p-8 bg-gradient-to-br from-primary/10 via-black to-black border border-white/10 rounded-xl text-center">
+                    <div className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center text-primary mb-4 shadow-xl border border-primary/30">
+                      <Presentation size={32} />
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-2">Slayd {currentSlide + 1}</h3>
+                    <p className="text-sm text-muted-foreground max-w-md mb-6">
+                      Rasmlarni <code className="text-primary bg-black/60 px-2 py-0.5 rounded font-mono text-xs">public/portfolio-slides/slide{currentSlide + 1}.jpg</code> papkasiga joylashtiring.
+                    </p>
+                    <a 
+                      href={portfolioPdfUrl} 
+                      download 
+                      className="px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-semibold border border-white/10 transition-all flex items-center gap-2"
+                    >
+                      <Download size={14} /> Full Portfolio (PDF) yuklab olish
+                    </a>
+                  </div>
+                ) : (
+                  <img 
+                    src={slides[currentSlide]} 
+                    alt={`Portfolio Slide ${currentSlide + 1}`}
+                    onError={() => handleImageError(currentSlide)}
+                    className="max-h-[580px] w-auto max-w-full object-contain rounded-xl shadow-2xl border border-white/10 transition-all duration-500 animate-fadeIn"
+                  />
+                )}
+
+                {/* Slayd Boshqaruv Tugmalari (Chap va O'ng) */}
+                <button
+                  onClick={prevSlide}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 hover:bg-primary text-white hover:text-primary-foreground border border-white/10 flex items-center justify-center transition-all opacity-80 group-hover/slide:opacity-100 backdrop-blur-md shadow-xl"
+                  title="Oldingi slayd (←)"
+                >
+                  <ChevronLeft size={22} />
+                </button>
+
+                <button
+                  onClick={nextSlide}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 hover:bg-primary text-white hover:text-primary-foreground border border-white/10 flex items-center justify-center transition-all opacity-80 group-hover/slide:opacity-100 backdrop-blur-md shadow-xl"
+                  title="Keyingi slayd (→)"
+                >
+                  <ChevronRight size={22} />
+                </button>
+              </div>
+
+              {/* Slide Dots Pagination */}
+              <div className="bg-white/5 px-4 py-3 border-t border-white/10 flex justify-center items-center gap-2">
+                {slides.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentSlide(idx)}
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                      idx === currentSlide 
+                        ? "w-8 bg-primary shadow-lg shadow-primary/50" 
+                        : "w-2 bg-white/20 hover:bg-white/50"
+                    }`}
+                    title={`Slayd ${idx + 1}`}
+                  />
+                ))}
+              </div>
+
+            </div>
+          )}
+
+        </div>
+
         {/* Footer info */}
-        <div className="py-3 flex justify-center items-center gap-4 opacity-30">
+        <div className="pt-4 flex justify-center items-center gap-4 opacity-30 text-[10px] uppercase tracking-[0.3em]">
           <div className="h-px w-12 bg-white" />
-          <span className="text-[10px] uppercase tracking-[0.3em] text-white">Ruebensh AI Engineering</span>
+          <span>Ruebensh AI Engineering & Portfolio</span>
           <div className="h-px w-12 bg-white" />
         </div>
+
       </div>
     </div>
   );

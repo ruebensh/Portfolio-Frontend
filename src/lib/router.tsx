@@ -72,7 +72,7 @@ export function Link({ href, children, className }: LinkProps) {
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    navigate(href); // Bizning yangi toza navigatsiya funksiyamiz
+    navigate(href);
   };
 
   return (

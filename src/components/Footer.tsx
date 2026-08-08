@@ -24,7 +24,6 @@ export function Footer({ data }: FooterProps) {
     }, 700);
   };
 
-  // Standart / Backend havolalar
   const authorName = data?.author || "Jaloliddin Xalimov";
   const authorRole = data?.description || "Data Science & Machine Learning Engineer";
 
