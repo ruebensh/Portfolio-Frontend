@@ -19,14 +19,10 @@ export function ResumePage() {
   const resumeUrl = "/Jaloliddin_Xalimov_CV.pdf";
   const portfolioPdfUrl = "/Jaloliddin_Xalimov_Portfolio.pdf";
 
-  // Slaydlar ro'yxati (public/portfolio-slides/ ichidan)
-  const [slides] = useState<string[]>([
-    "/portfolio-slides/slide1.jpg",
-    "/portfolio-slides/slide2.jpg",
-    "/portfolio-slides/slide3.jpg",
-    "/portfolio-slides/slide4.jpg",
-    "/portfolio-slides/slide5.jpg",
-  ]);
+  // Slaydlar ro'yxati (public/portfolio-slides/1.png ... 11.png)
+  const [slides] = useState<string[]>(
+    Array.from({ length: 11 }, (_, i) => `/portfolio-slides/${i + 1}.png`)
+  );
 
   const [[currentSlide, direction], setSlideState] = useState<[number, number]>([0, 1]);
   const [isPlaying, setIsPlaying] = useState(true);
@@ -269,7 +265,7 @@ export function ResumePage() {
                         </div>
                         <h3 className="text-xl font-bold text-white mb-2">Slayd {currentSlide + 1}</h3>
                         <p className="text-sm text-muted-foreground max-w-md mb-6">
-                          Rasmlarni <code className="text-primary bg-black/60 px-2 py-0.5 rounded font-mono text-xs">public/portfolio-slides/slide{currentSlide + 1}.jpg</code> papkasiga joylashtiring.
+                          Rasmlarni <code className="text-primary bg-black/60 px-2 py-0.5 rounded font-mono text-xs">public/portfolio-slides/{currentSlide + 1}.png</code> papkasiga joylashtiring.
                         </p>
                         <a 
                           href={portfolioPdfUrl} 
