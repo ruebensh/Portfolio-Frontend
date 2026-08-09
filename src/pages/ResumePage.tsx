@@ -26,6 +26,7 @@ export function ResumePage() {
 
   const [[currentSlide, direction], setSlideState] = useState<[number, number]>([0, 1]);
   const [isPlaying, setIsPlaying] = useState(true);
+  // Mobile: default tab "cv", desktop: "split"
   const [activeTab, setActiveTab] = useState<"split" | "cv" | "portfolio">("split");
   const [imageErrors, setImageErrors] = useState<Record<number, boolean>>({});
 
@@ -43,6 +44,24 @@ export function ResumePage() {
     setSlideState(([prev]) => [index, index > prev ? 1 : -1]);
   };
 
+  // Touch/Swipe boshqaruv
+  const touchStartX = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    setIsPlaying(false);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    touchEndX.current = e.changedTouches[0].clientX;
+    const diff = (touchStartX.current ?? 0) - (touchEndX.current ?? 0);
+    if (Math.abs(diff) > 40) {
+      diff > 0 ? nextSlide() : prevSlide();
+    }
+    setIsPlaying(true);
+  };
+
   // 5 soniyali avto-slayd shou
   useEffect(() => {
     if (isPlaying) {
@@ -55,34 +74,29 @@ export function ResumePage() {
     };
   }, [isPlaying, slides.length]);
 
-  // Klaviatura o'qlari bilan boshqarish
+  // Klaviatura o'qlari bilan boshqarish (faqat desktop)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight") {
-        nextSlide();
-      } else if (e.key === "ArrowLeft") {
-        prevSlide();
-      }
+      if (e.key === "ArrowRight") nextSlide();
+      else if (e.key === "ArrowLeft") prevSlide();
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [slides.length]);
 
-  const togglePlay = () => {
-    setIsPlaying(!isPlaying);
-  };
+  const togglePlay = () => setIsPlaying(!isPlaying);
 
   const handleImageError = (index: number) => {
     setImageErrors((prev) => ({ ...prev, [index]: true }));
   };
 
-  // Slayd o'tish effektlari variatsiyasi (Slide + Fade + Scale)
+  // Slayd o'tish effektlari
   const slideVariants = {
     enter: (dir: number) => ({
-      x: dir > 0 ? 120 : -120,
+      x: dir > 0 ? 80 : -80,
       opacity: 0,
-      scale: 0.96,
-      filter: "blur(4px)",
+      scale: 0.97,
+      filter: "blur(3px)",
     }),
     center: {
       x: 0,
@@ -91,161 +105,178 @@ export function ResumePage() {
       filter: "blur(0px)",
       transition: {
         x: { type: "spring", stiffness: 260, damping: 28 },
-        opacity: { duration: 0.35 },
-        scale: { duration: 0.35 },
-        filter: { duration: 0.3 },
+        opacity: { duration: 0.3 },
+        scale: { duration: 0.3 },
+        filter: { duration: 0.25 },
       },
     },
     exit: (dir: number) => ({
-      x: dir < 0 ? 120 : -120,
+      x: dir < 0 ? 80 : -80,
       opacity: 0,
-      scale: 0.96,
-      filter: "blur(4px)",
+      scale: 0.97,
+      filter: "blur(3px)",
       transition: {
         x: { type: "spring", stiffness: 260, damping: 28 },
-        opacity: { duration: 0.25 },
-        scale: { duration: 0.25 },
-        filter: { duration: 0.2 },
+        opacity: { duration: 0.2 },
+        scale: { duration: 0.2 },
+        filter: { duration: 0.15 },
       },
     }),
   };
 
   return (
-    <div className="min-h-screen bg-[#030303] text-white pt-20 pb-6 px-3 sm:px-6 flex flex-col font-sans">
-      <div className="max-w-[1600px] mx-auto w-full flex-1 flex flex-col">
-        
-        {/* ================= TOP PANEL & NAVIGATION ================= */}
-        <div className="flex flex-wrap justify-between items-center mb-4 bg-white/5 p-3 rounded-2xl border border-white/10 backdrop-blur-xl gap-4 shadow-2xl">
-          
-          {/* Asosiy sahifaga qaytish */}
-          <Link 
-            href="/" 
-            className="flex items-center gap-2 text-muted-foreground hover:text-white transition-all group px-3.5 py-2 rounded-xl hover:bg-white/5 text-sm"
+    <div className="min-h-screen bg-[#030303] text-white pt-16 sm:pt-20 pb-6 px-3 sm:px-6 flex flex-col font-sans">
+      <div className="max-w-[1600px] mx-auto w-full flex-1 flex flex-col gap-3">
+
+        {/* ===== TOP NAV PANEL ===== */}
+        <div className="flex flex-wrap justify-between items-center bg-white/5 p-2.5 sm:p-3 rounded-2xl border border-white/10 backdrop-blur-xl gap-2 sm:gap-4 shadow-2xl">
+
+          {/* Orqaga qaytish */}
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-muted-foreground hover:text-white transition-all group px-2.5 sm:px-3.5 py-2 rounded-xl hover:bg-white/5 text-xs sm:text-sm"
           >
-            <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-            <span className="font-medium">Asosiyga qaytish</span>
+            <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+            <span className="font-medium hidden xs:inline">Asosiyga qaytish</span>
+            <span className="font-medium xs:hidden">Orqaga</span>
           </Link>
 
-          {/* Ko'rish Rejimlari (Split / CV / Portfolio) */}
-          <div className="hidden md:flex items-center bg-black/40 p-1 rounded-xl border border-white/10 text-xs">
-            <button
-              onClick={() => setActiveTab("split")}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium transition-all ${
-                activeTab === "split" ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" : "text-muted-foreground hover:text-white"
-              }`}
-            >
-              <Columns size={14} /> Split View
-            </button>
-            <button
-              onClick={() => setActiveTab("cv")}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium transition-all ${
-                activeTab === "cv" ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" : "text-muted-foreground hover:text-white"
-              }`}
-            >
-              <FileText size={14} /> CV Only
-            </button>
-            <button
-              onClick={() => setActiveTab("portfolio")}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium transition-all ${
-                activeTab === "portfolio" ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" : "text-muted-foreground hover:text-white"
-              }`}
-            >
-              <Presentation size={14} /> Portfolio Only
-            </button>
+          {/* Desktop: Ko'rish Rejimlari */}
+          <div className="hidden lg:flex items-center bg-black/40 p-1 rounded-xl border border-white/10 text-xs">
+            {[
+              { id: "split", label: "Split View", icon: <Columns size={13} /> },
+              { id: "cv", label: "CV Only", icon: <FileText size={13} /> },
+              { id: "portfolio", label: "Portfolio", icon: <Presentation size={13} /> },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-all ${
+                  activeTab === tab.id
+                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                    : "text-muted-foreground hover:text-white"
+                }`}
+              >
+                {tab.icon} {tab.label}
+              </button>
+            ))}
           </div>
 
           {/* Yuklab olish tugmalari */}
-          <div className="flex items-center gap-2.5">
-            <a 
-              href={resumeUrl} 
-              download 
-              className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/15 text-white rounded-xl font-semibold border border-white/10 transition-all text-xs sm:text-sm active:scale-95"
+          <div className="flex items-center gap-1.5 sm:gap-2.5">
+            <a
+              href={resumeUrl}
+              download
+              className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 bg-white/10 hover:bg-white/15 text-white rounded-xl font-semibold border border-white/10 transition-all text-xs active:scale-95"
             >
-              <FileDown size={16} /> CV (PDF)
+              <FileDown size={14} />
+              <span className="hidden sm:inline">CV (PDF)</span>
+              <span className="sm:hidden">CV</span>
             </a>
-            
-            <a 
-              href={portfolioPdfUrl} 
-              download 
-              className="flex items-center gap-2 px-5 py-2 bg-primary text-primary-foreground rounded-xl font-bold hover:scale-[1.02] active:scale-95 shadow-lg shadow-primary/25 transition-all text-xs sm:text-sm"
+            <a
+              href={portfolioPdfUrl}
+              download
+              className="flex items-center gap-1.5 px-3 sm:px-5 py-1.5 sm:py-2 bg-primary text-primary-foreground rounded-xl font-bold hover:scale-[1.02] active:scale-95 shadow-lg shadow-primary/25 transition-all text-xs"
             >
-              <Download size={16} /> Portfolio (PDF)
+              <Download size={14} />
+              <span className="hidden sm:inline">Portfolio (PDF)</span>
+              <span className="sm:hidden">PDF</span>
             </a>
           </div>
         </div>
 
-        {/* Mobile Tab Switcher */}
-        <div className="flex md:hidden mb-4 bg-white/5 p-1 rounded-xl border border-white/10 text-xs">
+        {/* ===== MOBILE TAB SWITCHER (sm dan pastda) ===== */}
+        <div className="flex lg:hidden bg-white/5 p-1 rounded-xl border border-white/10 text-xs gap-1">
           <button
             onClick={() => setActiveTab("cv")}
-            className={`flex-1 py-2 text-center rounded-lg font-medium ${activeTab === "cv" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg font-semibold transition-all ${
+              activeTab === "cv" ? "bg-primary text-primary-foreground shadow-md" : "text-muted-foreground"
+            }`}
           >
-            CV Hujjat
+            <FileText size={13} /> CV Hujjat
           </button>
           <button
             onClick={() => setActiveTab("portfolio")}
-            className={`flex-1 py-2 text-center rounded-lg font-medium ${activeTab === "portfolio" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg font-semibold transition-all ${
+              activeTab === "portfolio" ? "bg-primary text-primary-foreground shadow-md" : "text-muted-foreground"
+            }`}
           >
-            Portfolio Presentation
+            <Presentation size={13} /> Portfolio
           </button>
         </div>
 
-        {/* ================= MAIN CONTENT CONTAINER ================= */}
-        <div className="flex-1 w-full grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch min-h-[650px]">
-          
-          {/* ================= CHAP TOMON: CV PDF VIEWER ================= */}
+        {/* ===== ASOSIY KONTENT ===== */}
+        <div className={`flex-1 w-full grid gap-3 sm:gap-4 ${
+          activeTab === "split" ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1"
+        }`}>
+
+          {/* ===== CHAP: CV PDF VIEWER ===== */}
           {(activeTab === "split" || activeTab === "cv") && (
-            <div className={`flex flex-col rounded-2xl border border-white/10 overflow-hidden bg-[#141414] shadow-2xl ${activeTab === "cv" ? "col-span-full" : ""}`}>
-              <div className="bg-white/5 px-4 py-2.5 border-b border-white/10 flex justify-between items-center text-xs text-muted-foreground">
-                <span className="flex items-center gap-2 font-mono text-white/80">
-                  <FileText size={14} className="text-primary" /> Jaloliddin_Xalimov_CV.pdf
+            <div className="flex flex-col rounded-2xl border border-white/10 overflow-hidden bg-[#141414] shadow-2xl">
+              {/* CV Header */}
+              <div className="bg-white/5 px-3 sm:px-4 py-2.5 border-b border-white/10 flex justify-between items-center text-xs text-muted-foreground flex-shrink-0">
+                <span className="flex items-center gap-1.5 font-mono text-white/80 truncate">
+                  <FileText size={13} className="text-primary flex-shrink-0" />
+                  <span className="truncate">CV.pdf</span>
                 </span>
-                <a href={resumeUrl} target="_blank" rel="noreferrer" className="hover:text-white flex items-center gap-1">
-                  <Maximize2 size={12} /> To'liq oynada
+                <a
+                  href={resumeUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover:text-white flex items-center gap-1 flex-shrink-0 ml-2"
+                >
+                  <Maximize2 size={12} />
+                  <span className="hidden sm:inline">To'liq oynada</span>
                 </a>
               </div>
-              <div className="flex-1 w-full relative min-h-[500px]">
-                <iframe 
-                  src={`${resumeUrl}#view=FitH&navpanes=0&toolbar=1`} 
-                  className="w-full h-full border-none"
-                  style={{ height: "100%", minHeight: "550px" }}
+              {/* PDF iframe */}
+              <div className="flex-1 w-full">
+                <iframe
+                  src={`${resumeUrl}#view=FitH&navpanes=0&toolbar=0`}
+                  className="w-full border-none block"
+                  style={{ height: activeTab === "cv" ? "calc(100vh - 220px)" : "min(60vh, 560px)", minHeight: "350px" }}
                   title="Jaloliddin Xalimov Resume"
                 />
               </div>
             </div>
           )}
 
-          {/* ================= O'NG TOMON: PPTX SLIDESHOW VIEWER ================= */}
+          {/* ===== O'NG: PORTFOLIO SLIDESHOW ===== */}
           {(activeTab === "split" || activeTab === "portfolio") && (
-            <div className={`flex flex-col rounded-2xl border border-white/10 overflow-hidden bg-[#111111] shadow-2xl relative group ${activeTab === "portfolio" ? "col-span-full" : ""}`}>
-              
-              {/* Slideshow Top Header */}
-              <div className="bg-white/5 px-4 py-2.5 border-b border-white/10 flex justify-between items-center text-xs">
-                <span className="flex items-center gap-2 font-mono text-white/80">
-                  <Presentation size={14} className="text-primary" /> Portfolio Deck (Presentation)
+            <div className="flex flex-col rounded-2xl border border-white/10 overflow-hidden bg-[#111111] shadow-2xl">
+
+              {/* Slideshow Header */}
+              <div className="bg-white/5 px-3 sm:px-4 py-2.5 border-b border-white/10 flex justify-between items-center text-xs flex-shrink-0">
+                <span className="flex items-center gap-1.5 font-mono text-white/80">
+                  <Presentation size={13} className="text-primary" />
+                  <span className="hidden sm:inline">Portfolio Deck</span>
+                  <span className="sm:hidden">Portfolio</span>
                 </span>
-                
-                <div className="flex items-center gap-3">
-                  <span className="text-[11px] font-mono text-white/60 bg-black/40 px-2.5 py-0.5 rounded-full border border-white/5">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-white/50 bg-black/40 px-2 py-0.5 rounded-full border border-white/5 text-[11px]">
                     {currentSlide + 1} / {slides.length}
                   </span>
-                  
-                  <button 
+                  <button
                     onClick={togglePlay}
-                    className="flex items-center gap-1.5 text-[11px] bg-white/10 hover:bg-white/20 text-white px-2.5 py-1 rounded-lg transition-all"
-                    title={isPlaying ? "Vaqtinchalik to'xtatish" : "Avto-slaydni boshlash"}
+                    className="flex items-center gap-1 bg-white/10 hover:bg-white/20 text-white px-2 py-1 rounded-lg transition-all text-[11px]"
                   >
-                    {isPlaying ? <Pause size={12} className="text-primary" /> : <Play size={12} />}
-                    <span>{isPlaying ? "Autoplay ON" : "Play"}</span>
+                    {isPlaying
+                      ? <Pause size={11} className="text-primary" />
+                      : <Play size={11} />
+                    }
+                    <span className="hidden sm:inline">{isPlaying ? "Autoplay ON" : "Play"}</span>
                   </button>
                 </div>
               </div>
 
-              {/* Slide Main View (framer-motion AnimatePresence bilan) */}
-              <div 
-                className="flex-1 relative flex items-center justify-center p-4 bg-black/70 overflow-hidden min-h-[450px]"
+              {/* Slayd Ko'rinish Maydoni */}
+              <div
+                className="flex-1 relative flex items-center justify-center bg-black/70 overflow-hidden select-none"
+                style={{ minHeight: activeTab === "portfolio" ? "calc(100vh - 280px)" : "min(55vh, 500px)" }}
                 onMouseEnter={() => setIsPlaying(false)}
                 onMouseLeave={() => setIsPlaying(true)}
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
               >
                 <AnimatePresence initial={false} custom={direction} mode="wait">
                   <motion.div
@@ -255,83 +286,86 @@ export function ResumePage() {
                     initial="enter"
                     animate="center"
                     exit="exit"
-                    className="w-full h-full flex items-center justify-center absolute inset-0 p-4"
+                    className="absolute inset-0 flex items-center justify-center p-3 sm:p-5"
                   >
                     {imageErrors[currentSlide] ? (
-                      /* Rasm hali joylanmagan bo'lsa zaxira chiroyli slayd kartasi */
-                      <div className="w-full h-full min-h-[400px] flex flex-col justify-center items-center p-8 bg-gradient-to-br from-primary/10 via-black to-black border border-white/10 rounded-2xl text-center shadow-2xl">
-                        <div className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center text-primary mb-4 shadow-xl border border-primary/30">
-                          <Presentation size={32} />
+                      // Rasm yuklanmagan — zaxira karta
+                      <div className="w-full h-full min-h-[280px] flex flex-col justify-center items-center p-5 sm:p-8 bg-gradient-to-br from-primary/10 via-black to-black border border-white/10 rounded-2xl text-center shadow-2xl">
+                        <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-primary/20 flex items-center justify-center text-primary mb-3 sm:mb-4 shadow-xl border border-primary/30">
+                          <Presentation size={24} />
                         </div>
-                        <h3 className="text-xl font-bold text-white mb-2">Slayd {currentSlide + 1}</h3>
-                        <p className="text-sm text-muted-foreground max-w-md mb-6">
-                          Rasmlarni <code className="text-primary bg-black/60 px-2 py-0.5 rounded font-mono text-xs">public/portfolio-slides/{currentSlide + 1}.png</code> papkasiga joylashtiring.
+                        <h3 className="text-base sm:text-xl font-bold text-white mb-2">Slayd {currentSlide + 1}</h3>
+                        <p className="text-xs sm:text-sm text-muted-foreground max-w-xs sm:max-w-md mb-4 sm:mb-6 leading-relaxed">
+                          <code className="text-primary bg-black/60 px-1.5 py-0.5 rounded font-mono text-[11px]">
+                            public/portfolio-slides/{currentSlide + 1}.png
+                          </code>{" "}
+                          faylini joylashtiring.
                         </p>
-                        <a 
-                          href={portfolioPdfUrl} 
-                          download 
-                          className="px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-semibold border border-white/10 transition-all flex items-center gap-2"
+                        <a
+                          href={portfolioPdfUrl}
+                          download
+                          className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-semibold border border-white/10 transition-all flex items-center gap-1.5 active:scale-95"
                         >
-                          <Download size={14} /> Full Portfolio (PDF) yuklab olish
+                          <Download size={13} /> Portfolio (PDF) yuklab olish
                         </a>
                       </div>
                     ) : (
-                      <img 
-                        src={slides[currentSlide]} 
+                      <img
+                        src={slides[currentSlide]}
                         alt={`Portfolio Slide ${currentSlide + 1}`}
                         onError={() => handleImageError(currentSlide)}
-                        className="max-h-[560px] w-auto max-w-full object-contain rounded-xl shadow-2xl border border-white/10"
+                        className="max-h-full w-auto max-w-full object-contain rounded-xl shadow-2xl border border-white/10"
+                        draggable={false}
                       />
                     )}
                   </motion.div>
                 </AnimatePresence>
 
-                {/* Slayd Boshqaruv Tugmalari (Chap va O'ng) */}
+                {/* Navigatsiya Tugmalari (Prev / Next) */}
                 <button
                   onClick={prevSlide}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-black/70 hover:bg-primary text-white hover:text-primary-foreground border border-white/10 flex items-center justify-center transition-all opacity-80 hover:opacity-100 backdrop-blur-md shadow-2xl hover:scale-110 active:scale-95"
-                  title="Oldingi slayd (←)"
+                  className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-black/70 hover:bg-primary text-white hover:text-primary-foreground border border-white/10 flex items-center justify-center transition-all backdrop-blur-md shadow-xl active:scale-90"
                 >
-                  <ChevronLeft size={24} />
+                  <ChevronLeft size={20} />
                 </button>
-
                 <button
                   onClick={nextSlide}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-black/70 hover:bg-primary text-white hover:text-primary-foreground border border-white/10 flex items-center justify-center transition-all opacity-80 hover:opacity-100 backdrop-blur-md shadow-2xl hover:scale-110 active:scale-95"
-                  title="Keyingi slayd (→)"
+                  className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-black/70 hover:bg-primary text-white hover:text-primary-foreground border border-white/10 flex items-center justify-center transition-all backdrop-blur-md shadow-xl active:scale-90"
                 >
-                  <ChevronRight size={24} />
+                  <ChevronRight size={20} />
                 </button>
+
+                {/* Swipe Hint — faqat mobile da */}
+                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] text-white/20 sm:hidden pointer-events-none">
+                  ← Swipe qiling →
+                </div>
               </div>
 
-              {/* Slide Dots Pagination (Interaktiv) */}
-              <div className="bg-white/5 px-4 py-3 border-t border-white/10 flex justify-center items-center gap-2.5">
+              {/* Dots Pagination */}
+              <div className="bg-white/5 px-3 py-2.5 sm:py-3 border-t border-white/10 flex justify-center items-center gap-1.5 sm:gap-2 flex-shrink-0 overflow-x-auto">
                 {slides.map((_, idx) => (
                   <button
                     key={idx}
                     onClick={() => goToSlide(idx)}
-                    className={`h-2.5 rounded-full transition-all duration-300 ${
-                      idx === currentSlide 
-                        ? "w-8 bg-primary shadow-lg shadow-primary/50" 
-                        : "w-2.5 bg-white/20 hover:bg-white/50"
+                    className={`h-2 rounded-full transition-all duration-300 flex-shrink-0 ${
+                      idx === currentSlide
+                        ? "w-6 sm:w-8 bg-primary shadow-lg shadow-primary/50"
+                        : "w-2 bg-white/20 hover:bg-white/50"
                     }`}
                     title={`Slayd ${idx + 1}`}
                   />
                 ))}
               </div>
-
             </div>
           )}
-
         </div>
 
-        {/* Footer info */}
-        <div className="pt-4 flex justify-center items-center gap-4 opacity-30 text-[10px] uppercase tracking-[0.3em]">
-          <div className="h-px w-12 bg-white" />
-          <span>Ruebensh AI Engineering & Portfolio</span>
-          <div className="h-px w-12 bg-white" />
+        {/* Footer */}
+        <div className="py-2 flex justify-center items-center gap-3 opacity-20 text-[9px] sm:text-[10px] uppercase tracking-[0.25em]">
+          <div className="h-px w-8 sm:w-12 bg-white" />
+          <span>Ruebensh AI Engineering</span>
+          <div className="h-px w-8 sm:w-12 bg-white" />
         </div>
-
       </div>
     </div>
   );
