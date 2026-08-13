@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "../lib/router";
 import { ArrowRight, Loader2 } from "lucide-react";
 import NeonBorder from "../components/originkit/ui/neon-border";
+import NeonGlowButton from "../components/originkit/ui/neon-glow-button";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -394,16 +395,21 @@ export function ProjectsPage() {
                           </p>
 
                           <div className="pt-4 border-t border-white/10 flex items-center justify-between">
-                            <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">
-                              View Details
+                            <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+                              Loyiha tafsilotlari
                             </span>
-                            <span className="inline-flex items-center gap-2 text-sm text-muted-foreground group-hover:text-primary transition-colors">
-                              Open
-                              <ArrowRight
-                                size={14}
-                                className="group-hover:translate-x-1 transition-transform"
-                              />
-                            </span>
+                            <NeonGlowButton
+                              label="Open"
+                              colors={{ fill: "rgba(255,255,255,0.06)", hoverFill: "#120A1F", textColor: "#FFFFFF", hoverTextColor: "#00FFEE" }}
+                              glow={{ color: "#00FFEE", size: 5, blur: 5 }}
+                              border={{ borderWidth: 1, borderColor: "rgba(0,255,238,0.3)" }}
+                              addIcon={true}
+                              icon={{ symbol: "→", size: 14, color: "#00FFEE" }}
+                              rounded={12}
+                              padding="8px 16px"
+                              gap={6}
+                              font={{ fontSize: 12, fontWeight: 700 }}
+                            />
                           </div>
                         </div>
                       </div>

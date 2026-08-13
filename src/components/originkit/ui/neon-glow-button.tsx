@@ -177,6 +177,8 @@ type Props = {
     transition?: Transition;
     newTab?: boolean;
     style?: React.CSSProperties;
+    className?: string;
+    children?: React.ReactNode;
 };
 
 export default function NeonGlowButton(props: Props) {
@@ -229,6 +231,8 @@ export default function NeonGlowButton(props: Props) {
         transition = DEFAULT_TRANSITION,
         newTab = false,
         style,
+        className,
+        children,
     } = props;
 
     const fill = colors?.fill ?? fillProp ?? "#010201";
@@ -496,6 +500,7 @@ export default function NeonGlowButton(props: Props) {
     return (
         <div
             ref={scope}
+            className={className}
             style={{
                 minWidth: 80,
                 minHeight: 40,
@@ -632,7 +637,7 @@ export default function NeonGlowButton(props: Props) {
                             {iconSymbol}
                         </span>
                     ))}
-                {showText && <span ref={labelRef}>{label}</span>}
+                {children ? children : (showText && <span ref={labelRef}>{label}</span>)}
             </Tag>
         </div>
     );

@@ -343,13 +343,19 @@ export function CertificatesPage() {
                         </div>
 
                         <div className="mt-auto">
-                          <button
-                            type="button"
-                            className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-primary hover:border-primary text-white transition-all duration-300 font-bold group/btn"
-                          >
-                            {isPdf ? "Open Document" : "Full Preview"}
-                            <ExternalLink size={16} className="group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
-                          </button>
+                          <NeonGlowButton
+                            label={isPdf ? "Open Document" : "Full Preview"}
+                            colors={{ fill: "rgba(255,255,255,0.06)", hoverFill: "#120A1F", textColor: "#FFFFFF", hoverTextColor: "#00FFEE" }}
+                            glow={{ color: "#00FFEE", size: 6, blur: 6 }}
+                            border={{ borderWidth: 1, borderColor: "rgba(0,255,238,0.3)" }}
+                            addIcon={true}
+                            icon={{ symbol: "↗", size: 14, color: "#00FFEE" }}
+                            rounded={20}
+                            padding="12px 24px"
+                            gap={8}
+                            font={{ fontSize: 13, fontWeight: 700 }}
+                            style={{ width: "100%", justifyContent: "center" }}
+                          />
                         </div>
                       </div>
                     </div>
