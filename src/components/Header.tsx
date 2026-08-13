@@ -59,11 +59,11 @@ export function Header({ data }: HeaderProps) {
             : "bg-transparent py-5"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex items-center justify-between">
           
-          <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center gap-3 group">
-              <div className="relative flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-br from-primary/80 to-purple-600/80 border border-white/20 shadow-[0_0_20px_rgba(var(--primary),0.3)] transition-all duration-300 group-hover:scale-105 group-hover:shadow-[0_0_30px_rgba(var(--primary),0.5)] overflow-hidden">
+          <div className="flex items-center gap-3 lg:gap-6 min-w-0">
+            <Link href="/" className="flex items-center gap-2 sm:gap-3 group flex-shrink-0">
+              <div className="relative flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-primary/80 to-purple-600/80 border border-white/20 shadow-[0_0_20px_rgba(var(--primary),0.3)] transition-all duration-300 group-hover:scale-105 group-hover:shadow-[0_0_30px_rgba(var(--primary),0.5)] overflow-hidden">
                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20 mix-blend-overlay"></div>
                 {avatarSrc ? (
                   <img src={avatarSrc} alt={authorName} className="w-full h-full object-cover relative z-10" />
@@ -73,11 +73,11 @@ export function Header({ data }: HeaderProps) {
                 {/* Online Status Dot */}
                 <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-green-500 border-[3px] border-background rounded-full shadow-[0_0_10px_rgba(34,197,94,0.8)] z-20"></div>
               </div>
-              <div className="flex flex-col justify-center">
-                <span className="font-extrabold text-[16px] leading-tight tracking-tight text-white group-hover:text-primary transition-colors">
+              <div className="flex flex-col justify-center min-w-0">
+                <span className="font-extrabold text-[15px] leading-tight tracking-tight text-white group-hover:text-primary transition-colors truncate">
                   {authorName}
                 </span>
-                <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-primary/90 flex items-center gap-1 mt-0.5">
+                <span className="hidden sm:flex text-[10px] font-bold tracking-[0.2em] uppercase text-primary/90 items-center gap-1 mt-0.5">
                   AI/ML Student & Python Developer <Sparkles size={10} className="text-yellow-400/80" />
                 </span>
               </div>
@@ -119,9 +119,7 @@ export function Header({ data }: HeaderProps) {
             ))}
           </nav>
 
-          <div className="flex items-center gap-4">
-
-
+          <div className="flex items-center gap-2 flex-shrink-0">
             <button
               className="md:hidden p-2.5 rounded-xl border border-white/10 bg-white/5 text-foreground"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
