@@ -14,6 +14,7 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "../lib/router";
 import NeonBorder from "../components/originkit/ui/neon-border";
+import { useLanguage } from "../context/LanguageContext";
 
 type ViewMode = "cv" | "portfolio";
 
@@ -22,6 +23,7 @@ const portfolioPdfUrl = "/Jaloliddin_Xalimov_Portfolio.pdf";
 const slides = Array.from({ length: 11 }, (_, index) => `/portfolio-slides/${index + 1}.png`);
 
 export function ResumePage() {
+  const { t } = useLanguage();
   const [mode, setMode] = useState<ViewMode>("cv");
   const [currentSlide, setCurrentSlide] = useState(0);
   const [direction, setDirection] = useState(1);
@@ -90,18 +92,18 @@ export function ResumePage() {
         <header className="grid w-full grid-cols-[auto_1fr_auto] items-center gap-4 rounded-3xl border border-white/10 bg-white/[0.045] p-4 shadow-2xl shadow-black/30 backdrop-blur-2xl">
           <Link href="/" className="inline-flex items-center gap-2 whitespace-nowrap rounded-xl px-2 py-2 text-sm text-white/60 transition hover:bg-white/10 hover:text-white">
             <ArrowLeft size={16} />
-            <span className="hidden sm:inline">Asosiyga qaytish</span>
-            <span className="sm:hidden">Orqaga</span>
+            <span className="hidden sm:inline">{t("resume.back")}</span>
+            <span className="sm:hidden">{t("nav.home")}</span>
           </Link>
 
           <div className="mx-auto flex w-fit items-center">
             <NeonBorder color="#FFD700" rounded={16} thickness={2} borderSize={35} glow={70} speed={12}>
               <div className="flex items-center rounded-2xl border border-amber-400/40 bg-black/70 p-1 backdrop-blur-xl">
                 <button onClick={() => setMode("cv")} className={`flex min-w-[110px] sm:min-w-[120px] items-center justify-center gap-2 rounded-xl px-4 sm:px-5 py-2.5 text-xs font-semibold transition ${mode === "cv" ? "bg-amber-400 text-black shadow-[0_0_15px_rgba(255,215,0,0.5)]" : "text-white/60 hover:text-white"}`}>
-                  <FileText size={15} /> Resume
+                  <FileText size={15} /> {t("resume.cvMode")}
                 </button>
                 <button onClick={() => setMode("portfolio")} className={`flex min-w-[110px] sm:min-w-[120px] items-center justify-center gap-2 rounded-xl px-4 sm:px-5 py-2.5 text-xs font-semibold transition ${mode === "portfolio" ? "bg-amber-400 text-black shadow-[0_0_15px_rgba(255,215,0,0.5)]" : "text-white/60 hover:text-white"}`}>
-                  <Presentation size={15} /> Portfolio
+                  <Presentation size={15} /> {t("resume.portfolioMode")}
                 </button>
               </div>
             </NeonBorder>
@@ -109,7 +111,7 @@ export function ResumePage() {
 
           <div className="flex items-center gap-2">
             <a href={resumeUrl} download className="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-amber-400/30 bg-amber-500/10 px-4 py-2.5 text-xs font-semibold transition hover:bg-amber-500/20 text-amber-200">
-              <FileDown size={15} /> <span className="hidden md:inline">CV yuklash</span><span className="md:hidden">CV</span>
+              <FileDown size={15} /> <span className="hidden md:inline">{t("resume.download")}</span><span className="md:hidden">CV</span>
             </a>
             <NeonBorder color="#FFD700" rounded={12} thickness={2} borderSize={40} glow={60} speed={14}>
               <a href={portfolioPdfUrl} download className="inline-flex items-center gap-2 whitespace-nowrap rounded-xl bg-amber-400 px-4 py-2.5 text-xs font-bold text-black transition hover:bg-amber-300 shadow-[0_0_15px_rgba(255,215,0,0.4)]">
@@ -121,8 +123,8 @@ export function ResumePage() {
 
         <section className="flex items-end justify-between px-1 sm:px-2">
           <div>
-            <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.28em] text-amber-400/80">Professional documents</p>
-            <h1 className="text-2xl font-bold tracking-tight sm:text-4xl">Resume & Portfolio</h1>
+            <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.28em] text-amber-400/80">{t("resume.title")}</p>
+            <h1 className="text-2xl font-bold tracking-tight sm:text-4xl">{t("resume.subtitle")}</h1>
           </div>
           <span className="hidden rounded-full border border-white/10 px-3 py-1.5 text-[11px] text-white/40 sm:inline">Jaloliddin Xalimov</span>
         </section>

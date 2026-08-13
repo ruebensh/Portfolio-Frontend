@@ -9,6 +9,7 @@ import {
   Loader2,
   Sparkles,
 } from "lucide-react";
+import { useLanguage } from "../context/LanguageContext";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -238,6 +239,7 @@ function safeArray(v: any) {
 }
 
 export function AboutPage() {
+  const { td } = useLanguage();
   const [data, setData] = useState<any>(null);
   const [settings, setSettings] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -350,7 +352,7 @@ export function AboutPage() {
                     {settings?.author || "Jaloliddin"}
                   </h2>
                   <p className="text-muted-foreground">
-                    {settings?.subtitle || "AI/ML Student & Python Developer"}
+                    {td(settings?.subtitle || "AI/ML Student & Python Developer")}
                   </p>
                 </div>
 
@@ -363,13 +365,13 @@ export function AboutPage() {
                         key={idx}
                         className="text-muted-foreground leading-relaxed mb-4 text-center md:text-left"
                       >
-                        {paragraph}
+                        {td(paragraph)}
                       </p>
                     ))}
 
                   {!content.story && (
                     <p className="text-muted-foreground italic text-center md:text-left">
-                      Hozircha story yozilmagan. Admin paneldan kiritib qo‘ysang — bu joy “wow” bo‘ladi.
+                      Hozircha story yozilmagan.
                     </p>
                   )}
                 </div>
@@ -378,16 +380,14 @@ export function AboutPage() {
           </motion.div>
         </motion.div>
 
-        {}
         <div className="space-y-8">
-          {}
           <motion.section variants={sectionWrap} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-90px" }}>
             <motion.div variants={sectionItem} className="ab-glass rounded-3xl p-8 md:p-10">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-11 h-11 rounded-2xl bg-primary/10 border border-white/10 flex items-center justify-center">
                   <GraduationCap className="text-primary" size={20} />
                 </div>
-                <h2 className="text-2xl font-bold">Education</h2>
+                <h2 className="text-2xl font-bold">{td("Education")}</h2>
               </div>
 
               <div className="space-y-4">
@@ -400,9 +400,9 @@ export function AboutPage() {
                       transition={{ duration: 0.25 }}
                       className="rounded-2xl border border-white/10 bg-white/5 hover:bg-white/7 transition-colors p-6"
                     >
-                      <h3 className="font-semibold mb-1">{edu.degree}</h3>
+                      <h3 className="font-semibold mb-1">{td(edu.degree)}</h3>
                       <p className="text-muted-foreground text-sm">
-                        {edu.institution} • {edu.year}
+                        {td(edu.institution)} • {edu.year}
                       </p>
                     </motion.div>
                   ))
@@ -413,14 +413,13 @@ export function AboutPage() {
             </motion.div>
           </motion.section>
 
-          {}
           <motion.section variants={sectionWrap} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-90px" }}>
             <motion.div variants={sectionItem} className="ab-glass rounded-3xl p-8 md:p-10">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-11 h-11 rounded-2xl bg-primary/10 border border-white/10 flex items-center justify-center">
                   <Award className="text-primary" size={20} />
                 </div>
-                <h2 className="text-2xl font-bold">Certificates</h2>
+                <h2 className="text-2xl font-bold">{td("Certificates")}</h2>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -433,9 +432,9 @@ export function AboutPage() {
                       transition={{ duration: 0.25 }}
                       className="rounded-2xl border border-white/10 bg-white/5 hover:bg-white/7 transition-colors p-6"
                     >
-                      <h3 className="font-semibold mb-1">{cert.name}</h3>
+                      <h3 className="font-semibold mb-1">{td(cert.name)}</h3>
                       <p className="text-muted-foreground text-sm">
-                        {cert.issuer} • {cert.year}
+                        {td(cert.issuer)} • {cert.year}
                       </p>
                     </motion.div>
                   ))

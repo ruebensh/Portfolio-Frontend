@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
+import { useLanguage } from "../../context/LanguageContext";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export function Skills() {
   const [skillsData, setSkillsData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const { td } = useLanguage();
 
   useEffect(() => {
     fetch(`${API_URL}/skills`)
@@ -37,9 +39,9 @@ export function Skills() {
         transition={{ duration: 0.5 }}
         className="text-center mb-12"
       >
-        <h2 className="text-3xl lg:text-4xl font-bold mb-4">Skills & Expertise</h2>
+        <h2 className="text-3xl lg:text-4xl font-bold mb-4">{td("Skills & Expertise")}</h2>
         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-          Ko'nikmalarim va texnologiyalar bo'yicha bilimlarim
+          {td("Ko'nikmalarim va texnologiyalar bo'yicha bilimlarim")}
         </p>
       </motion.div>
 
@@ -53,7 +55,7 @@ export function Skills() {
             transition={{ duration: 0.5, delay: categoryIndex * 0.1 }}
             className="p-6 rounded-2xl border border-border/40 bg-card/50 backdrop-blur-sm"
           >
-            <h3 className="text-xl font-semibold mb-6">{skillCategory.category}</h3>
+            <h3 className="text-xl font-semibold mb-6">{td(skillCategory.category)}</h3>
             
             <div className="space-y-4">
               {skillCategory.items?.map((skill: any, skillIndex: number) => (
@@ -65,7 +67,7 @@ export function Skills() {
                   transition={{ duration: 0.3, delay: skillIndex * 0.05 }}
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">{skill.name}</span>
+                    <span className="text-sm font-medium">{td(skill.name)}</span>
                     <span className="text-sm text-muted-foreground">{skill.level}%</span>
                   </div>
                   <div className="h-2 bg-muted rounded-full overflow-hidden">

@@ -11,6 +11,7 @@ import {
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import NeonGlowButton from "../components/originkit/ui/neon-glow-button";
+import { useLanguage } from "../context/LanguageContext";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -246,6 +247,7 @@ function Reveal({
 
 export function ProjectDetailPage() {
   const { params } = useRouter();
+  const { t, td } = useLanguage();
   const [project, setProject] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -323,20 +325,19 @@ export function ProjectDetailPage() {
             href="/projects"
             className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
           >
-            <ArrowLeft size={18} /> Orqaga qaytish
+            <ArrowLeft size={18} /> {t("projectDetail.back")}
           </Link>
         </motion.div>
 
-        {}
         <Reveal>
           <div className="pd-glass rounded-3xl p-8 md:p-10">
             <div className="flex flex-wrap items-center gap-3 mb-6">
               <Badge variant="secondary" className="px-3 py-1">
-                {project.category || "Web Development"}
+                {td(project.category || "Web Development")}
               </Badge>
 
               <div className="px-3 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-500 border border-green-500/20">
-                {project.status || "Live"}
+                {td(project.status || "Live")}
               </div>
 
               {project.tech && (
@@ -352,7 +353,7 @@ export function ProjectDetailPage() {
               transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
               className="text-4xl lg:text-6xl font-extrabold tracking-tight mb-6 pd-title"
             >
-              {project.title}
+              {td(project.title)}
             </motion.h1>
 
             <motion.p
@@ -361,13 +362,13 @@ export function ProjectDetailPage() {
               transition={{ duration: 0.85, delay: 0.06, ease: [0.22, 1, 0.36, 1] }}
               className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-3xl"
             >
-              {project.description || "Ushbu loyiha haqida ma'lumot berilmagan."}
+              {td(project.description) || t("projectDetail.noDesc")}
             </motion.p>
 
             <div className="mt-8 flex flex-wrap gap-4 items-center">
               {projectLink && (
                 <NeonGlowButton
-                  label="Loyihani ko'rish"
+                  label={t("projectDetail.viewLive")}
                   link={safeHttp(projectLink)}
                   newTab={true}
                   colors={{ fill: "#09090b", hoverFill: "#18181b", textColor: "#FFFFFF", hoverTextColor: "#00FFEE" }}
@@ -384,7 +385,7 @@ export function ProjectDetailPage() {
 
               {repoLink && (
                 <NeonGlowButton
-                  label="GitHub"
+                  label={t("projectDetail.github")}
                   link={safeHttp(repoLink)}
                   newTab={true}
                   colors={{ fill: "#09090b", hoverFill: "#18181b", textColor: "#FFFFFF", hoverTextColor: "#A855F7" }}

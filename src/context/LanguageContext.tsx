@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Language, translations } from "../lib/i18n";
-import { translateDynamicText } from "../lib/translator";
+import { useTranslatedText, translateDynamicText } from "../lib/translator";
 
 interface LanguageContextType {
   language: Language;
@@ -34,7 +34,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return translations[language]?.[key] || translations["uz"]?.[key] || key;
   };
 
-  /** Translate dynamic backend content using dictionary */
+  /** Translate dynamic backend content using dictionary + auto-translate engine */
   const td = (text: string | null | undefined): string => {
     return translateDynamicText(text, language);
   };

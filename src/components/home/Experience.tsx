@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Calendar, Loader2 } from "lucide-react";
+import { useLanguage } from "../../context/LanguageContext";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export function Experience() {
   const [experienceData, setExperienceData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const { t, td } = useLanguage();
 
   useEffect(() => {
     fetch(`${API_URL}/experience`)
@@ -23,7 +25,7 @@ export function Experience() {
   }, []);
 
   const formatDate = (dateStr: string | null) => {
-    if (!dateStr || dateStr === "Present") return "Present";
+    if (!dateStr || dateStr === "Present") return t("experience.present") || "Present";
     const date = new Date(dateStr);
     return date.toLocaleDateString("en-US", { month: "short", year: "numeric" });
   };
@@ -47,14 +49,13 @@ export function Experience() {
         transition={{ duration: 0.5 }}
         className="text-center mb-12"
       >
-        <h2 className="text-3xl lg:text-4xl font-bold mb-4">Experience</h2>
+        <h2 className="text-3xl lg:text-4xl font-bold mb-4">{td("Experience")}</h2>
         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-          IT dunyosiga sayohatimning asosiy bosqichlari
+          {td("IT dunyosiga sayohatimning asosiy bosqichlari")}
         </p>
       </motion.div>
 
       <div className="relative">
-        {}
         <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-px bg-border/40 hidden md:block" />
 
         <div className="space-y-12">
@@ -69,10 +70,8 @@ export function Experience() {
                 index % 2 === 0 ? "" : "md:flex-row-reverse"
               }`}
             >
-              {}
               <div className="absolute left-8 md:left-1/2 top-8 w-4 h-4 -ml-2 rounded-full bg-primary border-4 border-background shadow-lg shadow-primary/20 hidden md:block" />
 
-              {}
               <div className={`${index % 2 === 0 ? "md:text-right md:pr-12" : "md:col-start-2 md:pl-12"}`}>
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-4">
                   <Calendar size={14} />
@@ -80,18 +79,16 @@ export function Experience() {
                 </div>
 
                 <div className="p-6 rounded-2xl border border-border/40 bg-card/50 backdrop-blur-sm shadow-xl">
-                  {}
                   <div className={`flex items-center gap-4 mb-4 ${index % 2 === 0 ? "md:justify-end" : ""}`}>
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center text-primary-foreground font-bold flex-shrink-0">
                       {exp.logo || exp.company.charAt(0)}
                     </div>
                     <div className={index % 2 === 0 ? "md:text-right" : "text-left"}>
-                      <h3 className="text-xl font-semibold">{exp.role}</h3>
-                      <p className="text-muted-foreground">{exp.company}</p>
+                      <h3 className="text-xl font-semibold">{td(exp.role)}</h3>
+                      <p className="text-muted-foreground">{td(exp.company)}</p>
                     </div>
                   </div>
 
-                  {}
                   <ul className={`space-y-2 ${index % 2 === 0 ? "md:text-right" : "text-left"}`}>
                     {exp.impact.map((item: string, i: number) => (
                       <li
@@ -99,14 +96,13 @@ export function Experience() {
                         className={`text-sm text-muted-foreground flex items-start gap-2 ${index % 2 === 0 ? "md:flex-row-reverse" : ""}`}
                       >
                         <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
-                        <span className="flex-1">{item}</span>
+                        <span className="flex-1">{td(item)}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
               </div>
 
-              {}
               <div className={`hidden md:block ${index % 2 === 0 ? "" : "md:col-start-1"}`} />
             </motion.div>
           ))}

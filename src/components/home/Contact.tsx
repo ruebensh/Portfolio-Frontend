@@ -14,6 +14,7 @@ import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import NeonBorder from "../originkit/ui/neon-border";
+import { useLanguage } from "../../context/LanguageContext";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -22,6 +23,7 @@ interface ContactProps {
 }
 
 export function Contact({ data }: ContactProps) {
+  const { t, td } = useLanguage();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -103,22 +105,20 @@ export function Contact({ data }: ContactProps) {
         viewport={{ once: true }}
         className="text-center mb-16"
       >
-        <h2 className="text-3xl lg:text-4xl font-bold mb-4 text-white">Bog'lanish | Contact Me</h2>
+        <h2 className="text-3xl lg:text-4xl font-bold mb-4 text-white">{t("contact.title")}</h2>
         <div className="h-1.5 w-20 bg-primary mx-auto rounded-full mb-4" />
         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-          Savollaringiz bormi? Bog'laning. Doim aloqadaman!
+          {t("contact.subtitle")}
         </p>
       </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-        {}
         <motion.div
           initial={{ opacity: 0, x: -30 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6"
         >
-          {}
           <div className="p-6 rounded-2xl border border-border/40 bg-card/50 backdrop-blur-sm group hover:border-primary/50 transition-colors">
             <div className="flex items-center gap-4 text-white">
               <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
@@ -139,7 +139,6 @@ export function Contact({ data }: ContactProps) {
             </div>
           </div>
 
-          {}
           <div className="p-6 rounded-2xl border border-border/40 bg-card/50 backdrop-blur-sm group hover:border-green-500/50 transition-colors">
             <div className="flex items-center gap-4 text-white">
               <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center text-green-500 group-hover:bg-green-500 group-hover:text-white transition-all">
@@ -160,7 +159,6 @@ export function Contact({ data }: ContactProps) {
             </div>
           </div>
 
-          {}
           <div className="p-6 rounded-2xl border border-border/40 bg-card/50 backdrop-blur-sm">
             <p className="text-xs uppercase tracking-widest text-muted-foreground font-bold mb-4">
               Ijtimoiy tarmoqlar
@@ -222,7 +220,6 @@ export function Contact({ data }: ContactProps) {
           </div>
         </motion.div>
 
-        {}
         <motion.div
           initial={{ opacity: 0, x: 30 }}
           whileInView={{ opacity: 1, x: 0 }}
@@ -232,36 +229,36 @@ export function Contact({ data }: ContactProps) {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium ml-1 text-white">Ismingiz</label>
+                <label className="text-sm font-medium ml-1 text-white">{t("contact.name")}</label>
                 <Input
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Ismingizni kiriting"
+                  placeholder={t("contact.name")}
                   className="bg-background/50 h-12 text-white"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium ml-1 text-white">Email</label>
+                <label className="text-sm font-medium ml-1 text-white">{t("contact.email")}</label>
                 <Input
                   type="email"
                   required
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="Emailingizni kiriting"
+                  placeholder={t("contact.email")}
                   className="bg-background/50 h-12 text-white"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium ml-1 text-white">Xabar</label>
+              <label className="text-sm font-medium ml-1 text-white">{t("contact.message")}</label>
               <Textarea
                 required
                 value={formData.message}
                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                placeholder="Xabaringizni yozing..."
+                placeholder={t("contact.message")}
                 className="min-h-[150px] bg-background/50 resize-none text-white"
               />
             </div>
@@ -275,15 +272,15 @@ export function Contact({ data }: ContactProps) {
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="mr-2 animate-spin" /> Yuborilmoqda...
+                    <Loader2 className="mr-2 animate-spin" /> {t("common.loading") || "Yuborilmoqda..."}
                   </>
                 ) : submitted ? (
                   <>
-                    <CheckCircle className="mr-2 text-black" /> Xabar yuborildi!
+                    <CheckCircle className="mr-2 text-black" /> Sent!
                   </>
                 ) : (
                   <>
-                    <Send className="mr-2" /> Xabar yuborish
+                    <Send className="mr-2" /> {t("contact.send")}
                   </>
                 )}
               </Button>
