@@ -87,8 +87,8 @@ export function ResumePage() {
   return (
     <main className="min-h-screen overflow-x-hidden bg-[#050505] px-3 pb-8 pt-24 text-white sm:px-6 sm:pt-28">
       <div className="mx-auto flex w-full max-w-[1480px] flex-col gap-5">
-        <header className="flex flex-wrap sm:grid w-full sm:grid-cols-[auto_1fr_auto] items-center justify-between gap-3 sm:gap-4 rounded-3xl border border-white/10 bg-white/[0.045] p-3 sm:p-4 shadow-2xl shadow-black/30 backdrop-blur-2xl">
-          <Link href="/" className="inline-flex items-center gap-2 whitespace-nowrap rounded-xl px-2 py-2 text-xs sm:text-sm text-white/60 transition hover:bg-white/10 hover:text-white">
+        <header className="grid w-full grid-cols-[auto_1fr_auto] items-center gap-4 rounded-3xl border border-white/10 bg-white/[0.045] p-4 shadow-2xl shadow-black/30 backdrop-blur-2xl">
+          <Link href="/" className="inline-flex items-center gap-2 whitespace-nowrap rounded-xl px-2 py-2 text-sm text-white/60 transition hover:bg-white/10 hover:text-white">
             <ArrowLeft size={16} />
             <span className="hidden sm:inline">Asosiyga qaytish</span>
             <span className="sm:hidden">Orqaga</span>

@@ -19,27 +19,27 @@ type Props = {
 };
 
 const DEFAULTS = {
-    color: "#00f0ff", // Moviy cyan neon light
+    color: "#00f0ff",
     rounded: 24,
-    thickness: 4,
-    borderSize: 40,
-    glow: 80,
+    thickness: 3,
+    borderSize: 45,
+    glow: 100,
     movement: "continuous" as const,
     speed: 14,
 };
 
 const EDGE_COPIES = 2;
 const GLOW_LAYERS = [
-    { blur: 8, opacity: 0.5, reach: 0.3 },
-    { blur: 15, opacity: 0.3, reach: 0.6 },
-    { blur: 57, opacity: 0.18, reach: 1 },
+    { blur: 4, opacity: 0.85, reach: 0.3 },
+    { blur: 10, opacity: 0.65, reach: 0.6 },
+    { blur: 20, opacity: 0.45, reach: 1 },
 ];
-const MAX_GLOW_BLUR = Math.max(...GLOW_LAYERS.map((l) => l.blur));
-const MAX_GLOW_REACH = 36;
+const MAX_GLOW_BLUR = 16;
+const MAX_GLOW_REACH = 14;
 
 function withAlpha(input: string, alpha: number) {
     const a = Math.max(0, Math.min(1, alpha));
-    if (typeof input !== "string") return `rgba(0,0,0,${a})`;
+    if (typeof input !== "string") return `rgba(0,240,255,${a})`;
     const s = input.trim();
 
     const hex = s.match(/^#([0-9a-f]{3,8})$/i);
@@ -52,7 +52,7 @@ function withAlpha(input: string, alpha: number) {
                 .join("");
         }
         const n = parseInt(h.slice(0, 6), 16);
-        if (!Number.isFinite(n)) return `rgba(0,0,0,${a})`;
+        if (!Number.isFinite(n)) return `rgba(0,240,255,${a})`;
         return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
     }
 
@@ -63,7 +63,7 @@ function withAlpha(input: string, alpha: number) {
             return `rgba(${parts[0]},${parts[1]},${parts[2]},${a})`;
         }
     }
-    return `rgba(0,0,0,${a})`;
+    return `rgba(0,240,255,${a})`;
 }
 
 function perimeterPoint(u: number, w: number, h: number): [number, number] {
@@ -282,12 +282,12 @@ export default function NeonBorder(props: Props) {
 
     const radius =
         (Math.max(0, Math.min(100, rounded)) / 100) *
-        (Math.min(size.w, size.h) / 2);
+        (Math.min(size.w > 0 ? size.w : 300, size.h > 0 ? size.h : 200) / 2);
 
     const amount = Math.max(0, Math.min(100, glow)) / 100;
 
     const ringAt = (share: number) => thick + amount * MAX_GLOW_REACH * share;
-    const glowOuter = 14;
+    const glowOuter = Math.min(20, 4 + MAX_GLOW_REACH);
 
     const band = (r: number, offset = 0) => (
         <div
@@ -338,6 +338,7 @@ export default function NeonBorder(props: Props) {
                     overflow: "hidden",
                     pointerEvents: "none",
                     borderRadius: radius,
+                    filter: `drop-shadow(0 0 10px ${color})`,
                     "--arc": buildArc(start, borderSize, size.w, size.h, color),
                 } as React.CSSProperties
             }
@@ -368,16 +369,17 @@ export default function NeonBorder(props: Props) {
             style={{
                 position: "relative",
                 width: "100%",
-                maxWidth: "100%",
                 height: "100%",
+                maxWidth: "100%",
                 boxSizing: "border-box",
+                flexShrink: 0,
                 borderRadius: radius,
                 ...style,
             }}
         >
             {glowGroup(0, groupARef)}
             {glowGroup(0.5, groupBRef)}
-            {children && <div style={{ position: "relative", zIndex: 10, width: "100%", height: "100%" }}>{children}</div>}
+            {children && <div style={{ position: "relative", zIndex: 10, width: "100%", height: "100%", maxWidth: "100%", boxSizing: "border-box" }}>{children}</div>}
         </div>
     );
 }

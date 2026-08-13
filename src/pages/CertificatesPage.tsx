@@ -232,34 +232,34 @@ export function CertificatesPage() {
   }
 
   return (
-    <div className="min-h-screen pt-24 pb-20 bg-[#020202] text-foreground relative overflow-hidden">
+    <div className="min-h-screen pt-20 sm:pt-24 pb-16 sm:pb-20 bg-[#020202] text-foreground relative overflow-x-hidden">
       <SoftCertificatesBackground />
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 overflow-x-hidden">
         {/* Header Section */}
         <motion.div
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="mb-12"
+          className="mb-8 sm:mb-12"
         >
-          <div className="pp-glass rounded-3xl p-8 md:p-12 relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-8 opacity-10">
+          <div className="pp-glass rounded-3xl p-5 sm:p-8 md:p-12 relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-8 opacity-10 hidden sm:block">
               <Award size={120} className="text-white" />
             </div>
             
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 mb-6">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full border border-white/10 bg-white/5 mb-4 sm:mb-6">
               <span className="w-2 h-2 rounded-full bg-primary shadow-[0_0_18px_rgba(99,102,241,.55)]" />
               <span className="text-xs md:text-sm text-muted-foreground">
                 Verified Achievements: {certs.length}
               </span>
             </div>
 
-            <h1 className="text-4xl lg:text-7xl font-extrabold tracking-tight mb-6 pp-title">
+            <h1 className="text-3xl sm:text-4xl lg:text-7xl font-extrabold tracking-tight mb-4 sm:mb-6 pp-title">
               Certificates
             </h1>
 
-            <p className="text-muted-foreground text-lg max-w-2xl leading-relaxed">
+            <p className="text-muted-foreground text-sm sm:text-lg max-w-2xl leading-relaxed">
               Mening o'qib-o'rganishlarim, kurslar va professional faoliyatim davomida qo'lga kiritgan maxsus yutuqlarim to'plami.
             </p>
           </div>
@@ -270,7 +270,7 @@ export function CertificatesPage() {
           variants={container}
           initial="hidden"
           animate="show"
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8"
         >
           <AnimatePresence mode="popLayout">
             {certs.map((cert, index) => {
@@ -284,24 +284,24 @@ export function CertificatesPage() {
                   key={cert.id || index}
                   variants={item}
                   layout
-                  whileHover={{ y: -10 }}
+                  whileHover={{ y: -6 }}
                   transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                  className="h-full"
+                  className="h-full w-full max-w-full overflow-hidden"
                 >
-                  <NeonBorder color="#00f0ff" rounded={32} thickness={2} borderSize={40} glow={75} speed={12} className="h-full">
+                  <NeonBorder color="#00f0ff" rounded={28} thickness={2.5} borderSize={45} glow={90} speed={14} className="h-full w-full">
                     <div 
                       onClick={() => setSelectedCert({ ...cert, fileUrl, isPdf })}
-                      className="group h-full pp-glass rounded-[2.5rem] overflow-hidden flex flex-col cursor-pointer border border-cyan-500/20"
+                      className="group h-full pp-glass rounded-[2rem] overflow-hidden flex flex-col cursor-pointer border border-cyan-500/30"
                     >
                       
                       {/* Media Preview */}
                       <div className="relative aspect-[4/3] overflow-hidden bg-zinc-900">
                         {isPdf ? (
-                          <div className="w-full h-full flex flex-col items-center justify-center p-8 bg-gradient-to-br from-zinc-800 to-black">
-                            <div className="w-20 h-20 rounded-2xl bg-red-500/10 flex items-center justify-center mb-4 border border-red-500/20 group-hover:scale-110 transition-transform duration-500">
-                              <span className="text-red-500 font-black text-2xl">PDF</span>
+                          <div className="w-full h-full flex flex-col items-center justify-center p-6 bg-gradient-to-br from-zinc-800 to-black">
+                            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-red-500/10 flex items-center justify-center mb-3 border border-red-500/20 group-hover:scale-110 transition-transform duration-500">
+                              <span className="text-red-500 font-black text-xl sm:text-2xl">PDF</span>
                             </div>
-                            <span className="text-xs text-zinc-500 font-medium tracking-widest uppercase">Document</span>
+                            <span className="text-[11px] sm:text-xs text-zinc-500 font-medium tracking-widest uppercase">Document</span>
                           </div>
                         ) : (
                           <img
@@ -317,10 +317,10 @@ export function CertificatesPage() {
                         )}
                         
                         {/* Date Overlay */}
-                        <div className="absolute top-4 left-4">
-                          <div className="px-4 py-2 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center gap-2">
-                            <Calendar size={14} className="text-primary" />
-                            <span className="text-xs font-bold text-white/90">{cert.date}</span>
+                        <div className="absolute top-3 left-3 sm:top-4 sm:left-4">
+                          <div className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-2xl bg-black/50 backdrop-blur-md border border-white/10 flex items-center gap-1.5">
+                            <Calendar size={13} className="text-primary" />
+                            <span className="text-[11px] sm:text-xs font-bold text-white/90">{cert.date}</span>
                           </div>
                         </div>
 
@@ -328,8 +328,8 @@ export function CertificatesPage() {
                       </div>
 
                       {/* Content Section */}
-                      <div className="p-8 flex-1 flex flex-col">
-                        <h3 className="text-xl font-bold mb-4 line-clamp-2 text-white group-hover:text-primary transition-colors">
+                      <div className="p-5 sm:p-7 flex-1 flex flex-col">
+                        <h3 className="text-lg sm:text-xl font-bold mb-3 line-clamp-2 text-white group-hover:text-primary transition-colors">
                           {cert.title}
                         </h3>
 
