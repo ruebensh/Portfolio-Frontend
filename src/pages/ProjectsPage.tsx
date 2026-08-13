@@ -385,17 +385,17 @@ export function ProjectsPage() {
                         </div>
 
                         {}
-                        <div className="p-6">
-                          <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
+                        <div className="p-4 sm:p-6">
+                          <h3 className="text-base sm:text-xl font-semibold mb-1.5 sm:mb-2 group-hover:text-primary transition-colors">
                             {project.title}
                           </h3>
 
-                          <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
+                          <p className="text-muted-foreground text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-2">
                             {project.description}
                           </p>
 
-                          <div className="pt-4 border-t border-white/10 flex items-center justify-between">
-                            <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+                          <div className="pt-3 sm:pt-4 border-t border-white/10 flex items-center justify-between gap-2">
+                            <span className="text-xs sm:text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors truncate">
                               Loyiha tafsilotlari
                             </span>
                             <NeonGlowButton
@@ -406,9 +406,9 @@ export function ProjectsPage() {
                               addIcon={true}
                               icon={{ symbol: "→", size: 14, color: "#00FFEE" }}
                               rounded={12}
-                              padding="8px 16px"
-                              gap={6}
-                              font={{ fontSize: 12, fontWeight: 700 }}
+                              padding="6px 12px"
+                              gap={5}
+                              font={{ fontSize: 11, fontWeight: 700 }}
                             />
                           </div>
                         </div>
