@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "../lib/router";
 import { ArrowRight, Loader2 } from "lucide-react";
+import NeonBorder from "../components/originkit/ui/neon-border";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -351,60 +352,63 @@ export function ProjectsPage() {
                   layout
                   whileHover={{ y: -6 }}
                   transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                  className="h-full"
                 >
-                  <Link href={`/project/${project.id}`}>
-                    <div className="group h-full pp-glass rounded-3xl overflow-hidden shadow-[0_18px_80px_rgba(0,0,0,.40)]">
-                      {}
-                      <div className="relative aspect-video overflow-hidden">
-                        <img
-                          src={img}
-                          alt={project.title}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                          loading="lazy"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src =
-                              "https://placehold.co/1200x630/0b1220/ffffff?text=Project";
-                          }}
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
+                  <NeonBorder color="#00f0ff" rounded={24} thickness={2} borderSize={40} glow={75} speed={12} className="h-full">
+                    <Link href={`/project/${project.id}`}>
+                      <div className="group h-full pp-glass rounded-3xl overflow-hidden shadow-[0_18px_80px_rgba(0,0,0,.40)] border border-cyan-500/20">
+                        {}
+                        <div className="relative aspect-video overflow-hidden">
+                          <img
+                            src={img}
+                            alt={project.title}
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                            loading="lazy"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src =
+                                "https://placehold.co/1200x630/0b1220/ffffff?text=Project";
+                            }}
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
+
+                          {}
+                          <div className="absolute top-4 right-4">
+                            <div
+                              className={`px-3 py-1 rounded-full text-xs font-medium border backdrop-blur-md ${getStatusClass(
+                                project.status || "Live"
+                              )}`}
+                            >
+                              {project.status || "Live"}
+                            </div>
+                          </div>
+                        </div>
 
                         {}
-                        <div className="absolute top-4 right-4">
-                          <div
-                            className={`px-3 py-1 rounded-full text-xs font-medium border backdrop-blur-md ${getStatusClass(
-                              project.status || "Live"
-                            )}`}
-                          >
-                            {project.status || "Live"}
+                        <div className="p-6">
+                          <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
+                            {project.title}
+                          </h3>
+
+                          <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
+                            {project.description}
+                          </p>
+
+                          <div className="pt-4 border-t border-white/10 flex items-center justify-between">
+                            <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">
+                              View Details
+                            </span>
+                            <span className="inline-flex items-center gap-2 text-sm text-muted-foreground group-hover:text-primary transition-colors">
+                              Open
+                              <ArrowRight
+                                size={14}
+                                className="group-hover:translate-x-1 transition-transform"
+                              />
+                            </span>
                           </div>
                         </div>
                       </div>
-
-                      {}
-                      <div className="p-6">
-                        <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
-                          {project.title}
-                        </h3>
-
-                        <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
-                          {project.description}
-                        </p>
-
-                        <div className="pt-4 border-t border-white/10 flex items-center justify-between">
-                          <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">
-                            View Details
-                          </span>
-                          <span className="inline-flex items-center gap-2 text-sm text-muted-foreground group-hover:text-primary transition-colors">
-                            Open
-                            <ArrowRight
-                              size={14}
-                              className="group-hover:translate-x-1 transition-transform"
-                            />
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
+                    </Link>
+                  </NeonBorder>
                 </motion.div>
               );
             })}

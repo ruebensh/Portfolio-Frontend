@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, ExternalLink, Award, Calendar, Building2, X } from "lucide-react";
 import NeonGlowButton from "../components/originkit/ui/neon-glow-button";
+import NeonBorder from "../components/originkit/ui/neon-border";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -285,71 +286,74 @@ export function CertificatesPage() {
                   layout
                   whileHover={{ y: -10 }}
                   transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                  className="h-full"
                 >
-                  <div 
-                    onClick={() => setSelectedCert({ ...cert, fileUrl, isPdf })}
-                    className="group h-full pp-glass rounded-[2.5rem] overflow-hidden flex flex-col cursor-pointer"
-                  >
-                    
-                    {/* Media Preview */}
-                    <div className="relative aspect-[4/3] overflow-hidden bg-zinc-900">
-                      {isPdf ? (
-                        <div className="w-full h-full flex flex-col items-center justify-center p-8 bg-gradient-to-br from-zinc-800 to-black">
-                          <div className="w-20 h-20 rounded-2xl bg-red-500/10 flex items-center justify-center mb-4 border border-red-500/20 group-hover:scale-110 transition-transform duration-500">
-                            <span className="text-red-500 font-black text-2xl">PDF</span>
-                          </div>
-                          <span className="text-xs text-zinc-500 font-medium tracking-widest uppercase">Document</span>
-                        </div>
-                      ) : (
-                        <img
-                          src={fileUrl}
-                          alt={cert.title}
-                          className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
-                          loading="lazy"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src =
-                              "https://placehold.co/800x600/111/fff?text=Certificate";
-                          }}
-                        />
-                      )}
+                  <NeonBorder color="#00f0ff" rounded={32} thickness={2} borderSize={40} glow={75} speed={12} className="h-full">
+                    <div 
+                      onClick={() => setSelectedCert({ ...cert, fileUrl, isPdf })}
+                      className="group h-full pp-glass rounded-[2.5rem] overflow-hidden flex flex-col cursor-pointer border border-cyan-500/20"
+                    >
                       
-                      {/* Date Overlay */}
-                      <div className="absolute top-4 left-4">
-                        <div className="px-4 py-2 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center gap-2">
-                          <Calendar size={14} className="text-primary" />
-                          <span className="text-xs font-bold text-white/90">{cert.date}</span>
-                        </div>
-                      </div>
-
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    </div>
-
-                    {/* Content Section */}
-                    <div className="p-8 flex-1 flex flex-col">
-                      <h3 className="text-xl font-bold mb-4 line-clamp-2 text-white group-hover:text-primary transition-colors">
-                        {cert.title}
-                      </h3>
-
-                      <div className="space-y-3 mb-8">
-                        <div className="flex items-center gap-3 text-muted-foreground">
-                          <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/5">
-                            <Building2 size={14} className="text-primary" />
+                      {/* Media Preview */}
+                      <div className="relative aspect-[4/3] overflow-hidden bg-zinc-900">
+                        {isPdf ? (
+                          <div className="w-full h-full flex flex-col items-center justify-center p-8 bg-gradient-to-br from-zinc-800 to-black">
+                            <div className="w-20 h-20 rounded-2xl bg-red-500/10 flex items-center justify-center mb-4 border border-red-500/20 group-hover:scale-110 transition-transform duration-500">
+                              <span className="text-red-500 font-black text-2xl">PDF</span>
+                            </div>
+                            <span className="text-xs text-zinc-500 font-medium tracking-widest uppercase">Document</span>
                           </div>
-                          <span className="text-sm font-medium">{cert.issuer}</span>
+                        ) : (
+                          <img
+                            src={fileUrl}
+                            alt={cert.title}
+                            className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                            loading="lazy"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src =
+                                "https://placehold.co/800x600/111/fff?text=Certificate";
+                            }}
+                          />
+                        )}
+                        
+                        {/* Date Overlay */}
+                        <div className="absolute top-4 left-4">
+                          <div className="px-4 py-2 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center gap-2">
+                            <Calendar size={14} className="text-primary" />
+                            <span className="text-xs font-bold text-white/90">{cert.date}</span>
+                          </div>
                         </div>
+
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                       </div>
 
-                      <div className="mt-auto">
-                        <button
-                          type="button"
-                          className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-primary hover:border-primary text-white transition-all duration-300 font-bold group/btn"
-                        >
-                          {isPdf ? "Open Document" : "Full Preview"}
-                          <ExternalLink size={16} className="group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
-                        </button>
+                      {/* Content Section */}
+                      <div className="p-8 flex-1 flex flex-col">
+                        <h3 className="text-xl font-bold mb-4 line-clamp-2 text-white group-hover:text-primary transition-colors">
+                          {cert.title}
+                        </h3>
+
+                        <div className="space-y-3 mb-8">
+                          <div className="flex items-center gap-3 text-muted-foreground">
+                            <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/5">
+                              <Building2 size={14} className="text-primary" />
+                            </div>
+                            <span className="text-sm font-medium">{cert.issuer}</span>
+                          </div>
+                        </div>
+
+                        <div className="mt-auto">
+                          <button
+                            type="button"
+                            className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-primary hover:border-primary text-white transition-all duration-300 font-bold group/btn"
+                          >
+                            {isPdf ? "Open Document" : "Full Preview"}
+                            <ExternalLink size={16} className="group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  </NeonBorder>
                 </motion.div>
               );
             })}
