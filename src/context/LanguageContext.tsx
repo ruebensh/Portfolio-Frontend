@@ -1,10 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Language, translations } from "../lib/i18n";
+import { translateDynamicText } from "../lib/translator";
 
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: (key: string) => string;
+  /** Translate dynamic backend content (descriptions, titles, etc.) */
+  td: (text: string | null | undefined) => string;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -31,8 +34,13 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return translations[language]?.[key] || translations["uz"]?.[key] || key;
   };
 
+  /** Translate dynamic backend content using dictionary */
+  const td = (text: string | null | undefined): string => {
+    return translateDynamicText(text, language);
+  };
+
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider value={{ language, setLanguage, t, td }}>
       {children}
     </LanguageContext.Provider>
   );
