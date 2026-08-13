@@ -350,7 +350,7 @@ export function AboutPage() {
                     {settings?.author || "Jaloliddin"}
                   </h2>
                   <p className="text-muted-foreground">
-                    {settings?.subtitle || "Ai Engineer & Developer"}
+                    {settings?.subtitle || "AI/ML Student & Python Developer"}
                   </p>
                 </div>
 

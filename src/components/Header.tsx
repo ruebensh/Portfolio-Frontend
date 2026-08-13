@@ -77,7 +77,7 @@ export function Header({ data }: HeaderProps) {
                   {authorName}
                 </span>
                 <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-primary/90 flex items-center gap-1 mt-0.5">
-                  AI Engineer <Sparkles size={10} className="text-yellow-400/80" />
+                  AI/ML Student & Python Developer <Sparkles size={10} className="text-yellow-400/80" />
                 </span>
               </div>
             </Link>
