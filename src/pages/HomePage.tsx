@@ -3,6 +3,8 @@ import { ArrowRight, Sparkles, FileText, Send, Loader2, Bot } from "lucide-react
 import { motion } from "framer-motion";
 import { Link } from "../lib/router";
 import MovingGradientButton from "../components/originkit/ui/moving-gradient-button";
+import { useLanguage } from "../context/LanguageContext";
+import { translateDynamicText } from "../lib/translator";
 
 import { ProfileCard } from "../components/home/ProfileCard";
 import { Skills } from "../components/home/Skills";
@@ -278,23 +280,15 @@ function HomeEntranceReveal() {
 }
 
 export function HomePage() {
+  const { language, t } = useLanguage();
   const [settings, setSettings] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   
-  // AI State'lari
   const [aiInput, setAiInput] = useState("");
-  const [aiResponse, setAiResponse] = useState<string | null>(null);
+  const [aiResponse, setAiResponse] = useState("");
   const [isAiLoading, setIsAiLoading] = useState(false);
 
-  // --- Session ID mantiqi ---
-  const [sessionId] = useState(() => {
-    let sId = localStorage.getItem('ruebensh_session_id');
-    if (!sId) {
-      sId = 'sid_' + Math.random().toString(36).substring(2, 11);
-      localStorage.setItem('ruebensh_session_id', sId);
-    }
-    return sId;
-  });
+  const [sessionId] = useState(() => "session_" + Math.random().toString(36).substring(2, 9) + "_" + Date.now());
 
   const contactSectionRef = useRef<HTMLElement | null>(null);
   const pulseTimer = useRef<number | null>(null);
@@ -304,7 +298,6 @@ export function HomePage() {
     e.preventDefault();
     if (!aiInput.trim() || isAiLoading) return;
     setIsAiLoading(true);
-    // SessionID ni ham yuboramiz
     const response = await sendMessageToAI(aiInput, sessionId);
     setAiResponse(response);
     setIsAiLoading(false);
@@ -333,6 +326,14 @@ export function HomePage() {
     </div>
   );
 
+  const heroTitle = settings?.title 
+    ? translateDynamicText(settings.title, language) 
+    : t("home.defaultTitle");
+
+  const heroDesc = settings?.description 
+    ? translateDynamicText(settings.description, language) 
+    : t("home.defaultDesc");
+
   return (
     <main className="relative min-h-screen bg-[#020202] selection:bg-primary/30 overflow-x-hidden">
       <PageBackground />
@@ -341,24 +342,24 @@ export function HomePage() {
         <div className="relative max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-20 sm:py-28 lg:py-32 text-center">
           <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border/40 bg-background/50 backdrop-blur-sm mb-6">
             <Sparkles size={16} className="text-primary" />
-            <span className="text-sm text-muted-foreground">Xush Kelibsiz & Welcome</span>
+            <span className="text-sm text-muted-foreground">{t("home.badge")}</span>
           </motion.div>
           <motion.h1 initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.75, delay: 0.08, ease: [0.22, 1, 0.36, 1] }} className="text-3xl sm:text-6xl lg:text-7xl font-bold mb-6 premium-title">
-            {settings?.title || "I build smart, scalable digital products"}
+            {heroTitle}
           </motion.h1>
           <motion.p initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.75, delay: 0.16, ease: [0.22, 1, 0.36, 1] }} className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-12">
-            {settings?.description || "Full-stack software engineer specializing in modern web technologies."}
+            {heroDesc}
           </motion.p>
           <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.75, delay: 0.24, ease: [0.22, 1, 0.36, 1] }} className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/projects" className="group px-8 py-4 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-all flex items-center gap-2 shadow-lg shadow-primary/20 shimmer-btn glass-btn">
-              View Projects <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+              {t("home.viewProjects")} <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </Link>
             {settings?.cvUrl ? (
               <a href={`${API_URL}${settings.cvUrl}`} target="_blank" rel="noopener noreferrer" className="px-8 py-4 rounded-xl border border-border/40 bg-background/50 backdrop-blur-sm hover:bg-accent transition-colors flex items-center gap-2 shimmer-btn glass-btn">
-                <FileText size={18} /> Download CV
+                <FileText size={18} /> {t("home.downloadCv")}
               </a>
             ) : (
-              <button type="button" onClick={scrollToContact} className="px-8 py-4 rounded-xl border border-border/40 bg-background/50 backdrop-blur-sm hover:bg-accent transition-colors shimmer-btn glass-btn">Get in Touch</button>
+              <button type="button" onClick={scrollToContact} className="px-8 py-4 rounded-xl border border-border/40 bg-background/50 backdrop-blur-sm hover:bg-accent transition-colors shimmer-btn glass-btn">{t("home.getInTouch")}</button>
             )}
           </motion.div>
           <div className="mt-16 premium-divider" />
@@ -369,7 +370,6 @@ export function HomePage() {
         <Reveal><ProfileCard data={settings} /></Reveal>
       </section>
 
-      {/* --- YANGI AI INTERACTIVE SECTION --- */}
       <section className="py-8 sm:py-12 px-5 sm:px-6">
         <Reveal delay={0.1}>
           <div className="max-w-4xl mx-auto p-6 sm:p-8 rounded-3xl border border-primary/20 bg-primary/5 backdrop-blur-xl relative overflow-hidden group">
@@ -379,10 +379,10 @@ export function HomePage() {
                 <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
                   <div className="flex items-center gap-3">
                     <div className="p-2 bg-primary/20 rounded-lg text-primary"><Bot size={22} /></div>
-                    <h2 className="text-xl sm:text-2xl font-bold premium-title text-white">Ask Ruebensh AI</h2>
+                    <h2 className="text-xl sm:text-2xl font-bold premium-title text-white">{t("ai.title")}</h2>
                   </div>
                   <MovingGradientButton
-                    label="To'liq AI Chat"
+                    label={t("ai.fullChat")}
                     link="/ai-chat"
                     newTab={false}
                     colors={{ fill: "#150e38", hoverFill: "#261a5e", textColor: "#FFFFFF", hoverTextColor: "#38BDF8" }}
@@ -396,18 +396,18 @@ export function HomePage() {
                     font={{ fontSize: 12, fontWeight: 600 }}
                   />
                 </div>
-                <p className="text-muted-foreground mb-5 text-sm">Men va mani loyihalarim yoki tajribam haqida shaxsiy AI yordamchimdan so'rang.</p>
+                <p className="text-muted-foreground mb-5 text-sm">{t("ai.desc")}</p>
                 <form onSubmit={handleAskAI} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                   <input
                     type="text"
                     value={aiInput}
                     onChange={(e) => setAiInput(e.target.value)}
-                    placeholder="Masalan: Ruebensh niki nimani anglatadi?"
+                    placeholder={t("ai.placeholder")}
                     className="flex-1 bg-background/50 border border-border/40 rounded-2xl px-5 py-3.5 focus:ring-2 focus:ring-primary outline-none text-white transition-all text-sm"
                   />
                   <button type="submit" disabled={isAiLoading || !aiInput.trim()} className="disabled:opacity-50 flex-shrink-0">
                     <MovingGradientButton
-                      label={isAiLoading ? "Izlanmoqda..." : "So'rash"}
+                      label={isAiLoading ? t("common.loading") : t("ai.submit")}
                       colors={{ fill: "#4f46e5", hoverFill: "#4338ca", textColor: "#FFFFFF", hoverTextColor: "#FACC15" }}
                       stroke={{ headColor: "#FACC15", color: "#38BDF8", count: 2, speed: 28, trail: 75, movement: "continuous" }}
                       addIcon={true}

@@ -154,10 +154,14 @@ function AppContent() {
   );
 }
 
+import { LanguageProvider } from "./context/LanguageContext";
+
 export default function App() {
   return (
     <Router>
-      <AppContent />
+      <LanguageProvider>
+        <AppContent />
+      </LanguageProvider>
     </Router>
   );
 }

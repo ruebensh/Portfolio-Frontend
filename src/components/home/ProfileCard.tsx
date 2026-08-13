@@ -1,11 +1,14 @@
 import { motion } from "motion/react";
 import { Briefcase, Code, Folder, User } from "lucide-react";
 import NeonBorder from "../originkit/ui/neon-border";
+import { useLanguage } from "../../context/LanguageContext";
+import { translateDynamicText } from "../../lib/translator";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export function ProfileCard({ data }: { data: any }) {
-  
+  const { language, t } = useLanguage();
+
   const avatarSrc = data?.avatarUrl 
     ? (data.avatarUrl.startsWith('http') ? data.avatarUrl : `${API_URL}${data.avatarUrl}`)
     : null;
@@ -13,26 +16,31 @@ export function ProfileCard({ data }: { data: any }) {
   const stats = [
     { 
       icon: Folder, 
-      label: "Projects", 
+      label: t("profile.projects"), 
       value: data?.projectCount || "10+",
       color: "text-blue-400",
       bg: "bg-blue-400/10",
     },
     { 
       icon: Briefcase, 
-      label: "Experience", 
+      label: t("profile.experience"), 
       value: data?.experienceYears || "3+ Years",
       color: "text-purple-400",
       bg: "bg-purple-400/10",
     },
     { 
       icon: Code, 
-      label: "Main Stack", 
+      label: t("profile.mainStack"), 
       value: data?.mainStack || "Next.js / NestJS",
       color: "text-emerald-400",
       bg: "bg-emerald-400/10",
     },
   ];
+
+  const profileAuthor = data?.author || t("profile.defaultTitle");
+  const profileDesc = data?.description 
+    ? translateDynamicText(data.description, language)
+    : t("profile.defaultDesc");
 
   return (
     <section className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20">
@@ -54,7 +62,7 @@ export function ProfileCard({ data }: { data: any }) {
               {avatarSrc ? (
                 <img
                   src={avatarSrc}
-                  alt={data?.author || "Jaloliddin"}
+                  alt={profileAuthor}
                   className="relative w-36 h-36 sm:w-44 sm:h-44 lg:w-48 lg:h-48 rounded-2xl object-cover border-4 border-background shadow-xl"
                 />
               ) : (
@@ -71,10 +79,10 @@ export function ProfileCard({ data }: { data: any }) {
           {/* Info */}
           <div className="flex-1 text-center lg:text-left w-full">
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 text-white">
-              {data?.author || "Jaloliddin"}
+              {profileAuthor}
             </h2>
             <p className="text-muted-foreground text-base sm:text-lg mb-8">
-              {data?.description || "Senior Full-Stack Engineer & AI Specialist"}
+              {profileDesc}
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-white">

@@ -1,8 +1,10 @@
 import { Link, useRouter } from "../lib/router";
-import { Menu, X, LayoutDashboard, Sparkles, FileText, Bot, BookOpen, Rss } from "lucide-react"; // Rss yoki BookOpen qo'shdik
+import { Menu, X, LayoutDashboard, Sparkles, FileText, Bot, BookOpen, Rss, Globe } from "lucide-react";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import MovingGradientButton from "./originkit/ui/moving-gradient-button";
+import { useLanguage } from "../context/LanguageContext";
+import { Language } from "../lib/i18n";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -12,6 +14,7 @@ interface HeaderProps {
 
 export function Header({ data }: HeaderProps) {
   const { currentPath } = useRouter();
+  const { language, setLanguage, t } = useLanguage();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -19,14 +22,19 @@ export function Header({ data }: HeaderProps) {
   const avatarSrc = data?.avatarUrl ? `${API_URL}${data.avatarUrl}` : null;
 
   const navLinks = [
-    { name: "Home", path: "/" },
-    { name: "Projects", path: "/projects" },
-    { name: "Certificates", path: "/certificates" },
-    { name: "Resume", path: "/resume" },
-    { name: "Rubensh AI", path: "/ai-chat", icon: <Sparkles size={14} className="text-yellow-400" /> },
-    // YANGI BLOG (TELEGRAM CHANNEL) LINKI
-    { name: "Blog", path: "/blog", icon: <Rss size={14} className="text-blue-400" /> },
-    { name: "About", path: "/about" },
+    { name: t("nav.home"), path: "/" },
+    { name: t("nav.projects"), path: "/projects" },
+    { name: t("nav.certificates"), path: "/certificates" },
+    { name: t("nav.resume"), path: "/resume" },
+    { name: t("nav.aiChat"), path: "/ai-chat", icon: <Sparkles size={14} className="text-yellow-400" /> },
+    { name: t("nav.blog"), path: "/blog", icon: <Rss size={14} className="text-blue-400" /> },
+    { name: t("nav.about"), path: "/about" },
+  ];
+
+  const languages: { code: Language; label: string }[] = [
+    { code: "uz", label: "UZ" },
+    { code: "en", label: "EN" },
+    { code: "ru", label: "RU" },
   ];
 
   const isActive = (path: string) => {
@@ -86,7 +94,7 @@ export function Header({ data }: HeaderProps) {
             {/* AI Online Indicator */}
             <div className="hidden lg:flex items-center">
               <MovingGradientButton
-                label="Ask AI"
+                label={t("nav.askAi")}
                 link="/ai-chat"
                 newTab={false}
                 colors={{ fill: "#0e0926", hoverFill: "#1b1145", textColor: "#FFFFFF", hoverTextColor: "#FACC15" }}
@@ -120,6 +128,23 @@ export function Header({ data }: HeaderProps) {
           </nav>
 
           <div className="flex items-center gap-2 flex-shrink-0">
+            {/* Desktop & Mobile Language Selector */}
+            <div className="flex items-center bg-white/5 border border-white/10 p-1 rounded-full backdrop-blur-md">
+              {languages.map((l) => (
+                <button
+                  key={l.code}
+                  onClick={() => setLanguage(l.code)}
+                  className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition-all ${
+                    language === l.code
+                      ? "bg-primary text-primary-foreground shadow-[0_0_12px_rgba(var(--primary),0.5)]"
+                      : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                  }`}
+                >
+                  {l.label}
+                </button>
+              ))}
+            </div>
+
             <button
               className="md:hidden p-2.5 rounded-xl border border-white/10 bg-white/5 text-foreground"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -156,7 +181,27 @@ export function Header({ data }: HeaderProps) {
               
               <hr className="my-2 border-white/5" />
               
-
+              {/* Language Selector in Mobile Drawer */}
+              <div className="flex items-center justify-between px-2 py-1">
+                <span className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                  <Globe size={16} /> Language / Til:
+                </span>
+                <div className="flex items-center gap-1 bg-white/5 border border-white/10 p-1 rounded-full">
+                  {languages.map((l) => (
+                    <button
+                      key={l.code}
+                      onClick={() => setLanguage(l.code)}
+                      className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
+                        language === l.code
+                          ? "bg-primary text-primary-foreground"
+                          : "text-muted-foreground"
+                      }`}
+                    >
+                      {l.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </nav>
           </motion.div>
         )}

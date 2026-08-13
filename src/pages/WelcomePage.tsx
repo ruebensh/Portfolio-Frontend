@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { ArrowRight } from "lucide-react";
 import NeonBorder from "../components/originkit/ui/neon-border";
+import { useLanguage } from "../context/LanguageContext";
 
 interface WelcomePageProps {
   onEnter: () => void;
@@ -9,12 +10,12 @@ interface WelcomePageProps {
 export function WelcomePage({ onEnter }: WelcomePageProps) {
   const [isEntering, setIsEntering] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const { t } = useLanguage();
 
   const handleEnter = () => {
     if (isEntering) return;
     setIsEntering(true);
 
-    // 2 soniyalik silliq qorong'ulashtirish (fade to black) effekti tugagach onEnter chaqiriladi
     setTimeout(() => {
       onEnter();
     }, 2000);
@@ -84,7 +85,7 @@ export function WelcomePage({ onEnter }: WelcomePageProps) {
             {/* Shimmer yorug'lik chizig'i effekti */}
             <span className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-300/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none" />
 
-            <span className="relative z-10 text-shadow-sm drop-shadow-[0_0_10px_rgba(255,215,0,0.6)]">ENTER PORTFOLIO</span>
+            <span className="relative z-10 text-shadow-sm drop-shadow-[0_0_10px_rgba(255,215,0,0.6)]">{t("welcome.enter")}</span>
 
             {/* Strelkali frosted badge */}
             <span className="relative z-10 w-7 h-7 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full bg-amber-500/20 border border-amber-400/50 flex items-center justify-center group-hover:bg-amber-400 group-hover:text-black group-hover:rotate-[-45deg] transition-all duration-500 shadow-[0_0_15px_rgba(255,215,0,0.4)]">

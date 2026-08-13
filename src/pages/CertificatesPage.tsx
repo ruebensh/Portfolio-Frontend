@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, ExternalLink, Award, Calendar, Building2, X } from "lucide-react";
 import NeonGlowButton from "../components/originkit/ui/neon-glow-button";
 import NeonBorder from "../components/originkit/ui/neon-border";
+import { useLanguage } from "../context/LanguageContext";
+import { translateDynamicText } from "../lib/translator";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -202,6 +204,7 @@ const item = {
 };
 
 export function CertificatesPage() {
+  const { language, t } = useLanguage();
   const [certs, setCerts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCert, setSelectedCert] = useState<any | null>(null);
@@ -225,7 +228,7 @@ export function CertificatesPage() {
         <SoftCertificatesBackground />
         <div className="pp-glass rounded-2xl px-8 py-6 flex items-center gap-3">
           <Loader2 className="animate-spin text-primary" size={22} />
-          <span className="text-sm text-muted-foreground">Yuklanmoqda...</span>
+          <span className="text-sm text-muted-foreground">{t("common.loading")}</span>
         </div>
       </div>
     );
@@ -251,16 +254,16 @@ export function CertificatesPage() {
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 mb-6">
               <span className="w-2 h-2 rounded-full bg-primary shadow-[0_0_18px_rgba(99,102,241,.55)]" />
               <span className="text-xs md:text-sm text-muted-foreground">
-                Verified Achievements: {certs.length}
+                {t("certificates.verified")}: {certs.length}
               </span>
             </div>
 
             <h1 className="text-4xl lg:text-7xl font-extrabold tracking-tight mb-6 pp-title">
-              Certificates
+              {t("certificates.title")}
             </h1>
 
             <p className="text-muted-foreground text-lg max-w-2xl leading-relaxed">
-              Mening o'qib-o'rganishlarim, kurslar va professional faoliyatim davomida qo'lga kiritgan maxsus yutuqlarim to'plami.
+              {t("certificates.subtitle")}
             </p>
           </div>
         </motion.div>
@@ -279,6 +282,9 @@ export function CertificatesPage() {
                 ? cert.fileUrl 
                 : `${API_URL}${cert.fileUrl}`;
 
+              const certTitleTranslated = translateDynamicText(cert.title, language);
+              const certIssuerTranslated = translateDynamicText(cert.issuer, language);
+
               return (
                 <motion.div
                   key={cert.id || index}
@@ -290,7 +296,7 @@ export function CertificatesPage() {
                 >
                   <NeonBorder color="#00f0ff" rounded={32} thickness={2} borderSize={40} glow={75} speed={12} className="h-full">
                     <div 
-                      onClick={() => setSelectedCert({ ...cert, fileUrl, isPdf })}
+                      onClick={() => setSelectedCert({ ...cert, title: certTitleTranslated, issuer: certIssuerTranslated, fileUrl, isPdf })}
                       className="group h-full pp-glass rounded-[2.5rem] overflow-hidden flex flex-col cursor-pointer border border-cyan-500/20"
                     >
                       
@@ -306,7 +312,7 @@ export function CertificatesPage() {
                         ) : (
                           <img
                             src={fileUrl}
-                            alt={cert.title}
+                            alt={certTitleTranslated}
                             className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                             loading="lazy"
                             onError={(e) => {
@@ -330,7 +336,7 @@ export function CertificatesPage() {
                       {/* Content Section */}
                       <div className="p-8 flex-1 flex flex-col">
                         <h3 className="text-xl font-bold mb-4 line-clamp-2 text-white group-hover:text-primary transition-colors">
-                          {cert.title}
+                          {certTitleTranslated}
                         </h3>
 
                         <div className="space-y-3 mb-8">
@@ -338,7 +344,7 @@ export function CertificatesPage() {
                             <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/5">
                               <Building2 size={14} className="text-primary" />
                             </div>
-                            <span className="text-sm font-medium">{cert.issuer}</span>
+                            <span className="text-sm font-medium">{certIssuerTranslated}</span>
                           </div>
                         </div>
 
@@ -347,7 +353,7 @@ export function CertificatesPage() {
                             type="button"
                             className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-primary hover:border-primary text-white transition-all duration-300 font-bold group/btn"
                           >
-                            {isPdf ? "Open Document" : "Full Preview"}
+                            {isPdf ? t("certificates.openDoc") : t("certificates.fullPreview")}
                             <ExternalLink size={16} className="group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
                           </button>
                         </div>
@@ -414,7 +420,7 @@ export function CertificatesPage() {
                 {/* Footer */}
                 <div className="p-4 border-t border-white/10 flex justify-end items-center gap-4 bg-black/40 backdrop-blur-xl">
                   <NeonGlowButton
-                    label="To'liq ko'rish"
+                    label={t("certificates.fullPreview")}
                     link={selectedCert.fileUrl}
                     newTab={true}
                     colors={{ fill: "#09090b", hoverFill: "#18181b", textColor: "#FFFFFF", hoverTextColor: "#00FFEE" }}
@@ -445,10 +451,10 @@ export function CertificatesPage() {
                 <Award size={40} className="text-muted-foreground/30" />
               </div>
               <p className="text-muted-foreground text-xl font-medium">
-                Hozircha sertifikatlar yuklanmagan.
+                {t("certificates.empty")}
               </p>
               <p className="text-muted-foreground/60 text-sm mt-3">
-                Tez orada yangi yutuqlar shu yerda paydo bo'ladi! ✨
+                {t("certificates.emptySub")}
               </p>
             </div>
           </motion.div>

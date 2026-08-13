@@ -4,6 +4,8 @@ import { Link } from "../lib/router";
 import { ArrowRight, Loader2 } from "lucide-react";
 import NeonBorder from "../components/originkit/ui/neon-border";
 import NeonGlowButton from "../components/originkit/ui/neon-glow-button";
+import { useLanguage } from "../context/LanguageContext";
+import { translateDynamicText } from "../lib/translator";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -233,6 +235,7 @@ const getStatusClass = (status: string) => {
 };
 
 export function ProjectsPage() {
+  const { language, t } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -267,7 +270,7 @@ export function ProjectsPage() {
         <SoftProjectsBackground />
         <div className="pp-glass rounded-2xl px-8 py-6 flex items-center gap-3">
           <Loader2 className="animate-spin text-primary" size={22} />
-          <span className="text-sm text-muted-foreground">Yuklanmoqda...</span>
+          <span className="text-sm text-muted-foreground">{t("projects.loading")}</span>
         </div>
       </div>
     );
@@ -278,7 +281,7 @@ export function ProjectsPage() {
       <SoftProjectsBackground />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {}
+        {/* Header Section */}
         <motion.div
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
@@ -289,22 +292,23 @@ export function ProjectsPage() {
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 mb-6">
               <span className="w-2 h-2 rounded-full bg-primary shadow-[0_0_18px_rgba(99,102,241,.55)]" />
               <span className="text-xs md:text-sm text-muted-foreground">
-                Explore {projects.length} projects
+                {projects.length} {t("projects.explore")}
               </span>
             </div>
 
             <h1 className="text-3xl sm:text-4xl lg:text-6xl font-extrabold tracking-tight mb-4 pp-title">
-              All Projects
+              {t("projects.title")}
             </h1>
 
             <p className="text-muted-foreground text-lg max-w-3xl">
-              Proyektlar bilan tanishib chiqishingiz mumkin
+              {t("projects.subtitle")}
             </p>
 
-            {}
+            {/* Filter Category Chips */}
             <div className="mt-8 flex gap-2 overflow-x-auto pb-2">
               {categories.map((cat) => {
                 const active = selectedCategory === cat;
+                const catDisplay = cat === "All" ? t("projects.catAll") : translateDynamicText(cat, language);
                 return (
                   <button
                     key={cat}
@@ -316,7 +320,7 @@ export function ProjectsPage() {
                           : "bg-white/5 hover:bg-white/10 border-white/10 text-muted-foreground hover:text-foreground"
                       }`}
                   >
-                    {cat}
+                    {catDisplay}
                     {active && (
                       <motion.span
                         layoutId="activeChip"
@@ -331,7 +335,7 @@ export function ProjectsPage() {
           </div>
         </motion.div>
 
-        {}
+        {/* Projects Grid */}
         <motion.div
           variants={container}
           initial="hidden"
@@ -346,6 +350,10 @@ export function ProjectsPage() {
                   : `${API_URL}${project.imageUrl}`
                 : projectImages[index % projectImages.length];
 
+              const titleTranslated = translateDynamicText(project.title, language);
+              const descTranslated = translateDynamicText(project.description, language);
+              const statusTranslated = translateDynamicText(project.status || "Live", language);
+
               return (
                 <motion.div
                   key={project.id || `${project.title}-${index}`}
@@ -358,11 +366,11 @@ export function ProjectsPage() {
                   <NeonBorder color="#00f0ff" rounded={24} thickness={2} borderSize={40} glow={75} speed={12} className="h-full">
                     <Link href={`/project/${project.id}`}>
                       <div className="group h-full pp-glass rounded-3xl overflow-hidden shadow-[0_18px_80px_rgba(0,0,0,.40)] border border-cyan-500/20">
-                        {}
+                        {/* Image Preview */}
                         <div className="relative aspect-video overflow-hidden">
                           <img
                             src={img}
-                            alt={project.title}
+                            alt={titleTranslated}
                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                             loading="lazy"
                             onError={(e) => {
@@ -372,14 +380,14 @@ export function ProjectsPage() {
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
 
-                          {}
+                          {/* Status Badge */}
                           <div className="absolute top-4 right-4">
                             <div
                               className={`px-3 py-1 rounded-full text-xs font-medium border backdrop-blur-md ${getStatusClass(
                                 project.status || "Live"
                               )}`}
                             >
-                              {project.status || "Live"}
+                              {statusTranslated}
                             </div>
                           </div>
                         </div>
@@ -387,20 +395,20 @@ export function ProjectsPage() {
                         {/* Card Body */}
                         <div className="p-6">
                           <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
-                            {project.title}
+                            {titleTranslated}
                           </h3>
 
                           <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
-                            {project.description}
+                            {descTranslated}
                           </p>
 
-                          {/* Desktop footer — unchanged */}
+                          {/* Desktop footer */}
                           <div className="hidden sm:flex pt-4 border-t border-white/10 items-center justify-between">
                             <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">
-                              View Details
+                              {t("projects.viewDetails")}
                             </span>
                             <span className="inline-flex items-center gap-2 text-sm text-muted-foreground group-hover:text-primary transition-colors">
-                              Open
+                              {t("projects.open")}
                               <ArrowRight
                                 size={14}
                                 className="group-hover:translate-x-1 transition-transform"
@@ -411,7 +419,7 @@ export function ProjectsPage() {
                           {/* Mobile-only NeonGlowButton */}
                           <div className="sm:hidden pt-4 border-t border-white/10 flex justify-center">
                             <NeonGlowButton
-                              label="Open"
+                              label={t("projects.open")}
                               colors={{ fill: "#09090b", hoverFill: "#18181b", textColor: "#FFFFFF", hoverTextColor: "#00FFEE" }}
                               glow={{ color: "#00FFEE", size: 5, blur: 5 }}
                               border={{ borderWidth: 1, borderColor: "rgba(0,255,238,0.45)" }}
@@ -442,10 +450,10 @@ export function ProjectsPage() {
           >
             <div className="pp-glass rounded-3xl p-10 inline-block">
               <p className="text-muted-foreground text-lg">
-                Bu kategoriyada hozircha loyiha yo‘q.
+                {t("projects.empty")}
               </p>
               <p className="text-muted-foreground text-sm mt-2">
-                Balki boshqa kategoriya tanlaymiz? 😄
+                {t("projects.emptySub")}
               </p>
             </div>
           </motion.div>

@@ -1,6 +1,7 @@
 import { Github, Linkedin, Send, Instagram, Mail, Heart } from "lucide-react";
 import { Link } from "../lib/router";
 import { useRef } from "react";
+import { useLanguage } from "../context/LanguageContext";
 
 interface FooterProps {
   data?: any;
@@ -10,6 +11,7 @@ export function Footer({ data }: FooterProps) {
   const currentYear = new Date().getFullYear();
   const clickCount = useRef(0);
   const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { t } = useLanguage();
 
   const handleSecretClick = () => {
     clickCount.current += 1;
@@ -85,41 +87,23 @@ export function Footer({ data }: FooterProps) {
 
         {/* Quick Nav Links */}
         <nav className="flex flex-wrap justify-center gap-x-8 gap-y-3 mb-10">
-          <Link
-            href="/"
-            className="text-sm font-medium text-white/70 hover:text-white transition-colors"
-          >
-            Home
+          <Link href="/" className="text-sm font-medium text-white/70 hover:text-white transition-colors">
+            {t("nav.home")}
           </Link>
-          <Link
-            href="/projects"
-            className="text-sm font-medium text-white/70 hover:text-white transition-colors"
-          >
-            Projects
+          <Link href="/projects" className="text-sm font-medium text-white/70 hover:text-white transition-colors">
+            {t("nav.projects")}
           </Link>
-          <Link
-            href="/certificates"
-            className="text-sm font-medium text-white/70 hover:text-white transition-colors"
-          >
-            Certificates
+          <Link href="/certificates" className="text-sm font-medium text-white/70 hover:text-white transition-colors">
+            {t("nav.certificates")}
           </Link>
-          <Link
-            href="/about"
-            className="text-sm font-medium text-white/70 hover:text-white transition-colors"
-          >
-            About Me
+          <Link href="/about" className="text-sm font-medium text-white/70 hover:text-white transition-colors">
+            {t("nav.about")}
           </Link>
-          <Link
-            href="/blog"
-            className="text-sm font-medium text-white/70 hover:text-white transition-colors"
-          >
-            Blog
+          <Link href="/blog" className="text-sm font-medium text-white/70 hover:text-white transition-colors">
+            {t("nav.blog")}
           </Link>
-          <Link
-            href="/resume"
-            className="text-sm font-medium text-white/70 hover:text-white transition-colors"
-          >
-            Resume
+          <Link href="/resume" className="text-sm font-medium text-white/70 hover:text-white transition-colors">
+            {t("nav.resume")}
           </Link>
         </nav>
 
@@ -141,12 +125,12 @@ export function Footer({ data }: FooterProps) {
 
         {/* Copyright & Tech Stack */}
         <div className="w-full pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-white/50 text-xs">
-          <p>© {currentYear} {authorName}. All rights reserved.</p>
+          <p>© {currentYear} {authorName}. {t("footer.rights")}</p>
 
           <div className="flex items-center gap-1.5 font-medium">
-            <span>Built with</span>
+            <span>{t("footer.builtWith")}</span>
             <Heart size={13} className="text-red-400 fill-red-400 animate-pulse" />
-            <span>using React, NextJS &amp; TypeScript</span>
+            <span>React, NextJS &amp; TypeScript</span>
           </div>
         </div>
       </div>
