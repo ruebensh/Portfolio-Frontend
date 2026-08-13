@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "../lib/router";
 import { ArrowRight, Loader2 } from "lucide-react";
 import NeonBorder from "../components/originkit/ui/neon-border";
+import NeonGlowButton from "../components/originkit/ui/neon-glow-button";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
