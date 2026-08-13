@@ -287,7 +287,7 @@ export default function NeonBorder(props: Props) {
     const amount = Math.max(0, Math.min(100, glow)) / 100;
 
     const ringAt = (share: number) => thick + amount * MAX_GLOW_REACH * share;
-    const glowOuter = Math.min(12, 6 + amount * 6);
+    const glowOuter = 10 + MAX_GLOW_REACH + MAX_GLOW_BLUR * 2;
 
     const band = (r: number, offset = 0) => (
         <div
@@ -319,8 +319,8 @@ export default function NeonBorder(props: Props) {
                 borderRadius: radius > 0 ? radius + glowOuter : 0,
                 opacity,
                 mixBlendMode: "plus-lighter",
-                filter: blurPx ? `blur(${Math.min(16, blurPx).toFixed(1)}px)` : "none",
-                WebkitFilter: blurPx ? `blur(${Math.min(16, blurPx).toFixed(1)}px)` : "none",
+                filter: blurPx ? `blur(${blurPx.toFixed(1)}px)` : "none",
+                WebkitFilter: blurPx ? `blur(${blurPx.toFixed(1)}px)` : "none",
                 ...BAND_MASK,
             }}
         >
@@ -335,9 +335,8 @@ export default function NeonBorder(props: Props) {
                 {
                     position: "absolute",
                     inset: 0,
-                    overflow: "hidden",
+                    overflow: "visible",
                     pointerEvents: "none",
-                    borderRadius: radius,
                     "--arc": buildArc(start, borderSize, size.w, size.h, color),
                 } as React.CSSProperties
             }
@@ -369,8 +368,7 @@ export default function NeonBorder(props: Props) {
                 position: "relative",
                 width: "100%",
                 height: "100%",
-                maxWidth: "100%",
-                boxSizing: "border-box",
+                flexShrink: 0,
                 borderRadius: radius,
                 ...style,
             }}

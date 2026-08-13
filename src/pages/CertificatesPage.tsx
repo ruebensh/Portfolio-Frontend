@@ -288,18 +288,18 @@ export function CertificatesPage() {
                   transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                   className="h-full"
                 >
-                  <NeonBorder color="#00f0ff" rounded={28} thickness={2} borderSize={40} glow={75} speed={12} className="h-full">
+                  <NeonBorder color="#00f0ff" rounded={32} thickness={2} borderSize={40} glow={75} speed={12} className="h-full">
                     <div 
                       onClick={() => setSelectedCert({ ...cert, fileUrl, isPdf })}
-                      className="group h-full pp-glass rounded-3xl sm:rounded-[2.5rem] overflow-hidden flex flex-col cursor-pointer border border-cyan-500/20"
+                      className="group h-full pp-glass rounded-[2.5rem] overflow-hidden flex flex-col cursor-pointer border border-cyan-500/20"
                     >
                       
                       {/* Media Preview */}
                       <div className="relative aspect-[4/3] overflow-hidden bg-zinc-900">
                         {isPdf ? (
-                          <div className="w-full h-full flex flex-col items-center justify-center p-6 sm:p-8 bg-gradient-to-br from-zinc-800 to-black">
-                            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-red-500/10 flex items-center justify-center mb-3 sm:mb-4 border border-red-500/20 group-hover:scale-110 transition-transform duration-500">
-                              <span className="text-red-500 font-black text-xl sm:text-2xl">PDF</span>
+                          <div className="w-full h-full flex flex-col items-center justify-center p-8 bg-gradient-to-br from-zinc-800 to-black">
+                            <div className="w-20 h-20 rounded-2xl bg-red-500/10 flex items-center justify-center mb-4 border border-red-500/20 group-hover:scale-110 transition-transform duration-500">
+                              <span className="text-red-500 font-black text-2xl">PDF</span>
                             </div>
                             <span className="text-xs text-zinc-500 font-medium tracking-widest uppercase">Document</span>
                           </div>
@@ -317,10 +317,10 @@ export function CertificatesPage() {
                         )}
                         
                         {/* Date Overlay */}
-                        <div className="absolute top-3 left-3 sm:top-4 sm:left-4">
-                          <div className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl sm:rounded-2xl bg-black/50 backdrop-blur-md border border-white/10 flex items-center gap-1.5 sm:gap-2">
-                            <Calendar size={13} className="text-primary" />
-                            <span className="text-[11px] sm:text-xs font-bold text-white/90">{cert.date}</span>
+                        <div className="absolute top-4 left-4">
+                          <div className="px-4 py-2 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center gap-2">
+                            <Calendar size={14} className="text-primary" />
+                            <span className="text-xs font-bold text-white/90">{cert.date}</span>
                           </div>
                         </div>
 
@@ -328,8 +328,8 @@ export function CertificatesPage() {
                       </div>
 
                       {/* Content Section */}
-                      <div className="p-5 sm:p-8 flex-1 flex flex-col">
-                        <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 line-clamp-2 text-white group-hover:text-primary transition-colors">
+                      <div className="p-8 flex-1 flex flex-col">
+                        <h3 className="text-xl font-bold mb-4 line-clamp-2 text-white group-hover:text-primary transition-colors">
                           {cert.title}
                         </h3>
 
@@ -343,19 +343,13 @@ export function CertificatesPage() {
                         </div>
 
                         <div className="mt-auto">
-                          <NeonGlowButton
-                            label={isPdf ? "Open Document" : "Full Preview"}
-                            colors={{ fill: "rgba(255,255,255,0.06)", hoverFill: "#120A1F", textColor: "#FFFFFF", hoverTextColor: "#00FFEE" }}
-                            glow={{ color: "#00FFEE", size: 6, blur: 6 }}
-                            border={{ borderWidth: 1, borderColor: "rgba(0,255,238,0.3)" }}
-                            addIcon={true}
-                            icon={{ symbol: "↗", size: 14, color: "#00FFEE" }}
-                            rounded={20}
-                            padding="12px 24px"
-                            gap={8}
-                            font={{ fontSize: 13, fontWeight: 700 }}
-                            style={{ width: "100%", justifyContent: "center" }}
-                          />
+                          <button
+                            type="button"
+                            className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-primary hover:border-primary text-white transition-all duration-300 font-bold group/btn"
+                          >
+                            {isPdf ? "Open Document" : "Full Preview"}
+                            <ExternalLink size={16} className="group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
+                          </button>
                         </div>
                       </div>
                     </div>

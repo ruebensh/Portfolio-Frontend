@@ -177,8 +177,6 @@ type Props = {
     transition?: Transition;
     newTab?: boolean;
     style?: React.CSSProperties;
-    className?: string;
-    children?: React.ReactNode;
 };
 
 export default function NeonGlowButton(props: Props) {
@@ -231,8 +229,6 @@ export default function NeonGlowButton(props: Props) {
         transition = DEFAULT_TRANSITION,
         newTab = false,
         style,
-        className,
-        children,
     } = props;
 
     const fill = colors?.fill ?? fillProp ?? "#010201";
@@ -279,8 +275,8 @@ export default function NeonGlowButton(props: Props) {
     const g1 = parseColor(glowColor, { r: 122, g: 47, b: 214, a: 1 });
     const g2 = shade(g1, 0.35);
 
-    const spread = Math.min(6, Math.max(0, Math.floor(glowSize)));
-    const blurUnit = Math.min(8, Math.max(0, Math.floor(glowBlur)));
+    const spread = Math.max(0, Math.floor(glowSize));
+    const blurUnit = Math.max(0, Math.floor(glowBlur));
 
     const rings: Ring[] = useMemo(() => {
         const g1Fade = css(g1, 0);
@@ -500,11 +496,9 @@ export default function NeonGlowButton(props: Props) {
     return (
         <div
             ref={scope}
-            className={className}
             style={{
                 minWidth: 80,
-                maxWidth: "100%",
-                minHeight: 36,
+                minHeight: 40,
                 position: "relative",
                 display: "inline-flex",
                 boxSizing: "border-box",
@@ -638,7 +632,7 @@ export default function NeonGlowButton(props: Props) {
                             {iconSymbol}
                         </span>
                     ))}
-                {children ? children : (showText && <span ref={labelRef}>{label}</span>)}
+                {showText && <span ref={labelRef}>{label}</span>}
             </Tag>
         </div>
     );
