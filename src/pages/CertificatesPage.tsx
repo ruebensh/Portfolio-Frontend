@@ -232,7 +232,7 @@ export function CertificatesPage() {
   }
 
   return (
-    <div className="min-h-screen pt-24 pb-20 bg-[#020202] text-foreground relative overflow-hidden">
+    <div className="min-h-screen pt-24 pb-20 bg-[#020202] text-foreground relative overflow-x-hidden">
       <SoftCertificatesBackground />
 
       <div className="max-w-7xl mx-auto px-6 lg:px-8">

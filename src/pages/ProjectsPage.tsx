@@ -274,7 +274,7 @@ export function ProjectsPage() {
   }
 
   return (
-    <div className="min-h-screen pt-24 pb-20 bg-[#020202] text-foreground relative">
+    <div className="min-h-screen pt-24 pb-20 bg-[#020202] text-foreground relative overflow-x-hidden">
       <SoftProjectsBackground />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

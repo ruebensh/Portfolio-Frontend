@@ -317,10 +317,10 @@ export default function NeonBorder(props: Props) {
                 boxSizing: "border-box",
                 padding: glowOuter,
                 borderRadius: radius > 0 ? radius + glowOuter : 0,
-                opacity,
-                mixBlendMode: "plus-lighter",
+                opacity: opacity * 2.2,
                 filter: blurPx ? `blur(${blurPx.toFixed(1)}px)` : "none",
                 WebkitFilter: blurPx ? `blur(${blurPx.toFixed(1)}px)` : "none",
+                pointerEvents: "none",
                 ...BAND_MASK,
             }}
         >
@@ -337,6 +337,7 @@ export default function NeonBorder(props: Props) {
                     inset: 0,
                     overflow: "visible",
                     pointerEvents: "none",
+                    zIndex: 20,
                     "--arc": buildArc(start, borderSize, size.w, size.h, color),
                 } as React.CSSProperties
             }
@@ -345,13 +346,13 @@ export default function NeonBorder(props: Props) {
                 GLOW_LAYERS.map((l, i) =>
                     glowLayer(`glow-${i}`, ringAt(l.reach), l.blur, l.opacity)
                 )}
-            {Array.from({ length: EDGE_COPIES }).map((_, i) => (
+            {Array.from({ length: 3 }).map((_, i) => (
                 <div
                     key={`edge-${i}`}
                     style={{
                         position: "absolute",
                         inset: 0,
-                        mixBlendMode: "plus-lighter",
+                        pointerEvents: "none",
                     }}
                 >
                     {band(thick)}
@@ -369,7 +370,6 @@ export default function NeonBorder(props: Props) {
                 width: "100%",
                 height: "100%",
                 borderRadius: radius,
-                overflow: "clip",
                 ...style,
             }}
         >
