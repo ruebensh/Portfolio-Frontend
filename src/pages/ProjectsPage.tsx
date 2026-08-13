@@ -383,7 +383,7 @@ export function ProjectsPage() {
                           </div>
                         </div>
 
-                        {}
+                        {/* Card Body */}
                         <div className="p-6">
                           <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
                             {project.title}
@@ -393,7 +393,8 @@ export function ProjectsPage() {
                             {project.description}
                           </p>
 
-                          <div className="pt-4 border-t border-white/10 flex items-center justify-between">
+                          {/* Desktop footer — unchanged */}
+                          <div className="hidden sm:flex pt-4 border-t border-white/10 items-center justify-between">
                             <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">
                               View Details
                             </span>
@@ -404,6 +405,23 @@ export function ProjectsPage() {
                                 className="group-hover:translate-x-1 transition-transform"
                               />
                             </span>
+                          </div>
+
+                          {/* Mobile-only NeonGlowButton */}
+                          <div className="sm:hidden pt-4 border-t border-white/10 flex justify-center">
+                            <NeonGlowButton
+                              label="Open"
+                              colors={{ fill: "#09090b", hoverFill: "#18181b", textColor: "#FFFFFF", hoverTextColor: "#00FFEE" }}
+                              glow={{ color: "#00FFEE", size: 5, blur: 5 }}
+                              border={{ borderWidth: 1, borderColor: "rgba(0,255,238,0.45)" }}
+                              addIcon={true}
+                              icon={{ symbol: "→", size: 14, color: "#00FFEE", side: "right" }}
+                              rounded={50}
+                              padding="8px 20px"
+                              gap={6}
+                              font={{ fontSize: 13, fontWeight: 600 }}
+                              style={{ width: "100%", justifyContent: "center" }}
+                            />
                           </div>
                         </div>
                       </div>
