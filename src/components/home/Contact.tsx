@@ -13,6 +13,7 @@ import {
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
+import NeonBorder from "../originkit/ui/neon-border";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -265,26 +266,28 @@ export function Contact({ data }: ContactProps) {
               />
             </div>
 
-            <Button
-              type="submit"
-              size="lg"
-              className="w-full h-12 text-md font-semibold transition-all active:scale-[0.98]"
-              disabled={isSubmitting || submitted}
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 animate-spin" /> Yuborilmoqda...
-                </>
-              ) : submitted ? (
-                <>
-                  <CheckCircle className="mr-2" /> Xabar yuborildi!
-                </>
-              ) : (
-                <>
-                  <Send className="mr-2" /> Xabar yuborish
-                </>
-              )}
-            </Button>
+            <NeonBorder color="#FFD700" rounded={12} thickness={2} borderSize={35} glow={70} speed={12}>
+              <Button
+                type="submit"
+                size="lg"
+                className="w-full h-12 text-md font-bold bg-amber-400 hover:bg-amber-300 text-black shadow-[0_0_20px_rgba(255,215,0,0.35)] transition-all active:scale-[0.98]"
+                disabled={isSubmitting || submitted}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 animate-spin" /> Yuborilmoqda...
+                  </>
+                ) : submitted ? (
+                  <>
+                    <CheckCircle className="mr-2 text-black" /> Xabar yuborildi!
+                  </>
+                ) : (
+                  <>
+                    <Send className="mr-2" /> Xabar yuborish
+                  </>
+                )}
+              </Button>
+            </NeonBorder>
           </form>
         </motion.div>
       </div>

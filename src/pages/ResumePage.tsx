@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "../lib/router";
+import NeonBorder from "../components/originkit/ui/neon-border";
 
 type ViewMode = "cv" | "portfolio";
 
@@ -93,28 +94,34 @@ export function ResumePage() {
             <span className="sm:hidden">Orqaga</span>
           </Link>
 
-          <div className="mx-auto flex w-fit items-center rounded-2xl border border-white/10 bg-black/40 p-1">
-            <button onClick={() => setMode("cv")} className={`flex min-w-[120px] items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-xs font-semibold transition ${mode === "cv" ? "bg-white text-black" : "text-white/50 hover:text-white"}`}>
-              <FileText size={15} /> Resume
-            </button>
-            <button onClick={() => setMode("portfolio")} className={`flex min-w-[120px] items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-xs font-semibold transition ${mode === "portfolio" ? "bg-cyan-400 text-black" : "text-white/50 hover:text-white"}`}>
-              <Presentation size={15} /> Portfolio
-            </button>
+          <div className="mx-auto flex w-fit items-center">
+            <NeonBorder color="#FFD700" rounded={16} thickness={2} borderSize={35} glow={70} speed={12}>
+              <div className="flex items-center rounded-2xl border border-amber-400/40 bg-black/70 p-1 backdrop-blur-xl">
+                <button onClick={() => setMode("cv")} className={`flex min-w-[110px] sm:min-w-[120px] items-center justify-center gap-2 rounded-xl px-4 sm:px-5 py-2.5 text-xs font-semibold transition ${mode === "cv" ? "bg-amber-400 text-black shadow-[0_0_15px_rgba(255,215,0,0.5)]" : "text-white/60 hover:text-white"}`}>
+                  <FileText size={15} /> Resume
+                </button>
+                <button onClick={() => setMode("portfolio")} className={`flex min-w-[110px] sm:min-w-[120px] items-center justify-center gap-2 rounded-xl px-4 sm:px-5 py-2.5 text-xs font-semibold transition ${mode === "portfolio" ? "bg-amber-400 text-black shadow-[0_0_15px_rgba(255,215,0,0.5)]" : "text-white/60 hover:text-white"}`}>
+                  <Presentation size={15} /> Portfolio
+                </button>
+              </div>
+            </NeonBorder>
           </div>
 
           <div className="flex items-center gap-2">
-            <a href={resumeUrl} download className="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-white/10 bg-white/10 px-4 py-2.5 text-xs font-semibold transition hover:bg-white/15">
+            <a href={resumeUrl} download className="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-amber-400/30 bg-amber-500/10 px-4 py-2.5 text-xs font-semibold transition hover:bg-amber-500/20 text-amber-200">
               <FileDown size={15} /> <span className="hidden md:inline">CV yuklash</span><span className="md:hidden">CV</span>
             </a>
-            <a href={portfolioPdfUrl} download className="inline-flex items-center gap-2 whitespace-nowrap rounded-xl bg-cyan-400 px-4 py-2.5 text-xs font-bold text-black transition hover:bg-cyan-300">
-              <Download size={15} /> <span className="hidden md:inline">Portfolio PDF</span><span className="md:hidden">PDF</span>
-            </a>
+            <NeonBorder color="#FFD700" rounded={12} thickness={2} borderSize={40} glow={60} speed={14}>
+              <a href={portfolioPdfUrl} download className="inline-flex items-center gap-2 whitespace-nowrap rounded-xl bg-amber-400 px-4 py-2.5 text-xs font-bold text-black transition hover:bg-amber-300 shadow-[0_0_15px_rgba(255,215,0,0.4)]">
+                <Download size={15} /> <span className="hidden md:inline">Portfolio PDF</span><span className="md:hidden">PDF</span>
+              </a>
+            </NeonBorder>
           </div>
         </header>
 
         <section className="flex items-end justify-between px-1 sm:px-2">
           <div>
-            <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.28em] text-cyan-300/70">Professional documents</p>
+            <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.28em] text-amber-400/80">Professional documents</p>
             <h1 className="text-2xl font-bold tracking-tight sm:text-4xl">Resume & Portfolio</h1>
           </div>
           <span className="hidden rounded-full border border-white/10 px-3 py-1.5 text-[11px] text-white/40 sm:inline">Jaloliddin Xalimov</span>
@@ -125,7 +132,7 @@ export function ResumePage() {
             {mode === "cv" ? (
               <motion.div key="cv" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col" style={{ minHeight: "calc(100vh - 285px)" }}>
                 <div className="flex h-12 flex-shrink-0 items-center justify-between border-b border-white/10 bg-white/[0.035] px-4 sm:px-6">
-                  <div className="flex items-center gap-2 text-sm font-semibold"><FileText size={16} className="text-cyan-300" /> Jaloliddin_Xalimov_CV.pdf</div>
+                  <div className="flex items-center gap-2 text-sm font-semibold"><FileText size={16} className="text-amber-400" /> Jaloliddin_Xalimov_CV.pdf</div>
                   <a href={resumeUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-xs text-white/45 hover:text-white"><Maximize2 size={13} /> <span className="hidden sm:inline">To‘liq oynada</span></a>
                 </div>
                 <div className="flex-1 bg-[#171717] p-3 sm:p-5">
@@ -135,7 +142,7 @@ export function ResumePage() {
             ) : (
               <motion.div key="portfolio" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col" style={{ minHeight: "calc(100vh - 285px)" }}>
                 <div className="flex h-12 flex-shrink-0 items-center justify-between border-b border-white/10 bg-white/[0.035] px-4 sm:px-6">
-                  <div className="flex items-center gap-2 text-sm font-semibold"><Presentation size={16} className="text-cyan-300" /> Portfolio Deck</div>
+                  <div className="flex items-center gap-2 text-sm font-semibold"><Presentation size={16} className="text-amber-400" /> Portfolio Deck</div>
                   <div className="flex items-center gap-2">
                     <span className="rounded-full border border-white/10 bg-black/30 px-2.5 py-1 font-mono text-[11px] text-white/50">{currentSlide + 1} / {slides.length}</span>
                     <button onClick={() => setIsPlaying((playing) => !playing)} className="rounded-lg border border-white/10 bg-white/10 p-1.5 text-white/70 hover:text-white" aria-label={isPlaying ? "Pause slideshow" : "Play slideshow"}>{isPlaying ? <Pause size={14} /> : <Play size={14} />}</button>

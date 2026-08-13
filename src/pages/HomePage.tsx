@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { ArrowRight, Sparkles, FileText, Send, Loader2, Bot } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "../lib/router";
+import MovingGradientButton from "../components/originkit/ui/moving-gradient-button";
 
 import { ProfileCard } from "../components/home/ProfileCard";
 import { Skills } from "../components/home/Skills";
@@ -375,15 +376,48 @@ export function HomePage() {
             <div className="absolute -right-20 -top-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl group-hover:bg-primary/20 transition-all duration-700" />
             <div className="relative z-10 flex flex-col gap-6">
               <div className="flex-1 text-left">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-primary/20 rounded-lg text-primary"><Bot size={22} /></div>
-                  <h2 className="text-xl sm:text-2xl font-bold premium-title text-white">Ask Ruebensh AI</h2>
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-primary/20 rounded-lg text-primary"><Bot size={22} /></div>
+                    <h2 className="text-xl sm:text-2xl font-bold premium-title text-white">Ask Ruebensh AI</h2>
+                  </div>
+                  <MovingGradientButton
+                    label="To'liq AI Chat"
+                    link="/ai-chat"
+                    newTab={false}
+                    colors={{ fill: "#150e38", hoverFill: "#261a5e", textColor: "#FFFFFF", hoverTextColor: "#38BDF8" }}
+                    stroke={{ headColor: "#38BDF8", color: "#A855F7", count: 2, speed: 25, trail: 70, movement: "continuous" }}
+                    addIcon={true}
+                    icon={{ symbol: "✨", size: 13, color: "#FACC15" }}
+                    rounded={100}
+                    padding="8px 16px"
+                    gap={6}
+                    border={{ borderWidth: 1, borderColor: "rgba(168,85,247,0.4)" }}
+                    font={{ fontSize: 12, fontWeight: 600 }}
+                  />
                 </div>
                 <p className="text-muted-foreground mb-5 text-sm">Men va mani loyihalarim yoki tajribam haqida shaxsiy AI yordamchimdan so'rang.</p>
-                <form onSubmit={handleAskAI} className="relative">
-                  <input type="text" value={aiInput} onChange={(e) => setAiInput(e.target.value)} placeholder="Masalan: Ruebensh niki nimani anglatadi?" className="w-full bg-background/50 border border-border/40 rounded-2xl px-5 py-4 pr-14 focus:ring-2 focus:ring-primary outline-none text-white transition-all text-sm" />
-                  <button disabled={isAiLoading} className="absolute right-2 top-2 p-3 bg-primary text-primary-foreground rounded-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50">
-                    {isAiLoading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+                <form onSubmit={handleAskAI} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                  <input
+                    type="text"
+                    value={aiInput}
+                    onChange={(e) => setAiInput(e.target.value)}
+                    placeholder="Masalan: Ruebensh niki nimani anglatadi?"
+                    className="flex-1 bg-background/50 border border-border/40 rounded-2xl px-5 py-3.5 focus:ring-2 focus:ring-primary outline-none text-white transition-all text-sm"
+                  />
+                  <button type="submit" disabled={isAiLoading || !aiInput.trim()} className="disabled:opacity-50 flex-shrink-0">
+                    <MovingGradientButton
+                      label={isAiLoading ? "Izlanmoqda..." : "So'rash"}
+                      colors={{ fill: "#4f46e5", hoverFill: "#4338ca", textColor: "#FFFFFF", hoverTextColor: "#FACC15" }}
+                      stroke={{ headColor: "#FACC15", color: "#38BDF8", count: 2, speed: 28, trail: 75, movement: "continuous" }}
+                      addIcon={true}
+                      icon={{ symbol: isAiLoading ? "⏳" : "➔", size: 15, color: "#FFFFFF" }}
+                      rounded={16}
+                      padding="12px 22px"
+                      gap={8}
+                      border={{ borderWidth: 2, borderColor: "rgba(250,204,21,0.3)" }}
+                      font={{ fontSize: 13, fontWeight: 700 }}
+                    />
                   </button>
                 </form>
               </div>

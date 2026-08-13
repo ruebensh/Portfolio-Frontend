@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import { Briefcase, Code, Folder, User } from "lucide-react";
+import NeonBorder from "../originkit/ui/neon-border";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -40,8 +41,9 @@ export function ProfileCard({ data }: { data: any }) {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5 }}
-        className="relative rounded-2xl border border-border/40 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm p-6 sm:p-8 lg:p-12 shadow-2xl shadow-black/5 overflow-hidden"
       >
+        <NeonBorder color="#00f0ff" rounded={16} thickness={2} borderSize={40} glow={75} speed={10}>
+          <div className="relative rounded-2xl border border-cyan-500/20 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm p-6 sm:p-8 lg:p-12 shadow-2xl shadow-black/5 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-purple-500/5 pointer-events-none" />
         
         <div className="relative flex flex-col lg:flex-row gap-8 items-center lg:items-start">
@@ -97,6 +99,8 @@ export function ProfileCard({ data }: { data: any }) {
             </div>
           </div>
         </div>
+          </div>
+        </NeonBorder>
       </motion.div>
     </section>
   );

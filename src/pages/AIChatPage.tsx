@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { Send, Bot, User, Trash2, Plus, Menu, X, MessageSquare, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { sendMessageToAI } from "../services/aiService";
+import MovingGradientButton from "../components/originkit/ui/moving-gradient-button";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -326,14 +327,22 @@ export function AIChatPage() {
       <div className="ai-chat-container">
         {/* SIDEBAR */}
         <aside className={`chat-sidebar ${isSidebarOpen ? "open" : ""}`}>
-          <div className="p-4 border-b border-white/5 flex flex-col gap-3">
-            <button
-              onClick={handleNewChat}
-              className="new-chat-btn flex items-center justify-center gap-2.5 w-full py-3 px-4 rounded-xl text-white font-semibold text-sm shadow-md"
-            >
-              <Plus size={16} />
-              Yangi suhbat
-            </button>
+          <div className="p-4 border-b border-white/5 flex flex-col gap-3 items-center">
+            <div onClick={handleNewChat} className="w-full flex justify-center">
+              <MovingGradientButton
+                label="Yangi suhbat"
+                colors={{ fill: "#150e38", hoverFill: "#261a5e", textColor: "#FFFFFF", hoverTextColor: "#38BDF8" }}
+                stroke={{ headColor: "#38BDF8", color: "#A855F7", count: 2, speed: 25, trail: 70, movement: "continuous" }}
+                addIcon={true}
+                icon={{ symbol: "+", size: 18, color: "#FFFFFF", hoverColor: "#38BDF8" }}
+                rounded={24}
+                padding="12px 24px"
+                gap={10}
+                border={{ borderWidth: 2, borderColor: "rgba(168,85,247,0.3)" }}
+                font={{ fontSize: 14, fontWeight: 600 }}
+                style={{ width: "100%", justifyContent: "center" }}
+              />
+            </div>
           </div>
 
           {/* Sessionlar ro'yxati */}

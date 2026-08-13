@@ -2,6 +2,7 @@ import { Link, useRouter } from "../lib/router";
 import { Menu, X, LayoutDashboard, Sparkles, FileText, Bot, BookOpen, Rss } from "lucide-react"; // Rss yoki BookOpen qo'shdik
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import MovingGradientButton from "./originkit/ui/moving-gradient-button";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -83,16 +84,22 @@ export function Header({ data }: HeaderProps) {
             </Link>
 
             {/* AI Online Indicator */}
-            <Link href="/ai-chat" className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors cursor-pointer">
-               <motion.div 
-                 animate={{ opacity: [0.4, 1, 0.4] }}
-                 transition={{ duration: 2, repeat: Infinity }}
-                 className="w-1.5 h-1.5 rounded-full bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.6)]"
-               />
-               <span className="text-[10px] font-semibold uppercase tracking-tighter flex items-center gap-1 text-white">
-                 Ask AI <Sparkles size={10} className="text-yellow-400" />
-               </span>
-            </Link>
+            <div className="hidden lg:flex items-center">
+              <MovingGradientButton
+                label="Ask AI"
+                link="/ai-chat"
+                newTab={false}
+                colors={{ fill: "#0e0926", hoverFill: "#1b1145", textColor: "#FFFFFF", hoverTextColor: "#FACC15" }}
+                stroke={{ headColor: "#FACC15", color: "#818CF8", count: 2, speed: 25, trail: 70, movement: "continuous" }}
+                addIcon={true}
+                icon={{ symbol: "✨", size: 12, color: "#FACC15" }}
+                rounded={100}
+                padding="6px 14px"
+                gap={6}
+                border={{ borderWidth: 1, borderColor: "rgba(129,140,248,0.3)" }}
+                font={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.05em" }}
+              />
+            </div>
           </div>
 
           <nav className="hidden md:flex items-center gap-1 bg-white/5 border border-white/10 p-1 rounded-full backdrop-blur-md">

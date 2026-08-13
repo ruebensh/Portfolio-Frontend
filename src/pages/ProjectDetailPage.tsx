@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
+import NeonGlowButton from "../components/originkit/ui/neon-glow-button";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -363,29 +364,39 @@ export function ProjectDetailPage() {
               {project.description || "Ushbu loyiha haqida ma'lumot berilmagan."}
             </motion.p>
 
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-8 flex flex-wrap gap-4 items-center">
               {projectLink && (
-                <a
-                  href={safeHttp(projectLink)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Button size="lg" className="gap-2 px-8 pd-sheen">
-                    <ExternalLink size={20} /> Loyihani ko'rish
-                  </Button>
-                </a>
+                <NeonGlowButton
+                  label="Loyihani ko'rish"
+                  link={safeHttp(projectLink)}
+                  newTab={true}
+                  colors={{ fill: "#09090b", hoverFill: "#18181b", textColor: "#FFFFFF", hoverTextColor: "#00FFEE" }}
+                  glow={{ color: "#00FFEE", size: 6, blur: 6 }}
+                  border={{ borderWidth: 1, borderColor: "rgba(0,255,238,0.5)" }}
+                  addIcon={true}
+                  icon={{ symbol: "↗", size: 16, color: "#00FFEE" }}
+                  rounded={16}
+                  padding="12px 24px"
+                  gap={8}
+                  font={{ fontSize: 14, fontWeight: 700 }}
+                />
               )}
 
               {repoLink && (
-                <a href={safeHttp(repoLink)} target="_blank" rel="noopener noreferrer">
-                  <Button
-                    size="lg"
-                    variant="secondary"
-                    className="gap-2 px-8 bg-white/5 border border-white/10 hover:bg-white/10 pd-sheen"
-                  >
-                    <Github size={20} /> GitHub
-                  </Button>
-                </a>
+                <NeonGlowButton
+                  label="GitHub"
+                  link={safeHttp(repoLink)}
+                  newTab={true}
+                  colors={{ fill: "#09090b", hoverFill: "#18181b", textColor: "#FFFFFF", hoverTextColor: "#A855F7" }}
+                  glow={{ color: "#A855F7", size: 6, blur: 6 }}
+                  border={{ borderWidth: 1, borderColor: "rgba(168,85,247,0.5)" }}
+                  addIcon={true}
+                  icon={{ symbol: "⚙", size: 16, color: "#A855F7" }}
+                  rounded={16}
+                  padding="12px 24px"
+                  gap={8}
+                  font={{ fontSize: 14, fontWeight: 700 }}
+                />
               )}
             </div>
           </div>

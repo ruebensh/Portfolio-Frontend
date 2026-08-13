@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, ExternalLink, Award, Calendar, Building2, X } from "lucide-react";
+import NeonGlowButton from "../components/originkit/ui/neon-glow-button";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -407,15 +408,21 @@ export function CertificatesPage() {
                 </div>
 
                 {/* Footer */}
-                <div className="p-4 border-t border-white/10 flex justify-end gap-4 bg-black/30 backdrop-blur-xl">
-                  <a
-                    href={selectedCert.fileUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-6 py-2.5 rounded-xl bg-primary text-primary-foreground font-bold flex items-center gap-2 hover:opacity-90 transition-opacity"
-                  >
-                    To'liq ko'rish <ExternalLink size={16} />
-                  </a>
+                <div className="p-4 border-t border-white/10 flex justify-end items-center gap-4 bg-black/40 backdrop-blur-xl">
+                  <NeonGlowButton
+                    label="To'liq ko'rish"
+                    link={selectedCert.fileUrl}
+                    newTab={true}
+                    colors={{ fill: "#09090b", hoverFill: "#18181b", textColor: "#FFFFFF", hoverTextColor: "#00FFEE" }}
+                    glow={{ color: "#00FFEE", size: 6, blur: 6 }}
+                    border={{ borderWidth: 1, borderColor: "rgba(0,255,238,0.5)" }}
+                    addIcon={true}
+                    icon={{ symbol: "↗", size: 16, color: "#00FFEE", hoverColor: "#00FFEE" }}
+                    rounded={16}
+                    padding="10px 22px"
+                    gap={8}
+                    font={{ fontSize: 13, fontWeight: 700 }}
+                  />
                 </div>
               </motion.div>
             </motion.div>

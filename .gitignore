@@ -40,3 +40,4 @@ Thumbs.db
 *.sw?
 node_modules
 prompt.txt
+.originkit/
