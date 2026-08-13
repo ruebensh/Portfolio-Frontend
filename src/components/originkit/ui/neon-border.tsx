@@ -30,40 +30,44 @@ const DEFAULTS = {
 
 const EDGE_COPIES = 2;
 const GLOW_LAYERS = [
-    { blur: 8, opacity: 0.5, reach: 0.3 },
-    { blur: 15, opacity: 0.3, reach: 0.6 },
-    { blur: 57, opacity: 0.18, reach: 1 },
+    { blur: 6, opacity: 0.6, reach: 0.3 },
+    { blur: 16, opacity: 0.3, reach: 0.7 },
 ];
 const MAX_GLOW_BLUR = Math.max(...GLOW_LAYERS.map((l) => l.blur));
-const MAX_GLOW_REACH = 36;
+const MAX_GLOW_REACH = 32;
 
-function withAlpha(input: string, alpha: number) {
-    const a = Math.max(0, Math.min(1, alpha));
-    if (typeof input !== "string") return `rgba(0,0,0,${a})`;
-    const s = input.trim();
+const COLOR_CACHE = new Map<string, [number, number, number]>();
 
-    const hex = s.match(/^#([0-9a-f]{3,8})$/i);
-    if (hex) {
-        let h = hex[1];
+function parseRgbCached(input: string): [number, number, number] {
+    if (!input) return [0, 240, 255];
+    const cached = COLOR_CACHE.get(input);
+    if (cached) return cached;
+
+    let r = 0, g = 240, b = 255;
+    const s = String(input).trim();
+    if (s.startsWith("#")) {
+        let h = s.slice(1);
         if (h.length === 3 || h.length === 4) {
-            h = h
-                .split("")
-                .map((c) => c + c)
-                .join("");
+            h = h.split("").map((c) => c + c).join("");
         }
         const n = parseInt(h.slice(0, 6), 16);
-        if (!Number.isFinite(n)) return `rgba(0,0,0,${a})`;
-        return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
-    }
-
-    const rgb = s.match(/^rgba?\(([^)]+)\)/i);
-    if (rgb) {
-        const parts = rgb[1].split(",").map((v) => parseFloat(v));
-        if (parts.length >= 3 && parts.slice(0, 3).every(Number.isFinite)) {
-            return `rgba(${parts[0]},${parts[1]},${parts[2]},${a})`;
+        if (Number.isFinite(n)) {
+            r = (n >> 16) & 255;
+            g = (n >> 8) & 255;
+            b = n & 255;
+        }
+    } else {
+        const rgb = s.match(/^rgba?\(([^)]+)\)/i);
+        if (rgb) {
+            const parts = rgb[1].split(/[,\s/]+/).map(Number);
+            if (parts.length >= 3 && parts.slice(0, 3).every((v) => !Number.isNaN(v))) {
+                r = parts[0]; g = parts[1]; b = parts[2];
+            }
         }
     }
-    return `rgba(0,0,0,${a})`;
+    const res: [number, number, number] = [r, g, b];
+    COLOR_CACHE.set(input, res);
+    return res;
 }
 
 function perimeterPoint(u: number, w: number, h: number): [number, number] {
@@ -85,7 +89,7 @@ function perimeterAngle(u: number, w: number, h: number) {
     return (Math.atan2(x - w / 2, h / 2 - y) * 180) / Math.PI;
 }
 
-const ARC_SAMPLES = 24;
+const ARC_SAMPLES = 16;
 const MIN_ARC = 0.015;
 
 function buildArc(
@@ -101,6 +105,8 @@ function buildArc(
     const len = Math.max(0, Math.min(100, lengthPct));
     const span = Math.max(MIN_ARC, (len / 100) * 0.5);
     const solidT = len / 100;
+
+    const [cr, cg, cb] = parseRgbCached(color);
 
     const stops: string[] = [];
     let base = 0;
@@ -121,20 +127,16 @@ function buildArc(
         prev = angle;
 
         const t = Math.abs(f - 0.5) * 2;
-        const k =
-            solidT >= 1 ? 1 : t <= solidT ? 1 : 1 - (t - solidT) / (1 - solidT);
-        stops.push(
-            `${withAlpha(color, k * k * (3 - 2 * k))} ${acc.toFixed(2)}deg`
-        );
+        const k = solidT >= 1 ? 1 : t <= solidT ? 1 : 1 - (t - solidT) / (1 - solidT);
+        const a = (k * k * (3 - 2 * k)).toFixed(2);
+        stops.push(`rgba(${cr},${cg},${cb},${a}) ${acc.toFixed(1)}deg`);
     }
 
-    const end = acc.toFixed(2);
-    stops.push(`${withAlpha(color, 0)} ${end}deg`);
-    stops.push(`${withAlpha(color, 0)} 360deg`);
+    const end = acc.toFixed(1);
+    stops.push(`rgba(${cr},${cg},${cb},0) ${end}deg`);
+    stops.push(`rgba(${cr},${cg},${cb},0) 360deg`);
 
-    return `conic-gradient(from ${base.toFixed(2)}deg at 50% 50%, ${stops.join(
-        ", "
-    )})`;
+    return `conic-gradient(from ${base.toFixed(1)}deg at 50% 50%, ${stops.join(", ")})`;
 }
 
 const SLOWEST_CYCLE = 30;
@@ -202,6 +204,7 @@ export default function NeonBorder(props: Props) {
     const rootRef = useRef<HTMLDivElement>(null);
     const sizeRef = useRef({ w: 0, h: 0 });
     const [size, setSize] = useState({ w: 0, h: 0 });
+    const isVisibleRef = useRef(true);
 
     useEffect(() => {
         const el = rootRef.current;
@@ -214,7 +217,19 @@ export default function NeonBorder(props: Props) {
             setSize(sizeRef.current);
         });
         ro.observe(el);
-        return () => ro.disconnect();
+
+        let io: IntersectionObserver | null = null;
+        if (typeof IntersectionObserver !== "undefined") {
+            io = new IntersectionObserver(([entry]) => {
+                isVisibleRef.current = entry.isIntersecting;
+            }, { threshold: 0.05 });
+            io.observe(el);
+        }
+
+        return () => {
+            ro.disconnect();
+            if (io) io.disconnect();
+        };
     }, []);
 
     useEffect(() => {
@@ -225,6 +240,11 @@ export default function NeonBorder(props: Props) {
         let stepT = 0;
 
         const frame = (now: number) => {
+            if (!isVisibleRef.current) {
+                raf = requestAnimationFrame(frame);
+                return;
+            }
+
             const dt = Math.min(0.05, Math.max(0, (now - last) / 1000));
             last = now;
             const p = live.current;

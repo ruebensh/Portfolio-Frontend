@@ -46,7 +46,7 @@ function SoftProjectsBackground() {
     window.addEventListener("resize", resize);
 
     type Star = { x: number; y: number; z: number; r: number; p: number; tw: number };
-    const starCount = Math.floor(Math.min(520, Math.max(260, (w * h) / 2600)));
+    const starCount = Math.floor(Math.min(160, Math.max(80, (w * h) / 6000)));
     const stars: Star[] = Array.from({ length: starCount }, () => ({
       x: Math.random() * w,
       y: Math.random() * h,
