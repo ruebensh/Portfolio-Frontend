@@ -153,9 +153,14 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  body {
-    line-height: inherit;
-  }
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+body {
+  line-height: inherit;
+}
 
   hr {
     height: 0;

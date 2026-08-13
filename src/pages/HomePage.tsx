@@ -343,7 +343,7 @@ export function HomePage() {
             <Sparkles size={16} className="text-primary" />
             <span className="text-sm text-muted-foreground">Xush Kelibsiz & Welcome</span>
           </motion.div>
-          <motion.h1 initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.75, delay: 0.08, ease: [0.22, 1, 0.36, 1] }} className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 premium-title">
+          <motion.h1 initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.75, delay: 0.08, ease: [0.22, 1, 0.36, 1] }} className="text-3xl sm:text-6xl lg:text-7xl font-bold mb-6 premium-title">
             {settings?.title || "I build smart, scalable digital products"}
           </motion.h1>
           <motion.p initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.75, delay: 0.16, ease: [0.22, 1, 0.36, 1] }} className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-12">
