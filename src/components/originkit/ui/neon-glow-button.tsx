@@ -502,9 +502,10 @@ export default function NeonGlowButton(props: Props) {
             ref={scope}
             className={className}
             style={{
+                minWidth: 80,
+                minHeight: 40,
                 position: "relative",
                 display: "inline-flex",
-                maxWidth: "100%",
                 boxSizing: "border-box",
                 ...style,
             }}
@@ -522,7 +523,6 @@ export default function NeonGlowButton(props: Props) {
                     borderRadius: radiusPx + spread,
                     pointerEvents: "none",
                     zIndex: 0,
-                    filter: `drop-shadow(0 0 10px ${glowColor})`,
                     ...OUTSIDE_MASK,
                 }}
             >
@@ -583,7 +583,6 @@ export default function NeonGlowButton(props: Props) {
                     gap: hasIcon && showText ? gapPx : 0,
                     flexDirection: iconSide === "right" ? "row-reverse" : "row",
                     width: "100%",
-                    maxWidth: "100%",
                     padding,
                     borderStyle: borderStyleName,
                     borderColor: borderPaint,

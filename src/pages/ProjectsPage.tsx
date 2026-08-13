@@ -274,42 +274,42 @@ export function ProjectsPage() {
   }
 
   return (
-    <div className="min-h-screen pt-20 sm:pt-24 pb-16 sm:pb-20 bg-[#020202] text-foreground relative overflow-x-hidden">
+    <div className="min-h-screen pt-24 pb-20 bg-[#020202] text-foreground relative">
       <SoftProjectsBackground />
 
-      <div className="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 overflow-x-hidden">
-        {/* Header */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {}
         <motion.div
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="mb-8 sm:mb-10"
+          className="mb-10"
         >
-          <div className="pp-glass rounded-3xl p-5 sm:p-8 md:p-10">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full border border-white/10 bg-white/5 mb-4 sm:mb-6">
+          <div className="pp-glass rounded-3xl p-8 md:p-10">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 mb-6">
               <span className="w-2 h-2 rounded-full bg-primary shadow-[0_0_18px_rgba(99,102,241,.55)]" />
               <span className="text-xs md:text-sm text-muted-foreground">
                 Explore {projects.length} projects
               </span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl lg:text-6xl font-extrabold tracking-tight mb-3 sm:mb-4 pp-title">
+            <h1 className="text-3xl sm:text-4xl lg:text-6xl font-extrabold tracking-tight mb-4 pp-title">
               All Projects
             </h1>
 
-            <p className="text-muted-foreground text-sm sm:text-lg max-w-3xl">
+            <p className="text-muted-foreground text-lg max-w-3xl">
               Proyektlar bilan tanishib chiqishingiz mumkin
             </p>
 
-            {/* Filter buttons */}
-            <div className="mt-6 sm:mt-8 flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+            {}
+            <div className="mt-8 flex gap-2 overflow-x-auto pb-2">
               {categories.map((cat) => {
                 const active = selectedCategory === cat;
                 return (
                   <button
                     key={cat}
                     onClick={() => setSelectedCategory(cat)}
-                    className={`relative px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition-all border
+                    className={`relative px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all border
                       ${
                         active
                           ? "bg-primary/15 text-foreground border-primary/30"
@@ -331,12 +331,12 @@ export function ProjectsPage() {
           </div>
         </motion.div>
 
-        {/* Projects Grid */}
+        {}
         <motion.div
           variants={container}
           initial="hidden"
           animate="show"
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
           <AnimatePresence mode="popLayout">
             {filteredProjects.map((project, index) => {
@@ -353,11 +353,11 @@ export function ProjectsPage() {
                   layout
                   whileHover={{ y: -6 }}
                   transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                  className="h-full w-full max-w-full overflow-hidden"
+                  className="h-full"
                 >
-                  <NeonBorder color="#00f0ff" rounded={24} thickness={2.5} borderSize={45} glow={90} speed={14} className="h-full w-full">
+                  <NeonBorder color="#00f0ff" rounded={24} thickness={2} borderSize={40} glow={75} speed={12} className="h-full">
                     <Link href={`/project/${project.id}`}>
-                      <div className="group h-full pp-glass rounded-3xl overflow-hidden shadow-[0_18px_80px_rgba(0,0,0,.40)] border border-cyan-500/30">
+                      <div className="group h-full pp-glass rounded-3xl overflow-hidden shadow-[0_18px_80px_rgba(0,0,0,.40)] border border-cyan-500/20">
                         {}
                         <div className="relative aspect-video overflow-hidden">
                           <img
