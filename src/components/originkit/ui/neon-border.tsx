@@ -287,7 +287,7 @@ export default function NeonBorder(props: Props) {
     const amount = Math.max(0, Math.min(100, glow)) / 100;
 
     const ringAt = (share: number) => thick + amount * MAX_GLOW_REACH * share;
-    const glowOuter = 10 + MAX_GLOW_REACH + MAX_GLOW_BLUR * 2;
+    const glowOuter = 14;
 
     const band = (r: number, offset = 0) => (
         <div
@@ -335,8 +335,9 @@ export default function NeonBorder(props: Props) {
                 {
                     position: "absolute",
                     inset: 0,
-                    overflow: "visible",
+                    overflow: "hidden",
                     pointerEvents: "none",
+                    borderRadius: radius,
                     "--arc": buildArc(start, borderSize, size.w, size.h, color),
                 } as React.CSSProperties
             }
@@ -367,8 +368,9 @@ export default function NeonBorder(props: Props) {
             style={{
                 position: "relative",
                 width: "100%",
+                maxWidth: "100%",
                 height: "100%",
-                flexShrink: 0,
+                boxSizing: "border-box",
                 borderRadius: radius,
                 ...style,
             }}

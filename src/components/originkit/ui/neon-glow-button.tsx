@@ -279,8 +279,8 @@ export default function NeonGlowButton(props: Props) {
     const g1 = parseColor(glowColor, { r: 122, g: 47, b: 214, a: 1 });
     const g2 = shade(g1, 0.35);
 
-    const spread = Math.max(0, Math.floor(glowSize));
-    const blurUnit = Math.max(0, Math.floor(glowBlur));
+    const spread = Math.min(8, Math.max(0, Math.floor(glowSize)));
+    const blurUnit = Math.min(8, Math.max(0, Math.floor(glowBlur)));
 
     const rings: Ring[] = useMemo(() => {
         const g1Fade = css(g1, 0);
@@ -503,6 +503,7 @@ export default function NeonGlowButton(props: Props) {
             className={className}
             style={{
                 minWidth: 80,
+                maxWidth: "100%",
                 minHeight: 40,
                 position: "relative",
                 display: "inline-flex",
