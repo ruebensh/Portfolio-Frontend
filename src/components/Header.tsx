@@ -25,7 +25,7 @@ export function Header({ data }: HeaderProps) {
   const avatarSrc = data?.avatarUrl ? `${API_URL}${data.avatarUrl}` : null;
 
   const cycleTier = () => {
-    const tiers: QualityTier[] = ["max", "ultra", "high", "medium", "low"];
+    const tiers: QualityTier[] = ["best", "max", "ultra", "high", "medium", "low"];
     const nextIdx = (tiers.indexOf(tier) + 1) % tiers.length;
     setTier(tiers[nextIdx]);
     // Reload so canvas effects re-initialize with the new tier settings
@@ -33,11 +33,12 @@ export function Header({ data }: HeaderProps) {
   };
 
   const tierLabels: Record<QualityTier, { label: string; mobileLabel: string; icon: string; color: string }> = {
-    max:   { label: "Max",    mobileLabel: "MAX", icon: "💎", color: "border-rose-400/60 text-rose-200 bg-rose-500/15 shadow-rose-500/20" },
-    ultra: { label: "Ultra",  mobileLabel: "UHD", icon: "🚀", color: "border-purple-500/40 text-purple-300 bg-purple-500/10" },
-    high:  { label: "High",   mobileLabel: "FHD", icon: "✨", color: "border-cyan-500/40 text-cyan-300 bg-cyan-500/10" },
-    medium:{ label: "Medium", mobileLabel: "HD",  icon: "⚡",  color: "border-amber-500/40 text-amber-300 bg-amber-500/10" },
-    low:   { label: "Saver",  mobileLabel: "SD",  icon: "🔋", color: "border-emerald-500/40 text-emerald-300 bg-emerald-500/10" },
+    best:  { label: "Best",   mobileLabel: "BEST", icon: "👑", color: "border-amber-400/80 text-amber-200 bg-amber-500/20 shadow-amber-500/30 font-black animate-pulse" },
+    max:   { label: "Max",    mobileLabel: "MAX",  icon: "💎", color: "border-rose-400/60 text-rose-200 bg-rose-500/15 shadow-rose-500/20" },
+    ultra: { label: "Ultra",  mobileLabel: "UHD",  icon: "🚀", color: "border-purple-500/40 text-purple-300 bg-purple-500/10" },
+    high:  { label: "High",   mobileLabel: "FHD",  icon: "✨", color: "border-cyan-500/40 text-cyan-300 bg-cyan-500/10" },
+    medium:{ label: "Medium", mobileLabel: "HD",   icon: "⚡",  color: "border-amber-500/40 text-amber-300 bg-amber-500/10" },
+    low:   { label: "Saver",  mobileLabel: "SD",   icon: "🔋", color: "border-emerald-500/40 text-emerald-300 bg-emerald-500/10" },
   };
 
   const navLinks = [

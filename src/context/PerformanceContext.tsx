@@ -1,37 +1,37 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useRef } from "react";
 
-export type QualityTier = "max" | "ultra" | "high" | "medium" | "low";
+export type QualityTier = "best" | "max" | "ultra" | "high" | "medium" | "low";
 
 interface PerformanceContextType {
   tier: QualityTier;
   setTier: (tier: QualityTier) => void;
   fps: number;
   isCpuRendering: boolean;
+  isPlayingAudio: boolean;
 }
 
 const PerformanceContext = createContext<PerformanceContextType | undefined>(undefined);
 
-// Session key: survives page reload (within same tab) but NOT a fresh visit / new tab
 const SESSION_KEY = "portfolio_tier_session";
-const VALID_TIERS: QualityTier[] = ["max", "ultra", "high", "medium", "low"];
+const VALID_TIERS: QualityTier[] = ["best", "max", "ultra", "high", "medium", "low"];
 
 export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [tier, setTierState] = useState<QualityTier>(() => {
     if (typeof window !== "undefined") {
-      // sessionStorage survives a manual reload (triggered by tier button)
-      // but NOT a fresh browser tab or new navigation — perfect for auto-detect UX
       const session = sessionStorage.getItem(SESSION_KEY) as QualityTier;
       if (session && VALID_TIERS.includes(session)) {
         return session;
       }
     }
-    return "high"; // Default while hardware detection runs
+    return "high";
   });
 
   const [fps, setFps] = useState<number>(60);
   const [isCpuRendering, setIsCpuRendering] = useState<boolean>(false);
+  const [isPlayingAudio, setIsPlayingAudio] = useState<boolean>(false);
 
-  // setTier: update state + save to sessionStorage (survives reload, not new visit)
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
   const setTier = (newTier: QualityTier) => {
     setTierState(newTier);
     if (typeof window !== "undefined") {
@@ -39,25 +39,68 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
     }
   };
 
+  // Background Audio Controller for "Best" tier
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    // If a session override exists (user clicked button → reload), respect it — skip detection
+    if (!audioRef.current) {
+      const audio = new Audio("/background.mp3");
+      audio.loop = true;
+      audio.volume = 0.25; // Gentle soft background volume
+      audioRef.current = audio;
+    }
+
+    const audio = audioRef.current;
+
+    const playAudio = () => {
+      if (tier === "best") {
+        audio
+          .play()
+          .then(() => setIsPlayingAudio(true))
+          .catch(() => {
+            // Autoplay blocked by browser policy — wait for user interaction
+            setIsPlayingAudio(false);
+          });
+      } else {
+        audio.pause();
+        setIsPlayingAudio(false);
+      }
+    };
+
+    playAudio();
+
+    // Browser Autoplay Policy listener (plays audio on first user click if blocked initially)
+    const handleUserInteraction = () => {
+      if (tier === "best" && audio.paused) {
+        audio.play().then(() => setIsPlayingAudio(true)).catch(() => {});
+      }
+    };
+
+    window.addEventListener("click", handleUserInteraction, { once: false });
+    window.addEventListener("keydown", handleUserInteraction, { once: false });
+
+    return () => {
+      window.removeEventListener("click", handleUserInteraction);
+      window.removeEventListener("keydown", handleUserInteraction);
+      if (tier !== "best") {
+        audio.pause();
+      }
+    };
+  }, [tier]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
     const sessionOverride = sessionStorage.getItem(SESSION_KEY);
     if (sessionOverride && VALID_TIERS.includes(sessionOverride as QualityTier)) {
-      // Clear the session override so NEXT fresh visit auto-detects again
-      // But keep it for this load (state already set in useState above)
       return;
     }
 
-    // ── Fresh visit: always auto-detect ──────────────────────────────────────
-
-    // 1. Hardware Detection
+    // ── Fresh visit auto-detection ──
     const cores = navigator.hardwareConcurrency || 4;
     const memory = (navigator as any).deviceMemory || 4;
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-    // 2. WebGL GPU Detection (VirtualBox / SwiftShader / Software Renderer)
     let isSoftwareGpu = false;
     try {
       const canvas = document.createElement("canvas");
@@ -85,7 +128,6 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
       // Ignore WebGL errors
     }
 
-    // 3. Determine initial tier based on hardware
     let detectedTier: QualityTier;
     if (isSoftwareGpu || cores <= 2 || memory <= 2) {
       detectedTier = "low";
@@ -93,6 +135,8 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
       detectedTier = "medium";
     } else if (isMobile) {
       detectedTier = "high";
+    } else if (cores >= 12 && memory >= 16) {
+      detectedTier = "best";
     } else if (cores >= 8 && memory >= 8) {
       detectedTier = "ultra";
     } else {
@@ -101,7 +145,6 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
     setTierState(detectedTier);
 
-    // 4. Live FPS Benchmark (first 1.5 seconds) — may downgrade tier further
     let frameCount = 0;
     let rafId = 0;
     const startTime = performance.now();
@@ -115,7 +158,7 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
         if (measuredFps < 32) {
           setTierState("low");
-        } else if (measuredFps < 48 && (detectedTier === "ultra" || detectedTier === "high")) {
+        } else if (measuredFps < 48 && (detectedTier === "best" || detectedTier === "ultra" || detectedTier === "high")) {
           setTierState("medium");
         }
         return;
@@ -128,7 +171,7 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
   }, []);
 
   return (
-    <PerformanceContext.Provider value={{ tier, setTier, fps, isCpuRendering }}>
+    <PerformanceContext.Provider value={{ tier, setTier, fps, isCpuRendering, isPlayingAudio }}>
       {children}
     </PerformanceContext.Provider>
   );

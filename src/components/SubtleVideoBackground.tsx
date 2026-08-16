@@ -14,8 +14,8 @@ export function SubtleVideoBackground({ index }: Props) {
 
   const src = VIDEOS[index % VIDEOS.length];
 
-  const videoOpacity = tier === "max" ? 0.95 : tier === "ultra" ? 0.82 : 0.65;
-  const scrimOpacity = tier === "max" ? 0.10 : tier === "ultra" ? 0.15 : 0.20;
+  const videoOpacity = tier === "best" ? 1.0 : tier === "max" ? 0.95 : tier === "ultra" ? 0.82 : 0.65;
+  const scrimOpacity = tier === "best" ? 0.02 : tier === "max" ? 0.10 : tier === "ultra" ? 0.15 : 0.20;
 
   return (
     <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
@@ -26,7 +26,7 @@ export function SubtleVideoBackground({ index }: Props) {
         muted
         playsInline
         className="absolute inset-0 w-full h-full object-cover"
-        style={{ opacity: videoOpacity, filter: tier === "max" ? "brightness(0.95)" : "brightness(0.8)" }}
+        style={{ opacity: videoOpacity, filter: tier === "best" ? "brightness(1.0)" : tier === "max" ? "brightness(0.95)" : "brightness(0.8)" }}
       >
         <source src={src} type="video/mp4" />
       </video>

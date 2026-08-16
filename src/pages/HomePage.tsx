@@ -74,15 +74,16 @@ function PageBackground() {
       fadeIn: number;
     };
 
-    // 5-Tier Star Count Scaling
+    // 6-Tier Star Count Scaling
     let targetStarCount = 250; // high default
-    if (tier === "max")    targetStarCount = 1200;
+    if (tier === "best")   targetStarCount = 1800;
+    else if (tier === "max")    targetStarCount = 1200;
     else if (tier === "ultra")  targetStarCount = 600;
     else if (tier === "high")   targetStarCount = 250;
     else if (tier === "medium") targetStarCount = 120;
     else if (tier === "low")    targetStarCount = 60;
 
-    const densityDivisor = tier === "max" ? 1400 : tier === "ultra" ? 2200 : 4500;
+    const densityDivisor = tier === "best" ? 900 : tier === "max" ? 1400 : tier === "ultra" ? 2200 : 4500;
     const starCount = Math.floor(Math.min(targetStarCount, Math.max(40, (w * h) / densityDivisor)));
     const stars: Star[] = Array.from({ length: starCount }, () => ({
       x: Math.random() * w,
@@ -97,8 +98,8 @@ function PageBackground() {
 
     const spawnMeteor = () => {
       if (prefersReduced || tier === "low" || tier === "medium") return;
-      // Max tier spawns meteors twice as frequently
-      const spawnChance = tier === "max" ? 0.055 : 0.028;
+      // Best & Max tier spawn meteors frequently
+      const spawnChance = tier === "best" ? 0.085 : tier === "max" ? 0.055 : 0.028;
       if (Math.random() > spawnChance) return;
 
       const z = Math.random() < 0.15 ? 0.75 + Math.random() * 0.25 : Math.pow(Math.random(), 2.2);
@@ -132,11 +133,11 @@ function PageBackground() {
         return;
       }
 
-      // Max tier: extra wide double glow ring for maximum sparkle
-      const glowRadius = tier === "max" ? radius * 9 : radius * 6;
+      // Best & Max tier: extra wide double glow ring for maximum sparkle
+      const glowRadius = tier === "best" ? radius * 12 : tier === "max" ? radius * 9 : radius * 6;
       const g = ctx.createRadialGradient(x, y, 0, x, y, glowRadius);
       g.addColorStop(0, `rgba(255,255,255,${alpha})`);
-      g.addColorStop(0.15, `rgba(220,180,255,${tier === "max" ? alpha * 0.6 : alpha * 0.3})`);
+      g.addColorStop(0.15, tier === "best" ? `rgba(255,215,0,${alpha * 0.7})` : `rgba(220,180,255,${tier === "max" ? alpha * 0.6 : alpha * 0.3})`);
       g.addColorStop(0.4, `rgba(255,255,255,${alpha * 0.18})`);
       g.addColorStop(1, `rgba(255,255,255,0)`);
       ctx.fillStyle = g;
