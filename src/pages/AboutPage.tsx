@@ -12,6 +12,7 @@ import {
 import { useLanguage } from "../context/LanguageContext";
 import { usePerformance } from "../context/PerformanceContext";
 import { SubtleVideoBackground } from "../components/SubtleVideoBackground";
+import { SecondaryStarField } from "../components/SecondaryStarField";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -21,6 +22,7 @@ function SoftAboutBackground() {
   return (
     <div className="pointer-events-none fixed inset-0 -z-10">
       <SubtleVideoBackground index={0} />
+      <SecondaryStarField />
       <style>{`
         .ab-aurora {
           opacity: ${tier === "low" ? "0.1" : tier === "medium" ? "0.18" : "0.22"};

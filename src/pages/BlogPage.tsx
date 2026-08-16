@@ -178,6 +178,7 @@ const DEFAULT_REACTION_OPTIONS = [
 
 import { usePerformance } from "../context/PerformanceContext";
 import { SubtleVideoBackground } from "../components/SubtleVideoBackground";
+import { SecondaryStarField } from "../components/SecondaryStarField";
 
 function PageBackground() {
   const { tier } = usePerformance();
@@ -185,6 +186,7 @@ function PageBackground() {
   return (
     <div className="pointer-events-none fixed inset-0 -z-10">
       <SubtleVideoBackground index={1} />
+      <SecondaryStarField />
       <div className="absolute inset-0 blog-aurora" style={{ opacity: tier === "low" ? 0.1 : tier === "medium" ? 0.25 : 0.6 }} />
       <div className="absolute inset-0 page-grid" />
       <div className="absolute inset-0 page-vignette" />

@@ -9,6 +9,7 @@ import { translateDynamicText } from "../lib/translator";
 
 import { usePerformance } from "../context/PerformanceContext";
 import { SubtleVideoBackground } from "../components/SubtleVideoBackground";
+import { SecondaryStarField } from "../components/SecondaryStarField";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -26,6 +27,7 @@ function SoftProjectsBackground() {
   return (
     <div className="pointer-events-none fixed inset-0 -z-10">
       <SubtleVideoBackground index={0} />
+      <SecondaryStarField />
       <style>{`
         .pp-aurora {
           opacity: ${tier === "low" ? "0.1" : tier === "medium" ? "0.18" : "0.26"};
