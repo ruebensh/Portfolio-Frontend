@@ -18,7 +18,7 @@ interface HeaderProps {
 }
 
 export function Header({ data }: HeaderProps) {
-  const { currentPath } = useRouter();
+  const { currentPath, navigate } = useRouter();
   const { language, setLanguage, t } = useLanguage();
   const { tier, setTier } = usePerformance();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
