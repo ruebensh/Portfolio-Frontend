@@ -44,18 +44,30 @@ export function Header({ data }: HeaderProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Per-tier color theme: [inactive bg, inactive border, inactive text, active bg, active border, active text, active shadow]
+  // Per-tier color theme using inline CSS (Tailwind JIT can't detect dynamically composed class names)
   const tierColors: Record<QualityTier, {
-    bg: string; border: string; text: string;
+    bg: string; border: string; text: string; shadow: string;
     activeBg: string; activeBorder: string; activeText: string; activeShadow: string;
-    badgeBg: string;
+    badgeBg: string; badgeBorder: string; badgeText: string;
   }> = {
-    best:   { bg: "bg-amber-500/[0.12]",   border: "border-amber-400/30",   text: "text-amber-200",   activeBg: "bg-amber-400/25",   activeBorder: "border-amber-400/80",   activeText: "text-amber-100",   activeShadow: "shadow-[0_0_18px_rgba(251,191,36,0.35)]",  badgeBg: "bg-amber-400/25 border-amber-400/40 text-amber-300" },
-    max:    { bg: "bg-rose-500/[0.10]",    border: "border-rose-400/25",    text: "text-rose-200",    activeBg: "bg-rose-500/25",    activeBorder: "border-rose-400/70",    activeText: "text-rose-100",    activeShadow: "shadow-[0_0_18px_rgba(251,113,133,0.30)]",  badgeBg: "bg-rose-500/25 border-rose-400/40 text-rose-300" },
-    ultra:  { bg: "bg-purple-500/[0.10]",  border: "border-purple-500/25",  text: "text-purple-200",  activeBg: "bg-purple-500/25",  activeBorder: "border-purple-400/70",  activeText: "text-purple-100",  activeShadow: "shadow-[0_0_18px_rgba(168,85,247,0.30)]",   badgeBg: "bg-purple-500/25 border-purple-400/40 text-purple-300" },
-    high:   { bg: "bg-cyan-500/[0.09]",    border: "border-cyan-500/25",    text: "text-cyan-200",    activeBg: "bg-cyan-500/22",    activeBorder: "border-cyan-400/65",    activeText: "text-cyan-100",    activeShadow: "shadow-[0_0_18px_rgba(34,211,238,0.28)]",   badgeBg: "bg-cyan-500/25 border-cyan-400/40 text-cyan-300" },
-    medium: { bg: "bg-orange-500/[0.09]",  border: "border-orange-400/25",  text: "text-orange-200",  activeBg: "bg-orange-500/22",  activeBorder: "border-orange-400/65",  activeText: "text-orange-100",  activeShadow: "shadow-[0_0_18px_rgba(251,146,60,0.28)]",   badgeBg: "bg-orange-500/25 border-orange-400/40 text-orange-300" },
-    low:    { bg: "bg-emerald-500/[0.09]", border: "border-emerald-500/25", text: "text-emerald-200", activeBg: "bg-emerald-500/22", activeBorder: "border-emerald-400/65", activeText: "text-emerald-100", activeShadow: "shadow-[0_0_18px_rgba(52,211,153,0.28)]",    badgeBg: "bg-emerald-500/25 border-emerald-400/40 text-emerald-300" },
+    best:   { bg: "rgba(245,158,11,0.13)",  border: "rgba(251,191,36,0.35)",  text: "#fde68a", shadow: "none",
+              activeBg: "rgba(251,191,36,0.22)", activeBorder: "rgba(251,191,36,0.85)", activeText: "#fef3c7", activeShadow: "0 0 18px rgba(251,191,36,0.40)",
+              badgeBg: "rgba(251,191,36,0.22)", badgeBorder: "rgba(251,191,36,0.45)", badgeText: "#fcd34d" },
+    max:    { bg: "rgba(244,63,94,0.11)",   border: "rgba(251,113,133,0.30)", text: "#fecdd3", shadow: "none",
+              activeBg: "rgba(244,63,94,0.24)",  activeBorder: "rgba(251,113,133,0.75)", activeText: "#ffe4e6", activeShadow: "0 0 18px rgba(251,113,133,0.35)",
+              badgeBg: "rgba(244,63,94,0.22)",  badgeBorder: "rgba(251,113,133,0.45)", badgeText: "#fb7185" },
+    ultra:  { bg: "rgba(168,85,247,0.11)",  border: "rgba(192,132,252,0.30)", text: "#e9d5ff", shadow: "none",
+              activeBg: "rgba(168,85,247,0.24)", activeBorder: "rgba(192,132,252,0.75)", activeText: "#f3e8ff", activeShadow: "0 0 18px rgba(168,85,247,0.35)",
+              badgeBg: "rgba(168,85,247,0.22)", badgeBorder: "rgba(192,132,252,0.45)", badgeText: "#c084fc" },
+    high:   { bg: "rgba(6,182,212,0.10)",   border: "rgba(34,211,238,0.28)",  text: "#a5f3fc", shadow: "none",
+              activeBg: "rgba(6,182,212,0.22)",  activeBorder: "rgba(34,211,238,0.72)",  activeText: "#cffafe", activeShadow: "0 0 18px rgba(34,211,238,0.30)",
+              badgeBg: "rgba(6,182,212,0.22)",  badgeBorder: "rgba(34,211,238,0.45)",  badgeText: "#22d3ee" },
+    medium: { bg: "rgba(249,115,22,0.10)",  border: "rgba(251,146,60,0.28)",  text: "#fed7aa", shadow: "none",
+              activeBg: "rgba(249,115,22,0.22)", activeBorder: "rgba(251,146,60,0.72)",  activeText: "#ffedd5", activeShadow: "0 0 18px rgba(251,146,60,0.30)",
+              badgeBg: "rgba(249,115,22,0.22)", badgeBorder: "rgba(251,146,60,0.45)",  badgeText: "#fb923c" },
+    low:    { bg: "rgba(16,185,129,0.10)",  border: "rgba(52,211,153,0.28)",  text: "#a7f3d0", shadow: "none",
+              activeBg: "rgba(16,185,129,0.22)", activeBorder: "rgba(52,211,153,0.72)",  activeText: "#d1fae5", activeShadow: "0 0 18px rgba(52,211,153,0.30)",
+              badgeBg: "rgba(16,185,129,0.22)", badgeBorder: "rgba(52,211,153,0.45)",  badgeText: "#34d399" },
   };
 
   const tierLabels: Record<QualityTier, { label: string; mobileLabel: string; icon: string; desc: string; color: string }> = {
@@ -223,24 +235,37 @@ export function Header({ data }: HeaderProps) {
                         const opt = tierLabels[optId];
                         const tc = tierColors[optId];
                         const isActiveTier = tier === optId;
+                        const btnBg     = isActiveTier ? tc.activeBg     : tc.bg;
+                        const btnBorder = isActiveTier ? tc.activeBorder : tc.border;
+                        const btnColor  = isActiveTier ? tc.activeText   : tc.text;
+                        const btnShadow = isActiveTier ? tc.activeShadow : "none";
                         return (
                           <button
                             key={optId}
                             onClick={() => selectTier(optId)}
-                            className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl border transition-all duration-200 text-left hover:scale-[1.04] hover:z-10 backdrop-blur-md ${
-                              isActiveTier
-                                ? `${tc.activeBg} ${tc.activeBorder} ${tc.activeText} ${tc.activeShadow}`
-                                : `${tc.bg} ${tc.border} ${tc.text} hover:brightness-125`
-                            }`}
+                            style={{
+                              background: btnBg,
+                              borderColor: btnBorder,
+                              color: btnColor,
+                              boxShadow: btnShadow,
+                            }}
+                            className="w-full flex items-center justify-between px-2.5 py-2 rounded-xl border transition-all duration-200 text-left hover:scale-[1.04] hover:z-10 backdrop-blur-md"
                           >
                             <div className="flex items-center gap-2 min-w-0">
                               <span className="text-base flex-shrink-0">{opt.icon}</span>
                               <span className="text-xs font-black uppercase tracking-wider">{opt.label}</span>
-                              <span className={`text-[9px] font-mono font-extrabold px-1.5 py-0.5 rounded-md border ${tc.badgeBg}`}>
+                              <span
+                                style={{
+                                  background: tc.badgeBg,
+                                  borderColor: tc.badgeBorder,
+                                  color: tc.badgeText,
+                                }}
+                                className="text-[9px] font-mono font-extrabold px-1.5 py-0.5 rounded-md border"
+                              >
                                 {opt.mobileLabel}
                               </span>
                             </div>
-                            {isActiveTier && <Check size={14} className="flex-shrink-0 ml-1 opacity-90" />}
+                            {isActiveTier && <Check size={14} className="flex-shrink-0 ml-1 opacity-90" style={{ color: btnColor }} />}
                           </button>
                         );
                       })}
