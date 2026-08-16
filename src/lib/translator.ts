@@ -23,6 +23,36 @@ const COMMON_DICTIONARY: Record<string, Record<Language, string>> = {
   "Contact": { uz: "Aloqa", en: "Contact", ru: "Контакты" },
   "Grafika Rejimi": { uz: "Grafika Rejimi", en: "Graphics Quality", ru: "Качество Графики" },
   "Grafika va Unumdorlik": { uz: "Grafika va Unumdorlik", en: "Graphics & Performance", ru: "Графика и Производительность" },
+  "Hi, I’m Jaloliddin — I build practical AI and machine-learning projects.": {
+    uz: "Salom, men Jaloliddinman — Men sun'iy intellekt va mashinali o'rgatish bo'yicha amaliy loyihalar yarataman.",
+    en: "Hi, I’m Jaloliddin — I build practical AI and machine-learning projects.",
+    ru: "Привет, я Джалолиддин — я создаю практические проекты в области ИИ и машинного обучения."
+  },
+  "Hi, I'm Jaloliddin — I build practical AI and machine-learning projects.": {
+    uz: "Salom, men Jaloliddinman — Men sun'iy intellekt va mashinali o'rgatish bo'yicha amaliy loyihalar yarataman.",
+    en: "Hi, I'm Jaloliddin — I build practical AI and machine-learning projects.",
+    ru: "Привет, я Джалолиддин — я создаю практические проекты в области ИИ и машинного обучения."
+  },
+  "Jaloliddin Xalimov Data Science — Machine Learning student at School 21": {
+    uz: "Jaloliddin Xalimov — School 21 da Data Science va Machine Learning talabasi",
+    en: "Jaloliddin Xalimov Data Science — Machine Learning student at School 21",
+    ru: "Джалолиддин Халимов — Студент Data Science и машинного обучения в Школе 21"
+  },
+  "26 ML/Data Science projects completed at School 21 and stored in a private GitLab repository.": {
+    uz: "School 21 da bajarilgan va shaxsiy GitLab repozitoriysida saqlangan 26 ta ML/Data Science loyihasi.",
+    en: "26 ML/Data Science projects completed at School 21 and stored in a private GitLab repository.",
+    ru: "26 проектов по ML/Data Science, выполненных в Школе 21 и сохраненных в приватном репозитории GitLab."
+  },
+  "1+ year of hands-on ML learning": {
+    uz: "1+ yillik amaliy ML ta'limi",
+    en: "1+ year of hands-on ML learning",
+    ru: "1+ год практического обучения ML"
+  },
+  "Python • PyTorch • scikit-learn": {
+    uz: "Python • PyTorch • scikit-learn",
+    en: "Python • PyTorch • scikit-learn",
+    ru: "Python • PyTorch • scikit-learn"
+  },
   "AI/ML Student & Python Developer": {
     uz: "AI/ML Talabasi & Python Dasturchi",
     en: "AI/ML Student & Python Developer",
@@ -32,11 +62,6 @@ const COMMON_DICTIONARY: Record<string, Record<Language, string>> = {
     uz: "Katta Full-Stack Muxandisi & AI Mutaxassisi",
     en: "Senior Full-Stack Engineer & AI Specialist",
     ru: "Ведущий Full-Stack Инженер и ИИ Специалист"
-  },
-  "Data Science & Machine Learning student at School 21": {
-    uz: "School 21 da Data Science va Machine Learning talabasi",
-    en: "Data Science & Machine Learning student at School 21",
-    ru: "Студент Data Science и Machine Learning в Школе 21"
   },
   "Full-stack software engineer specializing in modern web technologies.": {
     uz: "Zamonaviy veb-texnologiyalar va Sun'iy Intellekt bo'yicha mutaxassis.",
@@ -79,6 +104,7 @@ function getCachedTranslation(text: string, targetLang: string): string | null {
         return saved;
       }
     } catch (e) {
+      // ignore
     }
   }
   return null;
@@ -91,6 +117,7 @@ function setCachedTranslation(text: string, targetLang: string, translated: stri
     try {
       localStorage.setItem(key, translated);
     } catch (e) {
+      // ignore
     }
   }
 }
@@ -109,9 +136,13 @@ export async function translateTextAsync(text: string, targetLang: Language): Pr
   if (!text || !text.trim()) return text;
   const trimmed = text.trim();
 
-  if (targetLang === "uz") return text;
   if (COMMON_DICTIONARY[trimmed]?.[targetLang]) {
     return COMMON_DICTIONARY[trimmed][targetLang];
+  }
+
+  const lowerKey = Object.keys(COMMON_DICTIONARY).find(k => k.toLowerCase() === trimmed.toLowerCase());
+  if (lowerKey && COMMON_DICTIONARY[lowerKey]?.[targetLang]) {
+    return COMMON_DICTIONARY[lowerKey][targetLang];
   }
 
   const cached = getCachedTranslation(trimmed, targetLang);
@@ -143,8 +174,6 @@ export async function translateTextAsync(text: string, targetLang: Language): Pr
 export function translateDynamicText(text: string | null | undefined, targetLang: Language): string {
   if (!text || !text.trim()) return "";
   const trimmed = text.trim();
-
-  if (targetLang === "uz") return text;
 
   if (COMMON_DICTIONARY[trimmed]?.[targetLang]) {
     return COMMON_DICTIONARY[trimmed][targetLang];
