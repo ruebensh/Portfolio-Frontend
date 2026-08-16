@@ -119,14 +119,14 @@ export function Header({ data }: HeaderProps) {
                 <span className="font-extrabold text-[15px] leading-tight tracking-tight text-white group-hover:text-primary transition-colors truncate">
                   {authorName}
                 </span>
-                <span className="hidden sm:flex text-[10px] font-bold tracking-[0.2em] uppercase text-primary/90 items-center gap-1 mt-0.5">
+                <span className="hidden 2xl:flex text-[10px] font-bold tracking-[0.2em] uppercase text-primary/90 items-center gap-1 mt-0.5 truncate">
                   AI/ML Student & Python Developer <Sparkles size={10} className="text-yellow-400/80" />
                 </span>
               </div>
             </Link>
 
             {/* AI Online Indicator */}
-            <div className="hidden lg:flex items-center">
+            <div className="hidden xl:flex items-center">
               <MovingGradientButton
                 label={t("nav.askAi")}
                 link="/ai-chat"
@@ -149,7 +149,7 @@ export function Header({ data }: HeaderProps) {
               <Link
                 key={link.path}
                 href={link.path}
-                className={`px-3 lg:px-5 py-2 rounded-full text-[13px] font-medium transition-all flex items-center gap-1.5 ${
+                className={`px-2.5 lg:px-3.5 xl:px-4 py-1.5 rounded-full text-xs xl:text-[13px] font-medium transition-all flex items-center gap-1 whitespace-nowrap ${
                   isActive(link.path)
                     ? "bg-primary text-primary-foreground shadow-lg"
                     : "text-muted-foreground hover:text-foreground hover:bg-white/5"
@@ -193,13 +193,13 @@ export function Header({ data }: HeaderProps) {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 6, scale: 0.95 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute right-0 top-full mt-2.5 w-48 sm:w-52 rounded-2xl border border-white/20 bg-[#08080f]/95 p-1.5 shadow-[0_12px_40px_rgba(0,0,0,0.85)] backdrop-blur-2xl z-50 overflow-hidden"
+                    className="absolute right-0 top-full mt-2.5 w-60 sm:w-64 rounded-2xl border border-white/25 bg-[#0b0c14] p-2 shadow-[0_20px_50px_rgba(0,0,0,0.95)] backdrop-blur-3xl z-[100] overflow-hidden"
                   >
-                    <div className="px-2.5 py-1 border-b border-white/10 mb-1 flex items-center justify-between">
-                      <span className="text-[9px] font-black uppercase tracking-widest text-amber-400">
+                    <div className="px-2.5 py-1.5 border-b border-white/10 mb-1.5 flex items-center justify-between gap-2 whitespace-nowrap">
+                      <span className="text-[10px] font-black uppercase tracking-wider text-amber-400 truncate">
                         {translateDynamicText("Grafika Rejimi", language)}
                       </span>
-                      <span className="text-[9px] text-white/40 font-mono font-bold">
+                      <span className="text-[9px] text-white/50 font-mono font-bold flex-shrink-0">
                         {language === "uz" ? "6 ta Rejim" : language === "ru" ? "6 Режимов" : "6 Options"}
                       </span>
                     </div>
@@ -212,20 +212,20 @@ export function Header({ data }: HeaderProps) {
                           <button
                             key={optId}
                             onClick={() => selectTier(optId)}
-                            className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl border transition-all duration-200 text-left hover:scale-[1.04] hover:z-10 ${
+                            className={`w-full flex items-center justify-between px-3 py-2 rounded-xl border transition-all duration-200 text-left hover:scale-[1.03] hover:z-10 ${
                               isActiveTier
-                                ? "bg-amber-400/20 border-amber-400/60 text-amber-200 shadow-[0_0_15px_rgba(255,215,0,0.3)] backdrop-blur-xl"
-                                : "bg-white/[0.06] border-white/10 text-white/80 hover:bg-white/20 hover:border-white/30 hover:text-white backdrop-blur-md shadow-md"
+                                ? "bg-amber-400/20 border-amber-400/70 text-amber-200 shadow-[0_0_15px_rgba(255,215,0,0.35)] backdrop-blur-xl"
+                                : "bg-white/[0.08] border-white/15 text-white/90 hover:bg-white/20 hover:border-white/35 hover:text-white backdrop-blur-md shadow-md"
                             }`}
                           >
-                            <div className="flex items-center gap-2 min-w-0">
+                            <div className="flex items-center gap-2.5 min-w-0">
                               <span className="text-base flex-shrink-0">{opt.icon}</span>
-                              <span className="text-xs font-black uppercase tracking-wider">{opt.label}</span>
-                              <span className="text-[9px] font-mono font-extrabold px-1.5 py-0.5 rounded-md bg-white/10 text-white/70 border border-white/10">
+                              <span className="text-xs font-black uppercase tracking-wider whitespace-nowrap">{opt.label}</span>
+                              <span className="text-[9px] font-mono font-extrabold px-1.5 py-0.5 rounded-md bg-white/10 text-white/80 border border-white/15">
                                 {opt.mobileLabel}
                               </span>
                             </div>
-                            {isActiveTier && <Check size={14} className="text-amber-400 flex-shrink-0 ml-1" />}
+                            {isActiveTier && <Check size={15} className="text-amber-400 flex-shrink-0 ml-1.5" />}
                           </button>
                         );
                       })}
