@@ -88,14 +88,14 @@ export function Header({ data }: HeaderProps) {
   }, []);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-[100]">
+    <header className="fixed top-0 left-0 right-0 z-[100] pointer-events-auto">
       <motion.div
         className="h-[2px] bg-gradient-to-r from-primary via-purple-500 to-pink-500 origin-left"
         style={{ scaleX: progress }}
       />
 
       <div
-        className={`transition-all duration-500 ${
+        className={`transition-all duration-500 pointer-events-auto ${
           scrolled
             ? "backdrop-blur-xl bg-background/70 border-b border-white/5 py-3"
             : "bg-transparent py-5"
@@ -105,22 +105,22 @@ export function Header({ data }: HeaderProps) {
 
           <div className="flex items-center gap-3 lg:gap-6 min-w-0">
             <Link href="/" className="flex items-center gap-2 sm:gap-3 group flex-shrink-0">
-              <div className="relative flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-primary/80 to-purple-600/80 border border-white/20 shadow-[0_0_20px_rgba(var(--primary),0.3)] transition-all duration-300 group-hover:scale-105 group-hover:shadow-[0_0_30px_rgba(var(--primary),0.5)] overflow-hidden">
+              <div className="relative flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-primary/80 to-purple-600/80 border border-white/20 shadow-[0_0_20px_rgba(var(--primary),0.3)] transition-all duration-300 group-hover:scale-105 group-hover:shadow-[0_0_30px_rgba(var(--primary),0.5)] overflow-hidden">
                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20 mix-blend-overlay"></div>
                 {avatarSrc ? (
                   <img src={avatarSrc} alt={authorName} className="w-full h-full object-cover relative z-10" />
                 ) : (
-                  <Bot size={22} className="text-white relative z-10 drop-shadow-md group-hover:animate-pulse" />
+                  <Bot size={20} className="text-white relative z-10 drop-shadow-md group-hover:animate-pulse" />
                 )}
                 {/* Online Status Dot */}
-                <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-green-500 border-[3px] border-background rounded-full shadow-[0_0_10px_rgba(34,197,94,0.8)] z-20"></div>
+                <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-background rounded-full shadow-[0_0_10px_rgba(34,197,94,0.8)] z-20"></div>
               </div>
               <div className="flex flex-col justify-center min-w-0">
-                <span className="font-extrabold text-[15px] leading-tight tracking-tight text-white group-hover:text-primary transition-colors truncate">
+                <span className="font-extrabold text-[14px] leading-tight tracking-tight text-white group-hover:text-primary transition-colors truncate">
                   {authorName}
                 </span>
-                <span className="hidden sm:flex text-[10px] font-bold tracking-[0.2em] uppercase text-primary/90 items-center gap-1 mt-0.5">
-                  AI/ML Student & Python Developer <Sparkles size={10} className="text-yellow-400/80" />
+                <span className="hidden xl:flex text-[9px] font-bold tracking-[0.2em] uppercase text-primary/90 items-center gap-1 mt-0.5">
+                  AI/ML Student <Sparkles size={9} className="text-yellow-400/80" />
                 </span>
               </div>
             </Link>
@@ -144,12 +144,12 @@ export function Header({ data }: HeaderProps) {
             </div>
           </div>
 
-          <nav className="hidden md:flex items-center gap-1 bg-white/5 border border-white/10 p-1 rounded-full backdrop-blur-md">
+          <nav className="hidden md:flex items-center gap-0.5 bg-white/5 border border-white/10 p-1 rounded-full backdrop-blur-md overflow-hidden flex-shrink">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
                 href={link.path}
-                className={`px-3 lg:px-5 py-2 rounded-full text-[13px] font-medium transition-all flex items-center gap-1.5 ${
+                className={`px-2.5 lg:px-4 py-1.5 rounded-full text-[12px] font-medium transition-all flex items-center gap-1 whitespace-nowrap flex-shrink-0 ${
                   isActive(link.path)
                     ? "bg-primary text-primary-foreground shadow-lg"
                     : "text-muted-foreground hover:text-foreground hover:bg-white/5"
