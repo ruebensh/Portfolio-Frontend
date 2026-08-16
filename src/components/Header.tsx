@@ -88,7 +88,7 @@ export function Header({ data }: HeaderProps) {
   }, []);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-[9999]">
+    <header className="fixed top-0 left-0 right-0 z-50">
       <motion.div
         className="h-[2px] bg-gradient-to-r from-primary via-purple-500 to-pink-500 origin-left"
         style={{ scaleX: progress }}
@@ -97,13 +97,13 @@ export function Header({ data }: HeaderProps) {
       <div
         className={`transition-all duration-500 ${
           scrolled
-            ? "backdrop-blur-xl bg-background/80 border-b border-white/10 py-3"
+            ? "backdrop-blur-xl bg-background/70 border-b border-white/5 py-3"
             : "bg-transparent py-5"
         }`}
       >
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex items-center justify-between">
 
-          <div className="flex items-center gap-3 lg:gap-5 min-w-0">
+          <div className="flex items-center gap-3 lg:gap-6 min-w-0">
             <Link href="/" className="flex items-center gap-2 sm:gap-3 group flex-shrink-0">
               <div className="relative flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-primary/80 to-purple-600/80 border border-white/20 shadow-[0_0_20px_rgba(var(--primary),0.3)] transition-all duration-300 group-hover:scale-105 group-hover:shadow-[0_0_30px_rgba(var(--primary),0.5)] overflow-hidden">
                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20 mix-blend-overlay"></div>
@@ -119,14 +119,14 @@ export function Header({ data }: HeaderProps) {
                 <span className="font-extrabold text-[15px] leading-tight tracking-tight text-white group-hover:text-primary transition-colors truncate">
                   {authorName}
                 </span>
-                <span className="hidden lg:flex text-[10px] font-bold tracking-[0.2em] uppercase text-primary/90 items-center gap-1 mt-0.5">
+                <span className="hidden sm:flex text-[10px] font-bold tracking-[0.2em] uppercase text-primary/90 items-center gap-1 mt-0.5">
                   AI/ML Student & Python Developer <Sparkles size={10} className="text-yellow-400/80" />
                 </span>
               </div>
             </Link>
 
             {/* AI Online Indicator */}
-            <div className="hidden xl:flex items-center">
+            <div className="hidden lg:flex items-center">
               <MovingGradientButton
                 label={t("nav.askAi")}
                 link="/ai-chat"
@@ -149,7 +149,7 @@ export function Header({ data }: HeaderProps) {
               <Link
                 key={link.path}
                 href={link.path}
-                className={`px-3 lg:px-4 py-2 rounded-full text-xs lg:text-[13px] font-semibold transition-all flex items-center gap-1.5 whitespace-nowrap ${
+                className={`px-3 lg:px-5 py-2 rounded-full text-[13px] font-medium transition-all flex items-center gap-1.5 ${
                   isActive(link.path)
                     ? "bg-primary text-primary-foreground shadow-lg"
                     : "text-muted-foreground hover:text-foreground hover:bg-white/5"
@@ -185,7 +185,7 @@ export function Header({ data }: HeaderProps) {
                 </span>
               </button>
 
-              {/* Graphics Dropdown Menu List (100% Solid Background, Zero Bleed-Through) */}
+              {/* Graphics Dropdown Menu List */}
               <AnimatePresence>
                 {graphicsMenuOpen && (
                   <motion.div
@@ -193,19 +193,18 @@ export function Header({ data }: HeaderProps) {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 6, scale: 0.95 }}
                     transition={{ duration: 0.15 }}
-                    style={{ backgroundColor: "#0d0e17" }}
-                    className="absolute right-0 top-full mt-3 w-56 sm:w-60 rounded-2xl border-2 border-amber-400/50 p-2 shadow-[0_25px_70px_rgba(0,0,0,1.0)] z-[9999] overflow-hidden"
+                    className="absolute right-0 top-full mt-2.5 w-48 sm:w-52 rounded-2xl border border-white/20 bg-[#08080f]/95 p-1.5 shadow-[0_12px_40px_rgba(0,0,0,0.85)] backdrop-blur-2xl z-50 overflow-hidden"
                   >
-                    <div className="px-2.5 py-1.5 border-b border-white/15 mb-1.5 flex items-center justify-between gap-2 whitespace-nowrap bg-[#0d0e17]">
-                      <span className="text-[10px] font-black uppercase tracking-wider text-amber-400 truncate">
+                    <div className="px-2.5 py-1 border-b border-white/10 mb-1 flex items-center justify-between">
+                      <span className="text-[9px] font-black uppercase tracking-widest text-amber-400">
                         {translateDynamicText("Grafika Rejimi", language)}
                       </span>
-                      <span className="text-[9px] text-amber-200/60 font-mono font-bold flex-shrink-0">
+                      <span className="text-[9px] text-white/40 font-mono font-bold">
                         {language === "uz" ? "6 ta Rejim" : language === "ru" ? "6 Режимов" : "6 Options"}
                       </span>
                     </div>
 
-                    <div className="flex flex-col gap-1.5 bg-[#0d0e17]">
+                    <div className="flex flex-col gap-1">
                       {tierOptions.map((optId) => {
                         const opt = tierLabels[optId];
                         const isActiveTier = tier === optId;
@@ -213,21 +212,20 @@ export function Header({ data }: HeaderProps) {
                           <button
                             key={optId}
                             onClick={() => selectTier(optId)}
-                            style={{ backgroundColor: isActiveTier ? "rgba(251, 191, 36, 0.22)" : "#181a28" }}
-                            className={`w-full flex items-center justify-between px-3 py-2 rounded-xl border transition-all duration-200 text-left hover:scale-[1.03] ${
+                            className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl border transition-all duration-200 text-left hover:scale-[1.04] hover:z-10 ${
                               isActiveTier
-                                ? "border-amber-400/80 text-amber-200 font-extrabold shadow-[0_0_15px_rgba(255,215,0,0.3)]"
-                                : "border-white/15 text-white hover:border-amber-400/50 hover:text-amber-200 shadow-md"
+                                ? "bg-amber-400/20 border-amber-400/60 text-amber-200 shadow-[0_0_15px_rgba(255,215,0,0.3)] backdrop-blur-xl"
+                                : "bg-white/[0.06] border-white/10 text-white/80 hover:bg-white/20 hover:border-white/30 hover:text-white backdrop-blur-md shadow-md"
                             }`}
                           >
-                            <div className="flex items-center gap-2.5 min-w-0">
+                            <div className="flex items-center gap-2 min-w-0">
                               <span className="text-base flex-shrink-0">{opt.icon}</span>
-                              <span className="text-xs font-black uppercase tracking-wider whitespace-nowrap">{opt.label}</span>
-                              <span className="text-[9px] font-mono font-extrabold px-1.5 py-0.5 rounded-md bg-black/50 text-white/90 border border-white/15">
+                              <span className="text-xs font-black uppercase tracking-wider">{opt.label}</span>
+                              <span className="text-[9px] font-mono font-extrabold px-1.5 py-0.5 rounded-md bg-white/10 text-white/70 border border-white/10">
                                 {opt.mobileLabel}
                               </span>
                             </div>
-                            {isActiveTier && <Check size={15} className="text-amber-400 flex-shrink-0 ml-1.5" />}
+                            {isActiveTier && <Check size={14} className="text-amber-400 flex-shrink-0 ml-1" />}
                           </button>
                         );
                       })}
