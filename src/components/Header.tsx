@@ -44,30 +44,30 @@ export function Header({ data }: HeaderProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Per-tier color theme using inline CSS (Tailwind JIT can't detect dynamically composed class names)
+  // Per-tier color theme using inline CSS — softer pastel tones
   const tierColors: Record<QualityTier, {
     bg: string; border: string; text: string; shadow: string;
     activeBg: string; activeBorder: string; activeText: string; activeShadow: string;
     badgeBg: string; badgeBorder: string; badgeText: string;
   }> = {
-    best:   { bg: "rgba(245,158,11,0.13)",  border: "rgba(251,191,36,0.35)",  text: "#fde68a", shadow: "none",
-              activeBg: "rgba(251,191,36,0.22)", activeBorder: "rgba(251,191,36,0.85)", activeText: "#fef3c7", activeShadow: "0 0 18px rgba(251,191,36,0.40)",
-              badgeBg: "rgba(251,191,36,0.22)", badgeBorder: "rgba(251,191,36,0.45)", badgeText: "#fcd34d" },
-    max:    { bg: "rgba(244,63,94,0.11)",   border: "rgba(251,113,133,0.30)", text: "#fecdd3", shadow: "none",
-              activeBg: "rgba(244,63,94,0.24)",  activeBorder: "rgba(251,113,133,0.75)", activeText: "#ffe4e6", activeShadow: "0 0 18px rgba(251,113,133,0.35)",
-              badgeBg: "rgba(244,63,94,0.22)",  badgeBorder: "rgba(251,113,133,0.45)", badgeText: "#fb7185" },
-    ultra:  { bg: "rgba(168,85,247,0.11)",  border: "rgba(192,132,252,0.30)", text: "#e9d5ff", shadow: "none",
-              activeBg: "rgba(168,85,247,0.24)", activeBorder: "rgba(192,132,252,0.75)", activeText: "#f3e8ff", activeShadow: "0 0 18px rgba(168,85,247,0.35)",
-              badgeBg: "rgba(168,85,247,0.22)", badgeBorder: "rgba(192,132,252,0.45)", badgeText: "#c084fc" },
-    high:   { bg: "rgba(6,182,212,0.10)",   border: "rgba(34,211,238,0.28)",  text: "#a5f3fc", shadow: "none",
-              activeBg: "rgba(6,182,212,0.22)",  activeBorder: "rgba(34,211,238,0.72)",  activeText: "#cffafe", activeShadow: "0 0 18px rgba(34,211,238,0.30)",
-              badgeBg: "rgba(6,182,212,0.22)",  badgeBorder: "rgba(34,211,238,0.45)",  badgeText: "#22d3ee" },
-    medium: { bg: "rgba(249,115,22,0.10)",  border: "rgba(251,146,60,0.28)",  text: "#fed7aa", shadow: "none",
-              activeBg: "rgba(249,115,22,0.22)", activeBorder: "rgba(251,146,60,0.72)",  activeText: "#ffedd5", activeShadow: "0 0 18px rgba(251,146,60,0.30)",
-              badgeBg: "rgba(249,115,22,0.22)", badgeBorder: "rgba(251,146,60,0.45)",  badgeText: "#fb923c" },
-    low:    { bg: "rgba(16,185,129,0.10)",  border: "rgba(52,211,153,0.28)",  text: "#a7f3d0", shadow: "none",
-              activeBg: "rgba(16,185,129,0.22)", activeBorder: "rgba(52,211,153,0.72)",  activeText: "#d1fae5", activeShadow: "0 0 18px rgba(52,211,153,0.30)",
-              badgeBg: "rgba(16,185,129,0.22)", badgeBorder: "rgba(52,211,153,0.45)",  badgeText: "#34d399" },
+    best:   { bg: "rgba(245,158,11,0.07)",  border: "rgba(251,191,36,0.18)",  text: "#e8c97a", shadow: "none",
+              activeBg: "rgba(251,191,36,0.13)", activeBorder: "rgba(251,191,36,0.55)", activeText: "#fde68a", activeShadow: "0 0 14px rgba(251,191,36,0.22)",
+              badgeBg: "rgba(251,191,36,0.12)", badgeBorder: "rgba(251,191,36,0.28)", badgeText: "#d4a843" },
+    max:    { bg: "rgba(244,63,94,0.07)",   border: "rgba(251,113,133,0.18)", text: "#e8a3b0", shadow: "none",
+              activeBg: "rgba(244,63,94,0.14)",  activeBorder: "rgba(251,113,133,0.50)", activeText: "#fecdd3", activeShadow: "0 0 14px rgba(251,113,133,0.22)",
+              badgeBg: "rgba(244,63,94,0.12)",  badgeBorder: "rgba(251,113,133,0.28)", badgeText: "#e0788a" },
+    ultra:  { bg: "rgba(168,85,247,0.07)",  border: "rgba(192,132,252,0.18)", text: "#c8aff0", shadow: "none",
+              activeBg: "rgba(168,85,247,0.14)", activeBorder: "rgba(192,132,252,0.50)", activeText: "#e9d5ff", activeShadow: "0 0 14px rgba(168,85,247,0.22)",
+              badgeBg: "rgba(168,85,247,0.12)", badgeBorder: "rgba(192,132,252,0.28)", badgeText: "#a97fd4" },
+    high:   { bg: "rgba(6,182,212,0.06)",   border: "rgba(34,211,238,0.16)",  text: "#84d8e8", shadow: "none",
+              activeBg: "rgba(6,182,212,0.13)",  activeBorder: "rgba(34,211,238,0.48)",  activeText: "#a5f3fc", activeShadow: "0 0 14px rgba(34,211,238,0.18)",
+              badgeBg: "rgba(6,182,212,0.12)",  badgeBorder: "rgba(34,211,238,0.28)",  badgeText: "#1ab8d4" },
+    medium: { bg: "rgba(249,115,22,0.07)",  border: "rgba(251,146,60,0.18)",  text: "#deb985", shadow: "none",
+              activeBg: "rgba(249,115,22,0.14)", activeBorder: "rgba(251,146,60,0.50)",  activeText: "#fed7aa", activeShadow: "0 0 14px rgba(251,146,60,0.20)",
+              badgeBg: "rgba(249,115,22,0.12)", badgeBorder: "rgba(251,146,60,0.28)",  badgeText: "#c97c30" },
+    low:    { bg: "rgba(16,185,129,0.06)",  border: "rgba(52,211,153,0.16)",  text: "#85d4b3", shadow: "none",
+              activeBg: "rgba(16,185,129,0.13)", activeBorder: "rgba(52,211,153,0.48)",  activeText: "#a7f3d0", activeShadow: "0 0 14px rgba(52,211,153,0.20)",
+              badgeBg: "rgba(16,185,129,0.12)", badgeBorder: "rgba(52,211,153,0.28)",  badgeText: "#2bb88a" },
   };
 
   const tierLabels: Record<QualityTier, { label: string; mobileLabel: string; icon: string; desc: string; color: string }> = {
@@ -214,63 +214,79 @@ export function Header({ data }: HeaderProps) {
               {/* Graphics Dropdown Menu List */}
               <AnimatePresence>
                 {graphicsMenuOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 6, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 6, scale: 0.95 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute right-0 top-full mt-2.5 w-48 sm:w-52 rounded-2xl border border-white/20 bg-[#08080f]/95 p-1.5 shadow-[0_12px_40px_rgba(0,0,0,0.85)] backdrop-blur-2xl z-50 overflow-hidden"
-                  >
-                    <div className="px-2.5 py-1 border-b border-white/10 mb-1 flex items-center justify-between">
-                      <span className="text-[9px] font-black uppercase tracking-widest text-amber-400">
-                        {translateDynamicText("Grafika Rejimi", language)}
-                      </span>
-                      <span className="text-[9px] text-white/40 font-mono font-bold">
-                        {language === "uz" ? "6 ta Rejim" : language === "ru" ? "6 Режимов" : "6 Options"}
-                      </span>
-                    </div>
+                  <>
+                    {/* Mobile: full-width bottom sheet overlay */}
+                    <motion.div
+                      key="backdrop"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.15 }}
+                      className="fixed inset-0 z-40 sm:hidden"
+                      onClick={() => setGraphicsMenuOpen(false)}
+                    />
+                    <motion.div
+                      key="dropdown"
+                      initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 8, scale: 0.96 }}
+                      transition={{ duration: 0.15 }}
+                      className={[
+                        /* shared */
+                        "z-50 rounded-2xl border border-white/[0.12] bg-[#0a0a12]/96 p-2 shadow-[0_16px_48px_rgba(0,0,0,0.80)] backdrop-blur-2xl overflow-hidden",
+                        /* mobile: fixed bottom sheet, full-width with safe-area padding */
+                        "fixed bottom-0 left-0 right-0 sm:hidden rounded-b-none pb-safe",
+                        /* desktop: normal dropdown anchored top-right */
+                        "sm:absolute sm:bottom-auto sm:left-auto sm:right-0 sm:top-full sm:mt-2.5 sm:w-52 sm:rounded-2xl sm:pb-2",
+                      ].join(" ")}
+                    >
+                      {/* Handle bar — mobile only */}
+                      <div className="mx-auto mb-2 h-1 w-10 rounded-full bg-white/20 sm:hidden" />
 
-                    <div className="flex flex-col gap-1">
-                      {tierOptions.map((optId) => {
-                        const opt = tierLabels[optId];
-                        const tc = tierColors[optId];
-                        const isActiveTier = tier === optId;
-                        const btnBg     = isActiveTier ? tc.activeBg     : tc.bg;
-                        const btnBorder = isActiveTier ? tc.activeBorder : tc.border;
-                        const btnColor  = isActiveTier ? tc.activeText   : tc.text;
-                        const btnShadow = isActiveTier ? tc.activeShadow : "none";
-                        return (
-                          <button
-                            key={optId}
-                            onClick={() => selectTier(optId)}
-                            style={{
-                              background: btnBg,
-                              borderColor: btnBorder,
-                              color: btnColor,
-                              boxShadow: btnShadow,
-                            }}
-                            className="w-full flex items-center justify-between px-2.5 py-2 rounded-xl border transition-all duration-200 text-left hover:scale-[1.04] hover:z-10 backdrop-blur-md"
-                          >
-                            <div className="flex items-center gap-2 min-w-0">
-                              <span className="text-base flex-shrink-0">{opt.icon}</span>
-                              <span className="text-xs font-black uppercase tracking-wider">{opt.label}</span>
-                              <span
-                                style={{
-                                  background: tc.badgeBg,
-                                  borderColor: tc.badgeBorder,
-                                  color: tc.badgeText,
-                                }}
-                                className="text-[9px] font-mono font-extrabold px-1.5 py-0.5 rounded-md border"
-                              >
-                                {opt.mobileLabel}
-                              </span>
-                            </div>
-                            {isActiveTier && <Check size={14} className="flex-shrink-0 ml-1 opacity-90" style={{ color: btnColor }} />}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </motion.div>
+                      <div className="px-2.5 py-1.5 border-b border-white/[0.08] mb-1.5 flex items-center justify-between">
+                        <span className="text-[9px] font-black uppercase tracking-widest text-white/50">
+                          {translateDynamicText("Grafika Rejimi", language)}
+                        </span>
+                        <span className="text-[9px] text-white/30 font-mono">
+                          {language === "uz" ? "6 ta Rejim" : language === "ru" ? "6 Режимов" : "6 Options"}
+                        </span>
+                      </div>
+
+                      <div className="flex flex-col gap-1">
+                        {tierOptions.map((optId) => {
+                          const opt = tierLabels[optId];
+                          const tc = tierColors[optId];
+                          const isActiveTier = tier === optId;
+                          const btnBg     = isActiveTier ? tc.activeBg     : tc.bg;
+                          const btnBorder = isActiveTier ? tc.activeBorder : tc.border;
+                          const btnColor  = isActiveTier ? tc.activeText   : tc.text;
+                          const btnShadow = isActiveTier ? tc.activeShadow : "none";
+                          return (
+                            <button
+                              key={optId}
+                              onClick={() => selectTier(optId)}
+                              style={{ background: btnBg, borderColor: btnBorder, color: btnColor, boxShadow: btnShadow }}
+                              className="w-full flex items-center justify-between px-3 py-2.5 sm:px-2.5 sm:py-2 rounded-xl border transition-all duration-200 text-left active:scale-[0.98] hover:scale-[1.02] hover:brightness-110 backdrop-blur-sm"
+                            >
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                <span className="text-lg sm:text-base flex-shrink-0">{opt.icon}</span>
+                                <span className="text-sm sm:text-xs font-bold tracking-wide">{opt.label}</span>
+                                <span
+                                  style={{ background: tc.badgeBg, borderColor: tc.badgeBorder, color: tc.badgeText }}
+                                  className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-md border hidden sm:inline"
+                                >
+                                  {opt.mobileLabel}
+                                </span>
+                              </div>
+                              {isActiveTier && (
+                                <Check size={15} className="flex-shrink-0 ml-2 opacity-75" style={{ color: btnColor }} />
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </motion.div>
+                  </>
                 )}
               </AnimatePresence>
             </div>
