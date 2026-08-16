@@ -7,7 +7,7 @@ import { translateDynamicText } from "../../lib/translator";
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export function ProfileCard({ data }: { data: any }) {
-  const { language, t } = useLanguage();
+  const { language, t, td } = useLanguage();
 
   const avatarSrc = data?.avatarUrl 
     ? (data.avatarUrl.startsWith('http') ? data.avatarUrl : `${API_URL}${data.avatarUrl}`)
