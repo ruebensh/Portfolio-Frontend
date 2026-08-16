@@ -312,96 +312,105 @@ export function Header({ data }: HeaderProps) {
 
       <AnimatePresence>
         {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="md:hidden absolute top-full left-0 right-0 border-t border-white/5 bg-background/95 backdrop-blur-2xl p-6 shadow-2xl"
-          >
-            <nav className="flex flex-col gap-3">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.path}
-                  href={link.path}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`p-4 rounded-2xl text-lg font-medium flex items-center justify-between ${
-                    isActive(link.path) ? "bg-primary/10 text-primary border border-primary/20" : "text-muted-foreground"
-                  }`}
-                >
-                  {link.name}
-                  {link.icon && link.icon}
-                </Link>
-              ))}
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMobileMenuOpen(false)}
+              className="fixed inset-0 bg-black/80 backdrop-blur-md z-40 md:hidden"
+            />
 
-              <hr className="my-2 border-white/5" />
+            <motion.div
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", damping: 28, stiffness: 280 }}
+              className="fixed top-0 left-0 bottom-0 w-[85vw] max-w-[320px] bg-[#070712]/98 border-r border-white/10 z-50 p-6 flex flex-col justify-between shadow-[0_0_60px_rgba(0,0,0,0.95)] backdrop-blur-2xl overflow-y-auto md:hidden"
+            >
+              <div className="flex flex-col gap-6">
+                <div className="flex items-center justify-between pb-5 border-b border-white/10">
+                  <Link
+                    href="/"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-3"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-purple-600 border border-white/20 flex items-center justify-center shadow-[0_0_15px_rgba(99,102,241,0.4)] overflow-hidden">
+                      {avatarSrc ? (
+                        <img src={avatarSrc} alt={authorName} className="w-full h-full object-cover" />
+                      ) : (
+                        <Bot size={20} className="text-white" />
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="font-extrabold text-base text-white leading-tight truncate">{authorName}</h3>
+                      <span className="text-[10px] font-bold text-primary tracking-widest uppercase">Portfolio</span>
+                    </div>
+                  </Link>
+                  <button
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="p-2 rounded-xl border border-white/10 bg-white/5 text-white/70 hover:text-white"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
 
-              <div className="px-2 py-2">
-                <span className="text-xs font-bold text-white/40 uppercase tracking-widest flex items-center gap-2 mb-2">
-                  <Zap size={13} /> {translateDynamicText("Grafika Rejimi", language)}
-                </span>
-                <div className="grid grid-cols-3 gap-1.5">
-                  {tierOptions.map((optId) => {
-                    const opt = tierLabels[optId];
-                    const tc = tierColors[optId];
-                    const isActiveTier = tier === optId;
+                <nav className="flex flex-col gap-2">
+                  {navLinks.map((link) => {
+                    const active = isActive(link.path);
                     return (
-                      <button
-                        key={optId}
-                        onClick={() => { selectTier(optId); setMobileMenuOpen(false); }}
-                        style={{
-                          background: isActiveTier ? tc.activeBg : tc.bg,
-                          borderColor: isActiveTier ? tc.activeBorder : tc.border,
-                          color: isActiveTier ? tc.activeText : tc.text,
-                          boxShadow: isActiveTier ? tc.activeShadow : "none",
-                        }}
-                        className="flex flex-col items-center gap-0.5 py-2 px-1 rounded-xl border text-center transition-all duration-200"
+                      <Link
+                        key={link.path}
+                        href={link.path}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={`group relative px-4 py-3.5 rounded-2xl text-sm font-semibold flex items-center justify-between transition-all duration-300 ${
+                          active
+                            ? "bg-gradient-to-r from-primary/25 via-purple-500/20 to-primary/10 text-white border border-primary/40 shadow-[0_0_20px_rgba(99,102,241,0.25)]"
+                            : "text-white/70 hover:text-white hover:bg-white/5 border border-transparent"
+                        }`}
                       >
-                        <span className="text-base">{opt.icon}</span>
-                        <span className="text-[9px] font-black uppercase tracking-wide">{opt.label}</span>
-                      </button>
+                        <div className="flex items-center gap-3">
+                          <span className={`w-2 h-2 rounded-full transition-all ${active ? "bg-primary shadow-[0_0_8px_#6366f1]" : "bg-white/20 group-hover:bg-white/50"}`} />
+                          <span>{link.name}</span>
+                        </div>
+                        {link.icon ? link.icon : active && <span className="text-xs font-bold text-primary">●</span>}
+                      </Link>
                     );
                   })}
-                </div>
+                </nav>
               </div>
 
-              <hr className="my-2 border-white/5" />
-
-              <div className="flex items-center justify-between px-2 py-2">
-                <span className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                  <Globe size={16} /> {t("nav.language")}:
-                </span>
-                <div className="flex items-center gap-2">
-                  {languages.map((l) => {
-                    const active = language === l.code;
-                    return (
-                      <NeonBorder
-                        key={l.code}
-                        color={l.neonColor}
-                        rounded={12}
-                        thickness={2}
-                        borderSize={35}
-                        glow={active ? 80 : 35}
-                        speed={active ? 14 : 20}
-                      >
+              <div className="pt-6 border-t border-white/10 flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-white/50 uppercase tracking-widest flex items-center gap-1.5">
+                    <Globe size={14} className="text-primary" /> {t("nav.language")}
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    {languages.map((l) => {
+                      const active = language === l.code;
+                      return (
                         <button
-                          onClick={() => setLanguage(l.code)}
-                          title={l.label}
-                          className={`relative px-3 py-1.5 rounded-xl border flex items-center gap-1.5 transition-all duration-300 ${
+                          key={l.code}
+                          onClick={() => {
+                            setLanguage(l.code);
+                            setMobileMenuOpen(false);
+                          }}
+                          className={`px-2.5 py-1.5 rounded-xl border text-xs font-bold transition-all flex items-center gap-1 ${
                             active
-                              ? "bg-white/15 text-white border-white/30 shadow-[0_0_15px_rgba(255,255,255,0.15)]"
-                              : "bg-black/50 text-white/70 border-white/10 hover:bg-white/10 hover:text-white"
+                              ? "bg-primary text-white border-primary/60 shadow-[0_0_12px_rgba(99,102,241,0.5)]"
+                              : "bg-white/5 text-white/60 border-white/10 hover:bg-white/10 hover:text-white"
                           }`}
                         >
-                          <span className="text-base leading-none">{l.flag}</span>
-                          <span className="text-xs font-black tracking-wider uppercase">{l.label}</span>
+                          <span>{l.flag}</span>
+                          <span className="uppercase text-[11px] font-black">{l.label}</span>
                         </button>
-                      </NeonBorder>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
-            </nav>
-          </motion.div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </header>
