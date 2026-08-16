@@ -264,7 +264,9 @@ export default function NeonBorder(props: Props) {
             const dt = Math.min(0.05, Math.max(0, (now - last) / 1000));
             last = now;
             const p = live.current;
-            const s = Math.max(0, Math.min(20, p.speed));
+            // Max tier spins neons 1.65x faster, ultra 1.2x faster
+            const speedMultiplier = tier === "max" ? 1.65 : tier === "ultra" ? 1.2 : 1.0;
+            const s = Math.max(0, Math.min(20, p.speed * speedMultiplier));
 
             if (s > 0) {
                 const step = p.movement === "step";

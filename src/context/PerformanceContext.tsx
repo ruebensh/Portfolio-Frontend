@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 
-export type QualityTier = "ultra" | "high" | "medium" | "low";
+export type QualityTier = "max" | "ultra" | "high" | "medium" | "low";
 
 interface PerformanceContextType {
   tier: QualityTier;
@@ -15,7 +15,7 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const [tier, setTierState] = useState<QualityTier>(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("portfolio_quality_tier") as QualityTier;
-      if (saved && ["ultra", "high", "medium", "low"].includes(saved)) {
+      if (saved && ["max", "ultra", "high", "medium", "low"].includes(saved)) {
         return saved;
       }
     }

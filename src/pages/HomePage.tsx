@@ -74,14 +74,16 @@ function PageBackground() {
       fadeIn: number;
     };
 
-    // 4-Tier Star Count Scaling
+    // 5-Tier Star Count Scaling
     let targetStarCount = 250; // high default
-    if (tier === "ultra") targetStarCount = 600;
-    else if (tier === "high") targetStarCount = 250;
+    if (tier === "max")    targetStarCount = 1200;
+    else if (tier === "ultra")  targetStarCount = 600;
+    else if (tier === "high")   targetStarCount = 250;
     else if (tier === "medium") targetStarCount = 120;
-    else if (tier === "low") targetStarCount = 60;
+    else if (tier === "low")    targetStarCount = 60;
 
-    const starCount = Math.floor(Math.min(targetStarCount, Math.max(40, (w * h) / (tier === "ultra" ? 2200 : 4500))));
+    const densityDivisor = tier === "max" ? 1400 : tier === "ultra" ? 2200 : 4500;
+    const starCount = Math.floor(Math.min(targetStarCount, Math.max(40, (w * h) / densityDivisor)));
     const stars: Star[] = Array.from({ length: starCount }, () => ({
       x: Math.random() * w,
       y: Math.random() * h,
@@ -95,7 +97,9 @@ function PageBackground() {
 
     const spawnMeteor = () => {
       if (prefersReduced || tier === "low" || tier === "medium") return;
-      if (Math.random() > 0.028) return;
+      // Max tier spawns meteors twice as frequently
+      const spawnChance = tier === "max" ? 0.055 : 0.028;
+      if (Math.random() > spawnChance) return;
 
       const z = Math.random() < 0.15 ? 0.75 + Math.random() * 0.25 : Math.pow(Math.random(), 2.2);
       const baseAngle = (Math.PI * 7) / 6;
@@ -128,17 +132,20 @@ function PageBackground() {
         return;
       }
 
-      const g = ctx.createRadialGradient(x, y, 0, x, y, radius * 6);
+      // Max tier: extra wide double glow ring for maximum sparkle
+      const glowRadius = tier === "max" ? radius * 9 : radius * 6;
+      const g = ctx.createRadialGradient(x, y, 0, x, y, glowRadius);
       g.addColorStop(0, `rgba(255,255,255,${alpha})`);
-      g.addColorStop(0.25, `rgba(255,255,255,${alpha * 0.3})`);
+      g.addColorStop(0.15, `rgba(220,180,255,${tier === "max" ? alpha * 0.6 : alpha * 0.3})`);
+      g.addColorStop(0.4, `rgba(255,255,255,${alpha * 0.18})`);
       g.addColorStop(1, `rgba(255,255,255,0)`);
       ctx.fillStyle = g;
       ctx.beginPath();
-      ctx.arc(x, y, radius * 6, 0, Math.PI * 2);
+      ctx.arc(x, y, glowRadius, 0, Math.PI * 2);
       ctx.fill();
-      ctx.fillStyle = `rgba(255,255,255,${Math.min(1, alpha * 1.05)})`;
+      ctx.fillStyle = `rgba(255,255,255,${Math.min(1, alpha * 1.1)})`;
       ctx.beginPath();
-      ctx.arc(x, y, Math.max(0.55, radius), 0, Math.PI * 2);
+      ctx.arc(x, y, Math.max(0.55, radius * (tier === "max" ? 1.2 : 1)), 0, Math.PI * 2);
       ctx.fill();
     };
 

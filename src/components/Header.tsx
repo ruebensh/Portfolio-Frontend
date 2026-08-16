@@ -25,16 +25,17 @@ export function Header({ data }: HeaderProps) {
   const avatarSrc = data?.avatarUrl ? `${API_URL}${data.avatarUrl}` : null;
 
   const cycleTier = () => {
-    const tiers: QualityTier[] = ["ultra", "high", "medium", "low"];
+    const tiers: QualityTier[] = ["max", "ultra", "high", "medium", "low"];
     const nextIdx = (tiers.indexOf(tier) + 1) % tiers.length;
     setTier(tiers[nextIdx]);
   };
 
   const tierLabels: Record<QualityTier, { label: string; icon: string; color: string }> = {
-    ultra: { label: "Ultra", icon: "🚀", color: "border-purple-500/40 text-purple-300 bg-purple-500/10" },
-    high: { label: "High", icon: "✨", color: "border-cyan-500/40 text-cyan-300 bg-cyan-500/10" },
-    medium: { label: "Medium", icon: "Med", color: "border-amber-500/40 text-amber-300 bg-amber-500/10" },
-    low: { label: "Saver", icon: "🔋", color: "border-emerald-500/40 text-emerald-300 bg-emerald-500/10" },
+    max:   { label: "Max",    icon: "💎", color: "border-rose-400/60 text-rose-200 bg-rose-500/15 shadow-rose-500/20" },
+    ultra: { label: "Ultra",  icon: "🚀", color: "border-purple-500/40 text-purple-300 bg-purple-500/10" },
+    high:  { label: "High",   icon: "✨", color: "border-cyan-500/40 text-cyan-300 bg-cyan-500/10" },
+    medium:{ label: "Medium", icon: "⚡",  color: "border-amber-500/40 text-amber-300 bg-amber-500/10" },
+    low:   { label: "Saver",  icon: "🔋", color: "border-emerald-500/40 text-emerald-300 bg-emerald-500/10" },
   };
 
   const navLinks = [
@@ -151,7 +152,10 @@ export function Header({ data }: HeaderProps) {
               className={`px-2.5 py-1.5 rounded-xl border flex items-center gap-1.5 text-xs font-bold transition-all duration-300 backdrop-blur-md shadow-md ${tierLabels[tier].color}`}
             >
               <span>{tierLabels[tier].icon}</span>
-              <span className="hidden sm:inline text-[11px] font-black tracking-wider uppercase">{tierLabels[tier].label}</span>
+              <span className="hidden sm:inline text-[11px] font-black tracking-wider uppercase">
+                <span className="opacity-50 font-medium normal-case">Graphics: </span>
+                {tierLabels[tier].label}
+              </span>
             </button>
 
             {/* 3 ta alohida to'rtburchak NeonBorder ga ega bayroqli tugmalar */}
