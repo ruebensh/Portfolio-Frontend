@@ -72,7 +72,7 @@ function PageBackground() {
       fadeIn: number;
     };
 
-    const starCount = Math.floor(Math.min(700, Math.max(320, (w * h) / 2200)));
+    const starCount = Math.floor(Math.min(140, Math.max(70, (w * h) / 7000)));
     const stars: Star[] = Array.from({ length: starCount }, () => ({
       x: Math.random() * w,
       y: Math.random() * h,
@@ -107,22 +107,22 @@ function PageBackground() {
       const startY = entryY - vy * (margin / 10);
 
       meteors.push({ x: startX, y: startY, vx, vy, life: 0, maxLife, w: trail, z, r, hue, fadeIn });
-      if (meteors.length > 8) meteors.shift();
+      if (meteors.length > 6) meteors.shift();
     };
 
-    const drawGlowStar = (x: number, y: number, radius: number, alpha: number) => {
-      const g = ctx.createRadialGradient(x, y, 0, x, y, radius * 6);
-      g.addColorStop(0, `rgba(255,255,255,${alpha})`);
-      g.addColorStop(0.25, `rgba(255,255,255,${alpha * 0.3})`);
-      g.addColorStop(1, `rgba(255,255,255,0)`);
-      ctx.fillStyle = g;
-      ctx.beginPath();
-      ctx.arc(x, y, radius * 6, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = `rgba(255,255,255,${Math.min(1, alpha * 1.05)})`;
-      ctx.beginPath();
-      ctx.arc(x, y, Math.max(0.55, radius), 0, Math.PI * 2);
-      ctx.fill();
+    const drawGlowStar = (x: number, y: number, radius: number, alpha: number, isBig: boolean) => {
+      if (isBig) {
+        const g = ctx.createRadialGradient(x, y, 0, x, y, radius * 5);
+        g.addColorStop(0, `rgba(255,255,255,${alpha})`);
+        g.addColorStop(0.3, `rgba(255,255,255,${alpha * 0.2})`);
+        g.addColorStop(1, `rgba(255,255,255,0)`);
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(x, y, radius * 5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+      ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
     };
 
     const onMove = (e: PointerEvent) => {
@@ -165,12 +165,12 @@ function PageBackground() {
         const radius = st.r * (0.75 + st.z * 1.0);
         const px = st.x + m.tx * (st.z - 0.2) * 14;
         const py = st.y + m.ty * (st.z - 0.2) * 12 - parallax * (0.35 + st.z * 1.35);
-        drawGlowStar(px, py, radius, alpha);
-        if (st.z > 0.84 && twinkle > 0.94) {
+        drawGlowStar(px, py, radius, alpha, st.z > 0.82);
+        if (st.z > 0.88 && twinkle > 0.95) {
           ctx.strokeStyle = `rgba(255,255,255,${alpha * 0.35})`;
           ctx.lineWidth = 1;
-          ctx.beginPath(); ctx.moveTo(px - 6, py); ctx.lineTo(px + 6, py); ctx.stroke();
-          ctx.beginPath(); ctx.moveTo(px, py - 6); ctx.lineTo(px, py + 6); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(px - 5, py); ctx.lineTo(px + 5, py); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(px, py - 5); ctx.lineTo(px, py + 5); ctx.stroke();
         }
       }
       if (!prefersReduced) spawnMeteor();

@@ -40,7 +40,7 @@ function SoftCertificatesBackground() {
     window.addEventListener("resize", resize);
 
     type Star = { x: number; y: number; z: number; r: number; p: number; tw: number };
-    const starCount = Math.floor(Math.min(160, Math.max(80, (w * h) / 6000)));
+    const starCount = Math.floor(Math.min(120, Math.max(60, (w * h) / 7000)));
     const stars: Star[] = Array.from({ length: starCount }, () => ({
       x: Math.random() * w,
       y: Math.random() * h,
@@ -58,20 +58,19 @@ function SoftCertificatesBackground() {
     };
     window.addEventListener("pointermove", onMove, { passive: true });
 
-    const glowDot = (x: number, y: number, r: number, a: number) => {
-      const g = ctx.createRadialGradient(x, y, 0, x, y, r * 7);
-      g.addColorStop(0, `rgba(255,255,255,${a})`);
-      g.addColorStop(0.25, `rgba(255,255,255,${a * 0.25})`);
-      g.addColorStop(1, "rgba(255,255,255,0)");
-      ctx.fillStyle = g;
-      ctx.beginPath();
-      ctx.arc(x, y, r * 7, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.fillStyle = `rgba(255,255,255,${Math.min(1, a * 0.75)})`;
-      ctx.beginPath();
-      ctx.arc(x, y, Math.max(0.6, r), 0, Math.PI * 2);
-      ctx.fill();
+    const glowDot = (x: number, y: number, r: number, a: number, isBig: boolean) => {
+      if (isBig) {
+        const g = ctx.createRadialGradient(x, y, 0, x, y, r * 5);
+        g.addColorStop(0, `rgba(255,255,255,${a})`);
+        g.addColorStop(0.3, `rgba(255,255,255,${a * 0.2})`);
+        g.addColorStop(1, "rgba(255,255,255,0)");
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(x, y, r * 5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.fillStyle = `rgba(255,255,255,${Math.min(1, a * 0.85)})`;
+      ctx.fillRect(x - r, y - r, r * 2, r * 2);
     };
 
     const tick = (t: number) => {
@@ -103,7 +102,7 @@ function SoftCertificatesBackground() {
         const r = st.r * (0.75 + st.z * 0.85);
         const px = st.x + m.tx * (st.z - 0.15) * 12;
         const py = st.y + m.ty * (st.z - 0.15) * 10;
-        glowDot(px, py, r, alpha);
+        glowDot(px, py, r, alpha, st.z > 0.8);
       }
       raf = requestAnimationFrame(tick);
     };
