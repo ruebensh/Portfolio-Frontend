@@ -81,7 +81,6 @@ function SoftCertificatesBackground() {
       <div className="absolute inset-0 pp-aurora" />
       <div className="absolute inset-0 pp-noise" />
       <div className="absolute inset-0 pp-vignette" />
-      <canvas ref={canvasRef} className="absolute inset-0 opacity-80" />
     </div>
   );
 }

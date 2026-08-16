@@ -13,131 +13,20 @@ import { Button } from "../components/ui/button";
 import NeonGlowButton from "../components/originkit/ui/neon-glow-button";
 import { useLanguage } from "../context/LanguageContext";
 
+import { usePerformance } from "../context/PerformanceContext";
+import { SubtleVideoBackground } from "../components/SubtleVideoBackground";
+
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 function SoftProjectBackground() {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const mouseRef = useRef({ x: 0, y: 0, tx: 0, ty: 0 });
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    let raf = 0;
-    let w = 0;
-    let h = 0;
-    const DPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
-
-    const prefersReduced =
-      window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false;
-
-    const resize = () => {
-      w = window.innerWidth;
-      h = window.innerHeight;
-      canvas.width = Math.floor(w * DPR);
-      canvas.height = Math.floor(h * DPR);
-      canvas.style.width = `${w}px`;
-      canvas.style.height = `${h}px`;
-      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-    };
-
-    resize();
-    window.addEventListener("resize", resize);
-
-    type Star = { x: number; y: number; z: number; r: number; p: number; tw: number };
-    const starCount = Math.floor(Math.min(420, Math.max(220, (w * h) / 3000)));
-    const stars: Star[] = Array.from({ length: starCount }, () => ({
-      x: Math.random() * w,
-      y: Math.random() * h,
-      z: Math.pow(Math.random(), 1.8),
-      r: 0.25 + Math.random() * 0.85,
-      p: Math.random() * Math.PI * 2,
-      tw: 0.35 + Math.random() * 0.9,
-    }));
-
-    const onMove = (e: PointerEvent) => {
-      const nx = e.clientX / window.innerWidth - 0.5;
-      const ny = e.clientY / window.innerHeight - 0.5;
-      mouseRef.current.x = nx;
-      mouseRef.current.y = ny;
-    };
-    window.addEventListener("pointermove", onMove, { passive: true });
-
-    const glowDot = (x: number, y: number, r: number, a: number) => {
-      const g = ctx.createRadialGradient(x, y, 0, x, y, r * 7);
-      g.addColorStop(0, `rgba(255,255,255,${a})`);
-      g.addColorStop(0.2, `rgba(255,255,255,${a * 0.25})`);
-      g.addColorStop(1, "rgba(255,255,255,0)");
-      ctx.fillStyle = g;
-      ctx.beginPath();
-      ctx.arc(x, y, r * 7, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.fillStyle = `rgba(255,255,255,${Math.min(1, a * 0.85)})`;
-      ctx.beginPath();
-      ctx.arc(x, y, Math.max(0.6, r), 0, Math.PI * 2);
-      ctx.fill();
-    };
-
-    const tick = (t: number) => {
-      ctx.clearRect(0, 0, w, h);
-
-      const m = mouseRef.current;
-      m.tx += (m.x - m.tx) * 0.06;
-      m.ty += (m.y - m.ty) * 0.06;
-
-      const bg = ctx.createRadialGradient(
-        w * 0.55 + m.tx * 60,
-        h * 0.25 + m.ty * 40,
-        Math.min(w, h) * 0.18,
-        w * 0.5,
-        h * 0.5,
-        Math.max(w, h) * 0.9
-      );
-      bg.addColorStop(0, "rgba(255,255,255,0.010)");
-      bg.addColorStop(1, "rgba(0,0,0,0)");
-      ctx.fillStyle = bg;
-      ctx.fillRect(0, 0, w, h);
-
-      for (const st of stars) {
-        if (!prefersReduced) {
-          st.y += (0.02 + st.z * 0.08) * 0.55;
-          if (st.y > h + 30) st.y = -30;
-        }
-
-        const twinkle = prefersReduced
-          ? 1
-          : 0.85 + 0.15 * Math.sin(t * 0.0011 * st.tw + st.p);
-
-        const alpha = Math.min(0.22, (0.10 + st.z * 0.22) * twinkle);
-        const r = st.r * (0.7 + st.z * 0.9);
-
-        const px = st.x + m.tx * (st.z - 0.15) * 12;
-        const py = st.y + m.ty * (st.z - 0.15) * 10;
-
-        glowDot(px, py, r, alpha);
-      }
-
-      raf = requestAnimationFrame(tick);
-    };
-
-    raf = requestAnimationFrame(tick);
-
-    return () => {
-      window.removeEventListener("resize", resize);
-      window.removeEventListener("pointermove", onMove);
-      cancelAnimationFrame(raf);
-    };
-  }, []);
+  const { tier } = usePerformance();
 
   return (
     <div className="pointer-events-none fixed inset-0 -z-10">
+      <SubtleVideoBackground index={0} />
       <style>{`
         .pd-aurora {
-          opacity: .28;
+          opacity: ${tier === "low" ? "0.1" : tier === "medium" ? "0.18" : "0.28"};
           filter: blur(90px);
           background:
             radial-gradient(45% 45% at 15% 25%, rgba(99,102,241,.18), transparent 60%),
@@ -221,7 +110,6 @@ function SoftProjectBackground() {
       <div className="absolute inset-0 pd-aurora" />
       <div className="absolute inset-0 pd-noise" />
       <div className="absolute inset-0 pd-vignette" />
-      <canvas ref={canvasRef} className="absolute inset-0 opacity-80" />
     </div>
   );
 }
