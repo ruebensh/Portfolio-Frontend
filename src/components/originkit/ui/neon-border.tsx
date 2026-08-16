@@ -255,13 +255,7 @@ export default function NeonBorder(props: Props) {
                 return;
             }
 
-            // Medium tier throttles frame updates for battery & CPU saving
-            if (tier === "medium" && now - last < 33) {
-                raf = requestAnimationFrame(frame);
-                return;
-            }
-
-            // High refresh rate support (up to 240 FPS: ~0.00416s per frame)
+            // High refresh rate & smooth 60-240 FPS rendering across all animated tiers
             const dt = Math.min(0.05, Math.max(0.001, (now - last) / 1000));
             last = now;
             const p = live.current;

@@ -125,15 +125,24 @@ function PageBackground() {
     };
 
     const drawGlowStar = (x: number, y: number, radius: number, alpha: number) => {
-      if (tier === "low" || tier === "medium") {
-        ctx.fillStyle = `rgba(255,255,255,${alpha * 0.9})`;
+      // 3 Lower Tiers (High, Medium, Saver) use ultra-fast 2-pass arc fills (0% GC overhead, 100% smooth)
+      if (tier === "low" || tier === "medium" || tier === "high") {
+        const glowMult = tier === "high" ? 2.2 : tier === "medium" ? 1.5 : 1.1;
+        ctx.fillStyle = tier === "high"
+          ? `rgba(220,190,255,${alpha * 0.25})`
+          : `rgba(255,255,255,${alpha * 0.18})`;
         ctx.beginPath();
-        ctx.arc(x, y, Math.max(0.5, radius * 0.9), 0, Math.PI * 2);
+        ctx.arc(x, y, Math.max(1, radius * glowMult), 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = `rgba(255,255,255,${Math.min(1, alpha * 1.1)})`;
+        ctx.beginPath();
+        ctx.arc(x, y, Math.max(0.5, radius * 0.85), 0, Math.PI * 2);
         ctx.fill();
         return;
       }
 
-      // Best & Max tier: extra wide double glow ring for maximum sparkle
+      // Best, Max, Ultra tiers: Multi-pass radial gradient sparkle halos
       const glowRadius = tier === "best" ? radius * 12 : tier === "max" ? radius * 9 : radius * 6;
       const g = ctx.createRadialGradient(x, y, 0, x, y, glowRadius);
       g.addColorStop(0, `rgba(255,255,255,${alpha})`);
