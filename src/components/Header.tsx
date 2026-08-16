@@ -107,11 +107,22 @@ export function Header({ data }: HeaderProps) {
       const y = window.scrollY;
       setScrolled(y > 20);
       const height = document.documentElement.scrollHeight - window.innerHeight;
-      setProgress(y / height);
+      setProgress(height > 0 ? y / height : 0);
     };
     window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+    onScroll();
+
+    if (mobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      document.body.style.overflow = "";
+    };
+  }, [mobileMenuOpen]);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50">
@@ -122,13 +133,14 @@ export function Header({ data }: HeaderProps) {
 
       <div
         className={`transition-all duration-500 ${
+          mobileMenuOpen ? "opacity-0 pointer-events-none" : "opacity-100"
+        } ${
           scrolled
             ? "backdrop-blur-xl bg-background/70 border-b border-white/5 py-3"
             : "bg-transparent py-5"
         }`}
       >
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex items-center justify-between">
-
           <div className="flex items-center gap-3 lg:gap-6 min-w-0">
             <Link href="/" className="flex items-center gap-2 sm:gap-3 group flex-shrink-0">
               <div className="relative flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-primary/80 to-purple-600/80 border border-white/20 shadow-[0_0_20px_rgba(var(--primary),0.3)] transition-all duration-300 group-hover:scale-105 group-hover:shadow-[0_0_30px_rgba(var(--primary),0.5)] overflow-hidden">
@@ -315,14 +327,24 @@ export function Header({ data }: HeaderProps) {
       {typeof document !== "undefined" && createPortal(
         <AnimatePresence>
           {mobileMenuOpen && (
-            <div className="fixed inset-0 z-[99999999] pointer-events-auto md:hidden" style={{ isolation: "isolate" }}>
+            <div
+              style={{
+                position: "fixed",
+                inset: 0,
+                zIndex: 2147483647,
+                transform: "translate3d(0, 0, 999999px)",
+                WebkitTransform: "translate3d(0, 0, 999999px)",
+                isolation: "isolate",
+              }}
+              className="pointer-events-auto md:hidden"
+            >
               {/* Full-screen Backdrop Overlay */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={() => setMobileMenuOpen(false)}
-                className="absolute inset-0 bg-black/92 backdrop-blur-2xl"
+                className="absolute inset-0 bg-black/95 backdrop-blur-3xl"
               />
 
               {/* Drawer Panel */}
@@ -345,10 +367,12 @@ export function Header({ data }: HeaderProps) {
                 <div className="relative z-10 flex flex-col gap-6">
                   {/* Drawer Header */}
                   <div className="flex items-center justify-between pb-5 border-b border-white/15">
-                    <Link
-                      href="/"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center gap-3"
+                    <button
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        navigate("/");
+                      }}
+                      className="flex items-center gap-3 text-left"
                     >
                       <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 border border-white/30 flex items-center justify-center shadow-[0_0_15px_rgba(168,85,247,0.5)] overflow-hidden">
                         {avatarSrc ? (
@@ -361,7 +385,7 @@ export function Header({ data }: HeaderProps) {
                         <h3 className="font-extrabold text-base text-white leading-tight truncate">{authorName}</h3>
                         <span className="text-[10px] font-extrabold text-purple-400 tracking-widest uppercase">Portfolio</span>
                       </div>
-                    </Link>
+                    </button>
                     <button
                       onClick={() => setMobileMenuOpen(false)}
                       className="p-2 rounded-xl border border-white/20 bg-white/10 text-white hover:bg-white/20 transition-all active:scale-95 shadow-md"
@@ -375,11 +399,11 @@ export function Header({ data }: HeaderProps) {
                     {navLinks.map((link) => {
                       const active = isActive(link.path);
                       return (
-                        <Link
+                        <button
                           key={link.path}
-                          href={link.path}
                           onClick={() => {
                             setMobileMenuOpen(false);
+                            navigate(link.path);
                           }}
                           className={`group relative px-4 py-3.5 rounded-2xl text-sm font-bold flex items-center justify-between transition-all duration-300 ${
                             active
@@ -392,7 +416,7 @@ export function Header({ data }: HeaderProps) {
                             <span>{link.name}</span>
                           </div>
                           {link.icon ? link.icon : active && <span className="text-xs font-bold text-purple-400">●</span>}
-                        </Link>
+                        </button>
                       );
                     })}
                   </nav>
