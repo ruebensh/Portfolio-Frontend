@@ -1,6 +1,6 @@
 import { Link, useRouter } from "../lib/router";
-import { Menu, X, Sparkles, Bot, Rss, Globe, Zap, Gauge } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Menu, X, Sparkles, Bot, Rss, Globe, Zap, Gauge, ChevronDown, Check } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import MovingGradientButton from "./originkit/ui/moving-gradient-button";
 import NeonBorder from "./originkit/ui/neon-border";
@@ -19,27 +19,40 @@ export function Header({ data }: HeaderProps) {
   const { language, setLanguage, t } = useLanguage();
   const { tier, setTier } = usePerformance();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [graphicsMenuOpen, setGraphicsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [progress, setProgress] = useState(0);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
   const authorName = data?.author || "Jaloliddin";
   const avatarSrc = data?.avatarUrl ? `${API_URL}${data.avatarUrl}` : null;
 
-  const cycleTier = () => {
-    const tiers: QualityTier[] = ["best", "max", "ultra", "high", "medium", "low"];
-    const nextIdx = (tiers.indexOf(tier) + 1) % tiers.length;
-    setTier(tiers[nextIdx]);
+  const selectTier = (selectedTier: QualityTier) => {
+    setTier(selectedTier);
+    setGraphicsMenuOpen(false);
     // Reload so canvas effects re-initialize with the new tier settings
     setTimeout(() => window.location.reload(), 80);
   };
 
-  const tierLabels: Record<QualityTier, { label: string; mobileLabel: string; icon: string; color: string }> = {
-    best:  { label: "Best",   mobileLabel: "BEST", icon: "👑", color: "border-amber-400/80 text-amber-200 bg-amber-500/20 shadow-amber-500/30 font-black animate-pulse" },
-    max:   { label: "Max",    mobileLabel: "MAX",  icon: "💎", color: "border-rose-400/60 text-rose-200 bg-rose-500/15 shadow-rose-500/20" },
-    ultra: { label: "Ultra",  mobileLabel: "UHD",  icon: "🚀", color: "border-purple-500/40 text-purple-300 bg-purple-500/10" },
-    high:  { label: "High",   mobileLabel: "FHD",  icon: "✨", color: "border-cyan-500/40 text-cyan-300 bg-cyan-500/10" },
-    medium:{ label: "Medium", mobileLabel: "HD",   icon: "⚡",  color: "border-amber-500/40 text-amber-300 bg-amber-500/10" },
-    low:   { label: "Saver",  mobileLabel: "SD",   icon: "🔋", color: "border-emerald-500/40 text-emerald-300 bg-emerald-500/10" },
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setGraphicsMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const tierLabels: Record<QualityTier, { label: string; mobileLabel: string; icon: string; desc: string; color: string }> = {
+    best:  { label: "Best",   mobileLabel: "BEST", icon: "👑", desc: "240FPS+ • 1800 Stars • 100% Video • Music", color: "border-amber-400/80 text-amber-200 bg-amber-500/20 shadow-amber-500/30" },
+    max:   { label: "Max",    mobileLabel: "MAX",  icon: "💎", desc: "144FPS+ • 1200 Stars • 95% Video • Music",  color: "border-rose-400/60 text-rose-200 bg-rose-500/15 shadow-rose-500/20" },
+    ultra: { label: "Ultra",  mobileLabel: "UHD",  icon: "🚀", desc: "120FPS+ • 600 Stars • 82% Video • Music",   color: "border-purple-500/40 text-purple-300 bg-purple-500/10" },
+    high:  { label: "High",   mobileLabel: "FHD",  icon: "✨", desc: "60-120FPS • 200 Stars • Smooth",               color: "border-cyan-500/40 text-cyan-300 bg-cyan-500/10" },
+    medium:{ label: "Medium", mobileLabel: "HD",   icon: "⚡",  desc: "60FPS • 100 Stars • Power Saver",             color: "border-amber-500/40 text-amber-300 bg-amber-500/10" },
+    low:   { label: "Saver",  mobileLabel: "SD",   icon: "🔋", desc: "60FPS • VirtualBox Ready • 0% CPU Load",       color: "border-emerald-500/40 text-emerald-300 bg-emerald-500/10" },
   };
+
+  const tierOptions: QualityTier[] = ["best", "max", "ultra", "high", "medium", "low"];
 
   const navLinks = [
     { name: t("nav.home"), path: "/" },
@@ -148,25 +161,81 @@ export function Header({ data }: HeaderProps) {
           </nav>
 
           <div className="flex items-center gap-2 flex-shrink-0">
-            {/* 4-Tier Quality Switch Button */}
-            <button
-              onClick={cycleTier}
-              title={`Graphics Quality: ${tierLabels[tier].label} (Click to switch)`}
-              className={`px-2.5 py-1.5 rounded-xl border flex items-center gap-1.5 text-xs font-bold transition-all duration-300 backdrop-blur-md shadow-md ${tierLabels[tier].color}`}
-            >
-              {/* Mobile: qisqa nishon (SD / HD / FHD / UHD / MAX) */}
-              <span className="sm:hidden text-[10px] font-black tracking-widest">
-                {tierLabels[tier].mobileLabel}
-              </span>
-              {/* Desktop: emoji + "Graphics: Ultra" */}
-              <span className="hidden sm:flex items-center gap-1.5">
-                <span>{tierLabels[tier].icon}</span>
-                <span className="text-[11px] font-black tracking-wider uppercase">
-                  <span className="opacity-50 font-medium normal-case">Graphics: </span>
-                  {tierLabels[tier].label}
+            {/* Graphics Quality Dropdown Container */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setGraphicsMenuOpen(!graphicsMenuOpen)}
+                title="Graphics Quality Menu"
+                className={`px-2.5 py-1.5 rounded-xl border flex items-center gap-1.5 text-xs font-bold transition-all duration-300 backdrop-blur-md shadow-md hover:scale-105 active:scale-95 ${tierLabels[tier].color}`}
+              >
+                {/* Mobile: short badge (SD / HD / FHD / UHD / MAX / BEST) */}
+                <span className="sm:hidden text-[10px] font-black tracking-widest flex items-center gap-1">
+                  {tierLabels[tier].mobileLabel}
+                  <ChevronDown size={11} className={`transition-transform duration-200 ${graphicsMenuOpen ? "rotate-180" : ""}`} />
                 </span>
-              </span>
-            </button>
+                {/* Desktop: emoji + "Graphics: Ultra" */}
+                <span className="hidden sm:flex items-center gap-1.5">
+                  <span>{tierLabels[tier].icon}</span>
+                  <span className="text-[11px] font-black tracking-wider uppercase">
+                    <span className="opacity-50 font-medium normal-case">Graphics: </span>
+                    {tierLabels[tier].label}
+                  </span>
+                  <ChevronDown size={12} className={`transition-transform duration-200 opacity-70 ${graphicsMenuOpen ? "rotate-180" : ""}`} />
+                </span>
+              </button>
+
+              {/* Graphics Dropdown Menu List */}
+              <AnimatePresence>
+                {graphicsMenuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 top-full mt-2 w-72 sm:w-80 rounded-2xl border border-white/15 bg-black/90 p-2 shadow-2xl backdrop-blur-2xl z-50 overflow-hidden"
+                  >
+                    <div className="px-3 py-2 border-b border-white/10 mb-1 flex items-center justify-between">
+                      <span className="text-[11px] font-extrabold uppercase tracking-wider text-amber-400">
+                        Grafika va Unumdorlik
+                      </span>
+                      <span className="text-[10px] text-white/40 font-mono">6 ta Rejim</span>
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      {tierOptions.map((optId) => {
+                        const opt = tierLabels[optId];
+                        const isActiveTier = tier === optId;
+                        return (
+                          <button
+                            key={optId}
+                            onClick={() => selectTier(optId)}
+                            className={`w-full flex items-center justify-between p-2.5 rounded-xl transition-all text-left ${
+                              isActiveTier
+                                ? "bg-white/15 border border-white/20 shadow-md text-white"
+                                : "hover:bg-white/10 text-white/80 hover:text-white"
+                            }`}
+                          >
+                            <div className="flex items-center gap-3 min-w-0">
+                              <span className="text-lg flex-shrink-0">{opt.icon}</span>
+                              <div className="flex flex-col min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs font-black uppercase tracking-wider">{opt.label}</span>
+                                  <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-md bg-white/10 text-white/60">
+                                    {opt.mobileLabel}
+                                  </span>
+                                </div>
+                                <span className="text-[10px] text-white/50 truncate mt-0.5">{opt.desc}</span>
+                              </div>
+                            </div>
+                            {isActiveTier && <Check size={16} className="text-amber-400 flex-shrink-0 ml-2" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
             {/* 3 ta alohida to'rtburchak NeonBorder ga ega bayroqli tugmalar */}
             <div className="flex items-center gap-2">
