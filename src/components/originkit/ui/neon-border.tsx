@@ -261,12 +261,13 @@ export default function NeonBorder(props: Props) {
                 return;
             }
 
-            const dt = Math.min(0.05, Math.max(0, (now - last) / 1000));
+            // High refresh rate support (up to 240 FPS: ~0.00416s per frame)
+            const dt = Math.min(0.05, Math.max(0.001, (now - last) / 1000));
             last = now;
             const p = live.current;
-            // Best tier spins neons 2.2x faster, max 1.65x, ultra 1.2x
-            const speedMultiplier = tier === "best" ? 2.2 : tier === "max" ? 1.65 : tier === "ultra" ? 1.2 : 1.0;
-            const s = Math.max(0, Math.min(20, p.speed * speedMultiplier));
+            // Best tier spins neons 2.48x faster (1.5x faster than Max), max 1.65x, ultra 1.2x
+            const speedMultiplier = tier === "best" ? 2.48 : tier === "max" ? 1.65 : tier === "ultra" ? 1.2 : 1.0;
+            const s = Math.max(0, Math.min(35, p.speed * speedMultiplier));
 
             if (s > 0) {
                 const step = p.movement === "step";

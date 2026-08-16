@@ -162,14 +162,19 @@ function PageBackground() {
     window.addEventListener("pointermove", onMove, { passive: true });
     window.addEventListener("scroll", onScroll, { passive: true });
 
+    let lastT = performance.now();
     const tick = (t: number) => {
+      // 240 FPS High Refresh Rate Delta Scaling (~16.667ms baseline)
+      const dtFactor = Math.min(2.5, Math.max(0.1, (t - lastT) / 16.667));
+      lastT = t;
+
       ctx.clearRect(0, 0, w, h);
       ctx.globalCompositeOperation = "source-over";
       const m = mouseRef.current;
-      m.tx += (m.x - m.tx) * 0.06;
-      m.ty += (m.y - m.ty) * 0.06;
+      m.tx += (m.x - m.tx) * 0.06 * dtFactor;
+      m.ty += (m.y - m.ty) * 0.06 * dtFactor;
       const s = scrollRef.current;
-      s.ty += (s.y - s.ty) * 0.14;
+      s.ty += (s.y - s.ty) * 0.14 * dtFactor;
       const parallaxBase = 0.2;
       const parallax = s.ty * parallaxBase;
       const bg = ctx.createRadialGradient(w * 0.5 + m.tx * 60, h * 0.35 + m.ty * 40, Math.min(w, h) * 0.12, w * 0.5, h * 0.5, Math.max(w, h) * 0.95);
@@ -181,7 +186,7 @@ function PageBackground() {
       for (const st of stars) {
         if (!prefersReduced) {
           const starFall = 1.85;
-          st.y += (0.02 + st.z * 0.12) * 0.6 * starFall;
+          st.y += (0.02 + st.z * 0.12) * 0.6 * starFall * dtFactor;
           if (st.y > h + 40) st.y = -40;
         }
         const depth = 0.22 + st.z * 0.85;
