@@ -44,30 +44,30 @@ export function Header({ data }: HeaderProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Per-tier color theme using inline CSS (Tailwind JIT can't detect dynamically composed class names)
+  // Per-tier color theme: soft glassmorphism via inline CSS
   const tierColors: Record<QualityTier, {
     bg: string; border: string; text: string; shadow: string;
     activeBg: string; activeBorder: string; activeText: string; activeShadow: string;
     badgeBg: string; badgeBorder: string; badgeText: string;
   }> = {
-    best:   { bg: "rgba(245,158,11,0.07)",  border: "rgba(251,191,36,0.22)",  text: "#f5d987", shadow: "none",
-              activeBg: "rgba(251,191,36,0.14)", activeBorder: "rgba(251,191,36,0.60)", activeText: "#fef3c7", activeShadow: "0 0 14px rgba(251,191,36,0.25)",
-              badgeBg: "rgba(251,191,36,0.14)", badgeBorder: "rgba(251,191,36,0.30)", badgeText: "#fcd34d" },
-    max:    { bg: "rgba(244,63,94,0.07)",   border: "rgba(251,113,133,0.20)", text: "#f9bec7", shadow: "none",
-              activeBg: "rgba(244,63,94,0.15)",  activeBorder: "rgba(251,113,133,0.55)", activeText: "#ffe4e6", activeShadow: "0 0 14px rgba(251,113,133,0.22)",
-              badgeBg: "rgba(244,63,94,0.14)",  badgeBorder: "rgba(251,113,133,0.30)", badgeText: "#fb7185" },
-    ultra:  { bg: "rgba(168,85,247,0.07)",  border: "rgba(192,132,252,0.20)", text: "#ddb8fc", shadow: "none",
-              activeBg: "rgba(168,85,247,0.15)", activeBorder: "rgba(192,132,252,0.55)", activeText: "#f3e8ff", activeShadow: "0 0 14px rgba(168,85,247,0.22)",
-              badgeBg: "rgba(168,85,247,0.14)", badgeBorder: "rgba(192,132,252,0.30)", badgeText: "#c084fc" },
-    high:   { bg: "rgba(6,182,212,0.07)",   border: "rgba(34,211,238,0.18)",  text: "#8ee8f8", shadow: "none",
-              activeBg: "rgba(6,182,212,0.14)",  activeBorder: "rgba(34,211,238,0.52)",  activeText: "#cffafe", activeShadow: "0 0 14px rgba(34,211,238,0.20)",
-              badgeBg: "rgba(6,182,212,0.14)",  badgeBorder: "rgba(34,211,238,0.30)",  badgeText: "#22d3ee" },
-    medium: { bg: "rgba(249,115,22,0.07)",  border: "rgba(251,146,60,0.18)",  text: "#fcc08a", shadow: "none",
-              activeBg: "rgba(249,115,22,0.14)", activeBorder: "rgba(251,146,60,0.52)",  activeText: "#ffedd5", activeShadow: "0 0 14px rgba(251,146,60,0.20)",
-              badgeBg: "rgba(249,115,22,0.14)", badgeBorder: "rgba(251,146,60,0.30)",  badgeText: "#fb923c" },
-    low:    { bg: "rgba(16,185,129,0.07)",  border: "rgba(52,211,153,0.18)",  text: "#8de8c4", shadow: "none",
-              activeBg: "rgba(16,185,129,0.14)", activeBorder: "rgba(52,211,153,0.52)",  activeText: "#d1fae5", activeShadow: "0 0 14px rgba(52,211,153,0.20)",
-              badgeBg: "rgba(16,185,129,0.14)", badgeBorder: "rgba(52,211,153,0.30)",  badgeText: "#34d399" },
+    best:   { bg: "rgba(245,158,11,0.15)",  border: "rgba(251,191,36,0.30)",  text: "#fde68a", shadow: "none",
+              activeBg: "rgba(251,191,36,0.28)", activeBorder: "rgba(251,191,36,0.70)", activeText: "#fef9c3", activeShadow: "0 0 16px rgba(251,191,36,0.30)",
+              badgeBg: "rgba(251,191,36,0.20)", badgeBorder: "rgba(251,191,36,0.40)", badgeText: "#fcd34d" },
+    max:    { bg: "rgba(244,63,94,0.14)",   border: "rgba(251,113,133,0.28)", text: "#fecdd3", shadow: "none",
+              activeBg: "rgba(244,63,94,0.28)",  activeBorder: "rgba(251,113,133,0.65)", activeText: "#ffe4e6", activeShadow: "0 0 16px rgba(251,113,133,0.28)",
+              badgeBg: "rgba(244,63,94,0.20)",  badgeBorder: "rgba(251,113,133,0.38)", badgeText: "#fb7185" },
+    ultra:  { bg: "rgba(168,85,247,0.14)",  border: "rgba(192,132,252,0.28)", text: "#e9d5ff", shadow: "none",
+              activeBg: "rgba(168,85,247,0.28)", activeBorder: "rgba(192,132,252,0.65)", activeText: "#f3e8ff", activeShadow: "0 0 16px rgba(168,85,247,0.28)",
+              badgeBg: "rgba(168,85,247,0.20)", badgeBorder: "rgba(192,132,252,0.38)", badgeText: "#c084fc" },
+    high:   { bg: "rgba(6,182,212,0.13)",   border: "rgba(34,211,238,0.26)",  text: "#a5f3fc", shadow: "none",
+              activeBg: "rgba(6,182,212,0.26)",  activeBorder: "rgba(34,211,238,0.62)",  activeText: "#cffafe", activeShadow: "0 0 16px rgba(34,211,238,0.25)",
+              badgeBg: "rgba(6,182,212,0.20)",  badgeBorder: "rgba(34,211,238,0.38)",  badgeText: "#22d3ee" },
+    medium: { bg: "rgba(249,115,22,0.13)",  border: "rgba(251,146,60,0.26)",  text: "#fed7aa", shadow: "none",
+              activeBg: "rgba(249,115,22,0.26)", activeBorder: "rgba(251,146,60,0.62)",  activeText: "#ffedd5", activeShadow: "0 0 16px rgba(251,146,60,0.25)",
+              badgeBg: "rgba(249,115,22,0.20)", badgeBorder: "rgba(251,146,60,0.38)",  badgeText: "#fb923c" },
+    low:    { bg: "rgba(16,185,129,0.13)",  border: "rgba(52,211,153,0.26)",  text: "#a7f3d0", shadow: "none",
+              activeBg: "rgba(16,185,129,0.26)", activeBorder: "rgba(52,211,153,0.62)",  activeText: "#d1fae5", activeShadow: "0 0 16px rgba(52,211,153,0.25)",
+              badgeBg: "rgba(16,185,129,0.20)", badgeBorder: "rgba(52,211,153,0.38)",  badgeText: "#34d399" },
   };
 
   const tierLabels: Record<QualityTier, { label: string; mobileLabel: string; icon: string; desc: string; color: string }> = {
@@ -249,8 +249,10 @@ export function Header({ data }: HeaderProps) {
                               borderColor: btnBorder,
                               color: btnColor,
                               boxShadow: btnShadow,
+                              backdropFilter: "blur(10px)",
+                              WebkitBackdropFilter: "blur(10px)",
                             }}
-                            className="w-full flex items-center justify-between px-2.5 py-2 rounded-xl border transition-all duration-200 text-left hover:scale-[1.04] hover:z-10 backdrop-blur-md"
+                            className="w-full flex items-center justify-between px-2.5 py-2 rounded-xl border transition-all duration-200 text-left hover:scale-[1.04] hover:z-10"
                           >
                             <div className="flex items-center gap-2 min-w-0">
                               <span className="text-base flex-shrink-0">{opt.icon}</span>
