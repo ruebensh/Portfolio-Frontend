@@ -44,6 +44,20 @@ export function Header({ data }: HeaderProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Per-tier color theme: [inactive bg, inactive border, inactive text, active bg, active border, active text, active shadow]
+  const tierColors: Record<QualityTier, {
+    bg: string; border: string; text: string;
+    activeBg: string; activeBorder: string; activeText: string; activeShadow: string;
+    badgeBg: string;
+  }> = {
+    best:   { bg: "bg-amber-500/[0.12]",   border: "border-amber-400/30",   text: "text-amber-200",   activeBg: "bg-amber-400/25",   activeBorder: "border-amber-400/80",   activeText: "text-amber-100",   activeShadow: "shadow-[0_0_18px_rgba(251,191,36,0.35)]",  badgeBg: "bg-amber-400/25 border-amber-400/40 text-amber-300" },
+    max:    { bg: "bg-rose-500/[0.10]",    border: "border-rose-400/25",    text: "text-rose-200",    activeBg: "bg-rose-500/25",    activeBorder: "border-rose-400/70",    activeText: "text-rose-100",    activeShadow: "shadow-[0_0_18px_rgba(251,113,133,0.30)]",  badgeBg: "bg-rose-500/25 border-rose-400/40 text-rose-300" },
+    ultra:  { bg: "bg-purple-500/[0.10]",  border: "border-purple-500/25",  text: "text-purple-200",  activeBg: "bg-purple-500/25",  activeBorder: "border-purple-400/70",  activeText: "text-purple-100",  activeShadow: "shadow-[0_0_18px_rgba(168,85,247,0.30)]",   badgeBg: "bg-purple-500/25 border-purple-400/40 text-purple-300" },
+    high:   { bg: "bg-cyan-500/[0.09]",    border: "border-cyan-500/25",    text: "text-cyan-200",    activeBg: "bg-cyan-500/22",    activeBorder: "border-cyan-400/65",    activeText: "text-cyan-100",    activeShadow: "shadow-[0_0_18px_rgba(34,211,238,0.28)]",   badgeBg: "bg-cyan-500/25 border-cyan-400/40 text-cyan-300" },
+    medium: { bg: "bg-orange-500/[0.09]",  border: "border-orange-400/25",  text: "text-orange-200",  activeBg: "bg-orange-500/22",  activeBorder: "border-orange-400/65",  activeText: "text-orange-100",  activeShadow: "shadow-[0_0_18px_rgba(251,146,60,0.28)]",   badgeBg: "bg-orange-500/25 border-orange-400/40 text-orange-300" },
+    low:    { bg: "bg-emerald-500/[0.09]", border: "border-emerald-500/25", text: "text-emerald-200", activeBg: "bg-emerald-500/22", activeBorder: "border-emerald-400/65", activeText: "text-emerald-100", activeShadow: "shadow-[0_0_18px_rgba(52,211,153,0.28)]",    badgeBg: "bg-emerald-500/25 border-emerald-400/40 text-emerald-300" },
+  };
+
   const tierLabels: Record<QualityTier, { label: string; mobileLabel: string; icon: string; desc: string; color: string }> = {
     best:  { label: "Best",   mobileLabel: "BEST", icon: "👑", desc: "240FPS+ • 1800 Stars • 100% Video • Music", color: "border-amber-400/80 text-amber-200 bg-amber-500/20 shadow-amber-500/30" },
     max:   { label: "Max",    mobileLabel: "MAX",  icon: "💎", desc: "144FPS+ • 1200 Stars • 95% Video • Music",  color: "border-rose-400/60 text-rose-200 bg-rose-500/15 shadow-rose-500/20" },
@@ -207,25 +221,26 @@ export function Header({ data }: HeaderProps) {
                     <div className="flex flex-col gap-1">
                       {tierOptions.map((optId) => {
                         const opt = tierLabels[optId];
+                        const tc = tierColors[optId];
                         const isActiveTier = tier === optId;
                         return (
                           <button
                             key={optId}
                             onClick={() => selectTier(optId)}
-                            className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl border transition-all duration-200 text-left hover:scale-[1.04] hover:z-10 ${
+                            className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl border transition-all duration-200 text-left hover:scale-[1.04] hover:z-10 backdrop-blur-md ${
                               isActiveTier
-                                ? "bg-amber-400/20 border-amber-400/60 text-amber-200 shadow-[0_0_15px_rgba(255,215,0,0.3)] backdrop-blur-xl"
-                                : "bg-white/[0.06] border-white/10 text-white/80 hover:bg-white/20 hover:border-white/30 hover:text-white backdrop-blur-md shadow-md"
+                                ? `${tc.activeBg} ${tc.activeBorder} ${tc.activeText} ${tc.activeShadow}`
+                                : `${tc.bg} ${tc.border} ${tc.text} hover:brightness-125`
                             }`}
                           >
                             <div className="flex items-center gap-2 min-w-0">
                               <span className="text-base flex-shrink-0">{opt.icon}</span>
                               <span className="text-xs font-black uppercase tracking-wider">{opt.label}</span>
-                              <span className="text-[9px] font-mono font-extrabold px-1.5 py-0.5 rounded-md bg-white/10 text-white/70 border border-white/10">
+                              <span className={`text-[9px] font-mono font-extrabold px-1.5 py-0.5 rounded-md border ${tc.badgeBg}`}>
                                 {opt.mobileLabel}
                               </span>
                             </div>
-                            {isActiveTier && <Check size={14} className="text-amber-400 flex-shrink-0 ml-1" />}
+                            {isActiveTier && <Check size={14} className="flex-shrink-0 ml-1 opacity-90" />}
                           </button>
                         );
                       })}
