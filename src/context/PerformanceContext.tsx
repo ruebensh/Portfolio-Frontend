@@ -54,13 +54,13 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
     const MUSIC_TIERS: QualityTier[] = ["best", "max", "ultra"];
     const isMusicTier = MUSIC_TIERS.includes(tier);
 
-    // Tier specific volumes
+    // Tier specific volumes (38% best, 33% max, 28% ultra)
     const volumeMap: Record<string, number> = {
-      best: 0.28,
-      max: 0.22,
-      ultra: 0.18,
+      best: 0.38,
+      max: 0.33,
+      ultra: 0.28,
     };
-    audio.volume = volumeMap[tier] || 0.20;
+    audio.volume = volumeMap[tier] || 0.28;
 
     const tryPlay = () => {
       if (isMusicTier) {
