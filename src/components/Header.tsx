@@ -1,3 +1,5 @@
+import { createPortal } from "react-dom";
+
 import { Link, useRouter } from "../lib/router";
 import { Menu, X, Sparkles, Bot, Rss, Globe, Zap, Gauge, ChevronDown, Check } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -310,112 +312,119 @@ export function Header({ data }: HeaderProps) {
         </div>
       </div>
 
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setMobileMenuOpen(false)}
-              className="fixed inset-0 bg-black/90 backdrop-blur-2xl z-[99990] md:hidden"
-            />
+      {typeof document !== "undefined" && createPortal(
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setMobileMenuOpen(false)}
+                className="fixed inset-0 bg-black/85 backdrop-blur-md z-[999990] md:hidden"
+              />
 
-            <motion.div
-              initial={{ x: "-100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "-100%" }}
-              transition={{ type: "spring", damping: 28, stiffness: 280 }}
-              className="fixed top-0 left-0 bottom-0 w-[85vw] max-w-[320px] bg-gradient-to-b from-[#0d0922] via-[#090616] to-[#04020a] border-r border-indigo-500/30 z-[100000] p-6 flex flex-col justify-between shadow-[0_0_80px_rgba(99,102,241,0.35)] backdrop-blur-3xl overflow-y-auto md:hidden"
-            >
-              {/* Subtle top aurora glow layer */}
-              <div className="absolute top-0 left-0 right-0 h-64 bg-gradient-to-b from-indigo-500/15 via-purple-500/10 to-transparent pointer-events-none" />
+              <motion.div
+                initial={{ x: "-100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "-100%" }}
+                transition={{ type: "spring", damping: 28, stiffness: 280 }}
+                style={{
+                  background: "linear-gradient(180deg, #0e0927 0%, #09061a 50%, #04020c 100%)",
+                  borderColor: "rgba(168, 85, 247, 0.35)",
+                  boxShadow: "0 0 90px rgba(99, 102, 241, 0.4), 25px 0 60px rgba(0, 0, 0, 0.95)",
+                }}
+                className="fixed top-0 left-0 bottom-0 w-[85vw] max-w-[320px] border-r z-[1000000] p-6 flex flex-col justify-between overflow-y-auto md:hidden"
+              >
+                <div className="absolute top-0 left-0 right-0 h-44 bg-gradient-to-b from-purple-500/20 via-indigo-500/10 to-transparent pointer-events-none" />
 
-              <div className="relative z-10 flex flex-col gap-6">
-                <div className="flex items-center justify-between pb-5 border-b border-white/10">
-                  <Link
-                    href="/"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-3"
-                  >
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-purple-600 border border-white/20 flex items-center justify-center shadow-[0_0_15px_rgba(99,102,241,0.4)] overflow-hidden">
-                      {avatarSrc ? (
-                        <img src={avatarSrc} alt={authorName} className="w-full h-full object-cover" />
-                      ) : (
-                        <Bot size={20} className="text-white" />
-                      )}
-                    </div>
-                    <div className="min-w-0">
-                      <h3 className="font-extrabold text-base text-white leading-tight truncate">{authorName}</h3>
-                      <span className="text-[10px] font-bold text-primary tracking-widest uppercase">Portfolio</span>
-                    </div>
-                  </Link>
-                  <button
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="p-2 rounded-xl border border-white/15 bg-white/10 text-white/80 hover:text-white hover:bg-white/20 transition-colors"
-                  >
-                    <X size={20} />
-                  </button>
-                </div>
+                <div className="relative z-10 flex flex-col gap-6">
+                  <div className="flex items-center justify-between pb-5 border-b border-white/15">
+                    <Link
+                      href="/"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-3"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 border border-white/30 flex items-center justify-center shadow-[0_0_15px_rgba(168,85,247,0.5)] overflow-hidden">
+                        {avatarSrc ? (
+                          <img src={avatarSrc} alt={authorName} className="w-full h-full object-cover" />
+                        ) : (
+                          <Bot size={20} className="text-white" />
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="font-extrabold text-base text-white leading-tight truncate">{authorName}</h3>
+                        <span className="text-[10px] font-extrabold text-purple-400 tracking-widest uppercase">Portfolio</span>
+                      </div>
+                    </Link>
+                    <button
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="p-2 rounded-xl border border-white/20 bg-white/10 text-white hover:bg-white/20 transition-all active:scale-95 shadow-md"
+                    >
+                      <X size={20} />
+                    </button>
+                  </div>
 
-                <nav className="flex flex-col gap-2">
-                  {navLinks.map((link) => {
-                    const active = isActive(link.path);
-                    return (
-                      <Link
-                        key={link.path}
-                        href={link.path}
-                        onClick={() => setMobileMenuOpen(false)}
-                        className={`group relative px-4 py-3.5 rounded-2xl text-sm font-semibold flex items-center justify-between transition-all duration-300 ${
-                          active
-                            ? "bg-gradient-to-r from-primary/30 via-purple-500/25 to-primary/15 text-white border border-primary/50 shadow-[0_0_20px_rgba(99,102,241,0.30)]"
-                            : "text-white/70 hover:text-white hover:bg-white/5 border border-transparent"
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className={`w-2 h-2 rounded-full transition-all ${active ? "bg-primary shadow-[0_0_10px_#6366f1]" : "bg-white/20 group-hover:bg-white/50"}`} />
-                          <span>{link.name}</span>
-                        </div>
-                        {link.icon ? link.icon : active && <span className="text-xs font-bold text-primary">●</span>}
-                      </Link>
-                    );
-                  })}
-                </nav>
-              </div>
-
-              <div className="relative z-10 pt-6 border-t border-white/10 flex flex-col gap-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-white/60 uppercase tracking-widest flex items-center gap-1.5">
-                    <Globe size={14} className="text-primary" /> {language === "uz" ? "Til" : language === "ru" ? "Язык" : "Language"}
-                  </span>
-                  <div className="flex items-center gap-1.5">
-                    {languages.map((l) => {
-                      const active = language === l.code;
+                  <nav className="flex flex-col gap-2">
+                    {navLinks.map((link) => {
+                      const active = isActive(link.path);
                       return (
-                        <button
-                          key={l.code}
-                          onClick={() => {
-                            setLanguage(l.code);
-                            setMobileMenuOpen(false);
-                          }}
-                          className={`px-2.5 py-1.5 rounded-xl border text-xs font-bold transition-all flex items-center gap-1 ${
+                        <Link
+                          key={link.path}
+                          href={link.path}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className={`group relative px-4 py-3.5 rounded-2xl text-sm font-bold flex items-center justify-between transition-all duration-300 ${
                             active
-                              ? "bg-primary text-white border-primary/60 shadow-[0_0_12px_rgba(99,102,241,0.5)]"
-                              : "bg-white/5 text-white/60 border-white/10 hover:bg-white/10 hover:text-white"
+                              ? "bg-gradient-to-r from-purple-600/40 via-indigo-600/30 to-purple-900/20 text-white border border-purple-400/60 shadow-[0_0_25px_rgba(168,85,247,0.35)]"
+                              : "text-white/80 hover:text-white hover:bg-white/10 border border-transparent"
                           }`}
                         >
-                          <span>{l.flag}</span>
-                          <span className="uppercase text-[11px] font-black">{l.label}</span>
-                        </button>
+                          <div className="flex items-center gap-3">
+                            <span className={`w-2.5 h-2.5 rounded-full transition-all ${active ? "bg-purple-400 shadow-[0_0_10px_#c084fc]" : "bg-white/20 group-hover:bg-white/50"}`} />
+                            <span>{link.name}</span>
+                          </div>
+                          {link.icon ? link.icon : active && <span className="text-xs font-bold text-purple-400">●</span>}
+                        </Link>
                       );
                     })}
+                  </nav>
+                </div>
+
+                <div className="relative z-10 pt-6 border-t border-white/15 flex flex-col gap-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black text-purple-300 uppercase tracking-widest flex items-center gap-1.5">
+                      <Globe size={15} className="text-purple-400" /> {language === "uz" ? "Til" : language === "ru" ? "Язык" : "Language"}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      {languages.map((l) => {
+                        const active = language === l.code;
+                        return (
+                          <button
+                            key={l.code}
+                            onClick={() => {
+                              setLanguage(l.code);
+                              setMobileMenuOpen(false);
+                            }}
+                            className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 ${
+                              active
+                                ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.6)] scale-105"
+                                : "bg-white/10 text-white/70 border-white/15 hover:bg-white/20 hover:text-white"
+                            }`}
+                          >
+                            <span>{l.flag}</span>
+                            <span className="uppercase text-[11px] font-black">{l.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </header>
   );
 }
