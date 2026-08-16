@@ -1,7 +1,6 @@
-"use client";
-
 import * as React from "react";
 import { useEffect, useRef, useState } from "react";
+import { usePerformance } from "../../../context/PerformanceContext";
 
 type Movement = "continuous" | "step";
 
@@ -89,7 +88,7 @@ function perimeterAngle(u: number, w: number, h: number) {
     return (Math.atan2(x - w / 2, h / 2 - y) * 180) / Math.PI;
 }
 
-const ARC_SAMPLES = 10;
+const ARC_SAMPLES = 16;
 const MIN_ARC = 0.015;
 
 function buildArc(
@@ -146,7 +145,7 @@ const FASTEST_STEP = 0.35;
 const STEP_EASE = [0.72, 0.16, 0.18, 1.05];
 const GLIDE_EASE = [0.65, 0, 0.35, 1];
 
-function makeEaseFn(pts: [number, number, number, number]) {
+function makeEaseFn(pts: number[]) {
     const [x1, y1, x2, y2] = pts;
     if (x1 === y1 && x2 === y2) return (t: number) => t;
     const bez = (a: number, b: number, t: number) => {
@@ -195,6 +194,7 @@ export default function NeonBorder(props: Props) {
         children,
     } = props;
 
+    const { tier } = usePerformance();
     const groupARef = useRef<HTMLDivElement>(null);
     const groupBRef = useRef<HTMLDivElement>(null);
 
@@ -235,66 +235,75 @@ export default function NeonBorder(props: Props) {
     useEffect(() => {
         let raf = 0;
         let last = performance.now();
-        let lastRenderTime = 0;
         let lap = 0;
         let corner = 0;
         let stepT = 0;
 
+        // Low tier uses a static CSS gradient with 0 CPU load
+        if (tier === "low") {
+            const p = live.current;
+            const a = groupARef.current;
+            if (a) a.style.setProperty("--arc", `conic-gradient(from 0deg, ${p.color}, transparent 60%)`);
+            const b = groupBRef.current;
+            if (b) b.style.setProperty("--arc", `conic-gradient(from 180deg, ${p.color}, transparent 60%)`);
+            return;
+        }
+
         const frame = (now: number) => {
-            if (!isVisibleRef.current || document.hidden) {
+            if (!isVisibleRef.current) {
+                raf = requestAnimationFrame(frame);
+                return;
+            }
+
+            // Medium tier throttles frame updates for battery & CPU saving
+            if (tier === "medium" && now - last < 33) {
                 raf = requestAnimationFrame(frame);
                 return;
             }
 
             const dt = Math.min(0.05, Math.max(0, (now - last) / 1000));
             last = now;
+            const p = live.current;
+            const s = Math.max(0, Math.min(20, p.speed));
 
-            // Throttle style updates to max ~35 FPS (every 28ms) for extreme performance
-            if (now - lastRenderTime >= 28) {
-                lastRenderTime = now;
+            if (s > 0) {
+                const step = p.movement === "step";
+                const beat = step
+                    ? SLOWEST_STEP +
+                      ((FASTEST_STEP - SLOWEST_STEP) * (s - 1)) / 19
+                    : (SLOWEST_CYCLE +
+                          ((FASTEST_CYCLE - SLOWEST_CYCLE) * (s - 1)) / 19) /
+                      4;
 
-                const p = live.current;
-                const s = Math.max(0, Math.min(20, p.speed));
+                stepT += dt / beat;
+                while (stepT >= 1) {
+                    stepT -= 1;
+                    corner += 1;
+                }
+                const eased = step
+                    ? stepEase(Math.min(1, stepT * 2))
+                    : glideEase(stepT);
 
-                if (s > 0) {
-                    const step = p.movement === "step";
-                    const beat = step
-                        ? SLOWEST_STEP +
-                          ((FASTEST_STEP - SLOWEST_STEP) * (s - 1)) / 19
-                        : (SLOWEST_CYCLE +
-                              ((FASTEST_CYCLE - SLOWEST_CYCLE) * (s - 1)) / 19) /
-                          4;
+                const { w, h } = sizeRef.current;
+                const fw = w > 0 ? w : 100;
+                const fh = h > 0 ? h : 100;
+                const from = cornerLap(corner, fw, fh);
+                const to = cornerLap(corner + 1, fw, fh);
+                lap = from + (to - from) * eased;
 
-                    stepT += dt / beat;
-                    while (stepT >= 1) {
-                        stepT -= 1;
-                        corner += 1;
-                    }
-                    const eased = step
-                        ? stepEase(Math.min(1, stepT * 2))
-                        : glideEase(stepT);
-
-                    const { w, h } = sizeRef.current;
-                    const fw = w > 0 ? w : 100;
-                    const fh = h > 0 ? h : 100;
-                    const from = cornerLap(corner, fw, fh);
-                    const to = cornerLap(corner + 1, fw, fh);
-                    lap = from + (to - from) * eased;
-
-                    const a = groupARef.current;
-                    if (a) {
-                        a.style.setProperty(
-                            "--arc",
-                            buildArc(lap, p.borderSize, w, h, p.color)
-                        );
-                    }
-                    const b = groupBRef.current;
-                    if (b) {
-                        b.style.setProperty(
-                            "--arc",
-                            buildArc(lap + 0.5, p.borderSize, w, h, p.color)
-                        );
-                    }
+                const a = groupARef.current;
+                if (a) {
+                    a.style.setProperty(
+                        "--arc",
+                        buildArc(lap, p.borderSize, w, h, p.color)
+                    );
+                }
+                const b = groupBRef.current;
+                if (b) {
+                    b.style.setProperty(
+                        "--arc",
+                        buildArc(lap + 0.5, p.borderSize, w, h, p.color)
+                    );
                 }
             }
 

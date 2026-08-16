@@ -155,13 +155,16 @@ function AppContent() {
 }
 
 import { LanguageProvider } from "./context/LanguageContext";
+import { PerformanceProvider } from "./context/PerformanceContext";
 
 export default function App() {
   return (
     <Router>
-      <LanguageProvider>
-        <AppContent />
-      </LanguageProvider>
+      <PerformanceProvider>
+        <LanguageProvider>
+          <AppContent />
+        </LanguageProvider>
+      </PerformanceProvider>
     </Router>
   );
 }

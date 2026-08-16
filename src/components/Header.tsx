@@ -1,10 +1,11 @@
 import { Link, useRouter } from "../lib/router";
-import { Menu, X, Sparkles, Bot, Rss, Globe } from "lucide-react";
+import { Menu, X, Sparkles, Bot, Rss, Globe, Zap, Gauge } from "lucide-react";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import MovingGradientButton from "./originkit/ui/moving-gradient-button";
 import NeonBorder from "./originkit/ui/neon-border";
 import { useLanguage } from "../context/LanguageContext";
+import { usePerformance, QualityTier } from "../context/PerformanceContext";
 import { Language } from "../lib/i18n";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
@@ -16,11 +17,25 @@ interface HeaderProps {
 export function Header({ data }: HeaderProps) {
   const { currentPath } = useRouter();
   const { language, setLanguage, t } = useLanguage();
+  const { tier, setTier } = usePerformance();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [progress, setProgress] = useState(0);
   const authorName = data?.author || "Jaloliddin";
   const avatarSrc = data?.avatarUrl ? `${API_URL}${data.avatarUrl}` : null;
+
+  const cycleTier = () => {
+    const tiers: QualityTier[] = ["ultra", "high", "medium", "low"];
+    const nextIdx = (tiers.indexOf(tier) + 1) % tiers.length;
+    setTier(tiers[nextIdx]);
+  };
+
+  const tierLabels: Record<QualityTier, { label: string; icon: string; color: string }> = {
+    ultra: { label: "Ultra", icon: "🚀", color: "border-purple-500/40 text-purple-300 bg-purple-500/10" },
+    high: { label: "High", icon: "✨", color: "border-cyan-500/40 text-cyan-300 bg-cyan-500/10" },
+    medium: { label: "Medium", icon: "Med", color: "border-amber-500/40 text-amber-300 bg-amber-500/10" },
+    low: { label: "Saver", icon: "🔋", color: "border-emerald-500/40 text-emerald-300 bg-emerald-500/10" },
+  };
 
   const navLinks = [
     { name: t("nav.home"), path: "/" },
@@ -129,6 +144,16 @@ export function Header({ data }: HeaderProps) {
           </nav>
 
           <div className="flex items-center gap-2 flex-shrink-0">
+            {/* 4-Tier Quality Switch Button */}
+            <button
+              onClick={cycleTier}
+              title={`Graphics Quality: ${tierLabels[tier].label} (Click to switch)`}
+              className={`px-2.5 py-1.5 rounded-xl border flex items-center gap-1.5 text-xs font-bold transition-all duration-300 backdrop-blur-md shadow-md ${tierLabels[tier].color}`}
+            >
+              <span>{tierLabels[tier].icon}</span>
+              <span className="hidden sm:inline text-[11px] font-black tracking-wider uppercase">{tierLabels[tier].label}</span>
+            </button>
+
             {/* 3 ta alohida to'rtburchak NeonBorder ga ega bayroqli tugmalar */}
             <div className="flex items-center gap-2">
               {languages.map((l) => {

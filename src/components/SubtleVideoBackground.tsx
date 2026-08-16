@@ -1,32 +1,21 @@
-/**
- * SubtleVideoBackground
- * ─────────────────────
- * Reusable ultra-subtle looping video background.
- * Stays completely in the background — opacity ~12% with an 85% dark scrim.
- * Uses a random video from /backgrounds/1.mp4, 2.mp4, 3.mp4 on every mount.
- */
+import { usePerformance } from "../context/PerformanceContext";
 
 const VIDEOS = ["/backgrounds/1.mp4", "/backgrounds/3.mp4"];
 
-/** Pick a deterministic video based on an optional index, or random */
-function pickVideo(index?: number): string {
-  if (index !== undefined) return VIDEOS[index % VIDEOS.length];
-  return VIDEOS[Math.floor(Math.random() * VIDEOS.length)];
-}
-
 interface Props {
-  /** 0 | 1 | 2 — pick a specific video. If undefined, renders nothing. */
   index?: number;
 }
 
 export function SubtleVideoBackground({ index }: Props) {
-  if (index === undefined) return null;
+  const { tier } = usePerformance();
+
+  // Low tier (VirtualBox / CPU rendering / Low-end device) disables video to save CPU/GPU decoders
+  if (index === undefined || tier === "low") return null;
 
   const src = VIDEOS[index % VIDEOS.length];
 
   return (
     <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-      {/* Video layer — ultra subtle, darkened, and blurred so text is 100% readable */}
       <video
         key={src}
         autoPlay
@@ -34,12 +23,10 @@ export function SubtleVideoBackground({ index }: Props) {
         muted
         playsInline
         className="absolute inset-0 w-full h-full object-cover"
-        style={{ opacity: 0.8, filter: "brightness(0.8)" }}
+        style={{ opacity: tier === "ultra" ? 0.85 : 0.65, filter: "brightness(0.8)" }}
       >
         <source src={src} type="video/mp4" />
       </video>
-
-      {/* Light scrim — 20% overlay so video is clearly visible */}
       <div className="absolute inset-0" style={{ backgroundColor: "rgba(2,2,2,0.20)" }} />
     </div>
   );
