@@ -39,26 +39,35 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
     }
   };
 
-  // Background Audio Controller for "Best" tier
+  // Background Audio Controller for Best, Max, and Ultra tiers
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     if (!audioRef.current) {
       const audio = new Audio("/background.mp3");
       audio.loop = true;
-      audio.volume = 0.25; // Gentle soft background volume
+      audio.preload = "auto";
       audioRef.current = audio;
     }
 
     const audio = audioRef.current;
+    const MUSIC_TIERS: QualityTier[] = ["best", "max", "ultra"];
+    const isMusicTier = MUSIC_TIERS.includes(tier);
 
-    const playAudio = () => {
-      if (tier === "best") {
+    // Tier specific volumes
+    const volumeMap: Record<string, number> = {
+      best: 0.28,
+      max: 0.22,
+      ultra: 0.18,
+    };
+    audio.volume = volumeMap[tier] || 0.20;
+
+    const tryPlay = () => {
+      if (isMusicTier) {
         audio
           .play()
           .then(() => setIsPlayingAudio(true))
           .catch(() => {
-            // Autoplay blocked by browser policy — wait for user interaction
             setIsPlayingAudio(false);
           });
       } else {
@@ -67,22 +76,26 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
       }
     };
 
-    playAudio();
+    tryPlay();
 
-    // Browser Autoplay Policy listener (plays audio on first user click if blocked initially)
-    const handleUserInteraction = () => {
-      if (tier === "best" && audio.paused) {
+    // Catch any user gesture (click, tap, scroll, keypress) to unblock autoplay
+    const handleGesture = () => {
+      if (isMusicTier && audio.paused) {
         audio.play().then(() => setIsPlayingAudio(true)).catch(() => {});
       }
     };
 
-    window.addEventListener("click", handleUserInteraction, { once: false });
-    window.addEventListener("keydown", handleUserInteraction, { once: false });
+    window.addEventListener("click", handleGesture, { passive: true });
+    window.addEventListener("touchstart", handleGesture, { passive: true });
+    window.addEventListener("pointerdown", handleGesture, { passive: true });
+    window.addEventListener("keydown", handleGesture, { passive: true });
 
     return () => {
-      window.removeEventListener("click", handleUserInteraction);
-      window.removeEventListener("keydown", handleUserInteraction);
-      if (tier !== "best") {
+      window.removeEventListener("click", handleGesture);
+      window.removeEventListener("touchstart", handleGesture);
+      window.removeEventListener("pointerdown", handleGesture);
+      window.removeEventListener("keydown", handleGesture);
+      if (!isMusicTier) {
         audio.pause();
       }
     };
