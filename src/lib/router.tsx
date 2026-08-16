@@ -65,13 +65,15 @@ interface LinkProps {
   href: string;
   children: ReactNode;
   className?: string;
+  onClick?: (e: React.MouseEvent) => void;
 }
 
-export function Link({ href, children, className }: LinkProps) {
+export function Link({ href, children, className, onClick }: LinkProps) {
   const { navigate } = useRouter();
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
+    if (onClick) onClick(e);
     navigate(href);
   };
 

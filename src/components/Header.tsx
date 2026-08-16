@@ -315,30 +315,35 @@ export function Header({ data }: HeaderProps) {
       {typeof document !== "undefined" && createPortal(
         <AnimatePresence>
           {mobileMenuOpen && (
-            <>
+            <div className="fixed inset-0 z-[99999999] pointer-events-auto md:hidden" style={{ isolation: "isolate" }}>
+              {/* Full-screen Backdrop Overlay */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={() => setMobileMenuOpen(false)}
-                className="fixed inset-0 bg-black/85 backdrop-blur-md z-[999990] md:hidden"
+                className="absolute inset-0 bg-black/92 backdrop-blur-2xl"
               />
 
+              {/* Drawer Panel */}
               <motion.div
                 initial={{ x: "-100%" }}
                 animate={{ x: 0 }}
                 exit={{ x: "-100%" }}
                 transition={{ type: "spring", damping: 28, stiffness: 280 }}
                 style={{
-                  background: "linear-gradient(180deg, #0e0927 0%, #09061a 50%, #04020c 100%)",
-                  borderColor: "rgba(168, 85, 247, 0.35)",
-                  boxShadow: "0 0 90px rgba(99, 102, 241, 0.4), 25px 0 60px rgba(0, 0, 0, 0.95)",
+                  backgroundColor: "#070415",
+                  background: "linear-gradient(180deg, #0e0826 0%, #080517 50%, #03020a 100%)",
+                  borderColor: "rgba(168, 85, 247, 0.4)",
+                  boxShadow: "0 0 100px rgba(99, 102, 241, 0.5), 30px 0 80px rgba(0, 0, 0, 0.98)",
                 }}
-                className="fixed top-0 left-0 bottom-0 w-[85vw] max-w-[320px] border-r z-[1000000] p-6 flex flex-col justify-between overflow-y-auto md:hidden"
+                className="absolute top-0 left-0 bottom-0 w-[85vw] max-w-[320px] border-r p-6 flex flex-col justify-between overflow-y-auto"
               >
+                {/* Top glowing ambient accent */}
                 <div className="absolute top-0 left-0 right-0 h-44 bg-gradient-to-b from-purple-500/20 via-indigo-500/10 to-transparent pointer-events-none" />
 
                 <div className="relative z-10 flex flex-col gap-6">
+                  {/* Drawer Header */}
                   <div className="flex items-center justify-between pb-5 border-b border-white/15">
                     <Link
                       href="/"
@@ -365,6 +370,7 @@ export function Header({ data }: HeaderProps) {
                     </button>
                   </div>
 
+                  {/* Navigation Links */}
                   <nav className="flex flex-col gap-2">
                     {navLinks.map((link) => {
                       const active = isActive(link.path);
@@ -372,7 +378,9 @@ export function Header({ data }: HeaderProps) {
                         <Link
                           key={link.path}
                           href={link.path}
-                          onClick={() => setMobileMenuOpen(false)}
+                          onClick={() => {
+                            setMobileMenuOpen(false);
+                          }}
                           className={`group relative px-4 py-3.5 rounded-2xl text-sm font-bold flex items-center justify-between transition-all duration-300 ${
                             active
                               ? "bg-gradient-to-r from-purple-600/40 via-indigo-600/30 to-purple-900/20 text-white border border-purple-400/60 shadow-[0_0_25px_rgba(168,85,247,0.35)]"
@@ -390,6 +398,7 @@ export function Header({ data }: HeaderProps) {
                   </nav>
                 </div>
 
+                {/* Bottom Language Selector */}
                 <div className="relative z-10 pt-6 border-t border-white/15 flex flex-col gap-4">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-black text-purple-300 uppercase tracking-widest flex items-center gap-1.5">
@@ -420,7 +429,7 @@ export function Header({ data }: HeaderProps) {
                   </div>
                 </div>
               </motion.div>
-            </>
+            </div>
           )}
         </AnimatePresence>,
         document.body
