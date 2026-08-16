@@ -265,18 +265,16 @@ export default function NeonBorder(props: Props) {
             const dt = Math.min(0.05, Math.max(0.001, (now - last) / 1000));
             last = now;
             const p = live.current;
-            // Best tier spins neons 2.48x faster (1.5x faster than Max), max 1.65x, ultra 1.2x
+            const s = Math.max(1, Math.min(20, p.speed));
+            // Best tier spins neons 2.48x faster (exactly 1.5x faster than Max's 1.65x), ultra 1.2x
             const speedMultiplier = tier === "best" ? 2.48 : tier === "max" ? 1.65 : tier === "ultra" ? 1.2 : 1.0;
-            const s = Math.max(0, Math.min(35, p.speed * speedMultiplier));
 
             if (s > 0) {
                 const step = p.movement === "step";
-                const beat = step
-                    ? SLOWEST_STEP +
-                      ((FASTEST_STEP - SLOWEST_STEP) * (s - 1)) / 19
-                    : (SLOWEST_CYCLE +
-                          ((FASTEST_CYCLE - SLOWEST_CYCLE) * (s - 1)) / 19) /
-                      4;
+                const baseBeat = step
+                    ? SLOWEST_STEP + ((FASTEST_STEP - SLOWEST_STEP) * (s - 1)) / 19
+                    : (SLOWEST_CYCLE + ((FASTEST_CYCLE - SLOWEST_CYCLE) * (s - 1)) / 19) / 4;
+                const beat = Math.max(0.08, baseBeat / speedMultiplier);
 
                 stepT += dt / beat;
                 while (stepT >= 1) {
