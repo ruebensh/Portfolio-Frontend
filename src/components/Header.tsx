@@ -318,7 +318,7 @@ export function Header({ data }: HeaderProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setMobileMenuOpen(false)}
-              className="fixed inset-0 bg-black/80 backdrop-blur-md z-40 md:hidden"
+              className="fixed inset-0 bg-black/90 backdrop-blur-2xl z-[99990] md:hidden"
             />
 
             <motion.div
@@ -326,9 +326,12 @@ export function Header({ data }: HeaderProps) {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 28, stiffness: 280 }}
-              className="fixed top-0 left-0 bottom-0 w-[85vw] max-w-[320px] bg-[#070712]/98 border-r border-white/10 z-50 p-6 flex flex-col justify-between shadow-[0_0_60px_rgba(0,0,0,0.95)] backdrop-blur-2xl overflow-y-auto md:hidden"
+              className="fixed top-0 left-0 bottom-0 w-[85vw] max-w-[320px] bg-gradient-to-b from-[#0d0922] via-[#090616] to-[#04020a] border-r border-indigo-500/30 z-[100000] p-6 flex flex-col justify-between shadow-[0_0_80px_rgba(99,102,241,0.35)] backdrop-blur-3xl overflow-y-auto md:hidden"
             >
-              <div className="flex flex-col gap-6">
+              {/* Subtle top aurora glow layer */}
+              <div className="absolute top-0 left-0 right-0 h-64 bg-gradient-to-b from-indigo-500/15 via-purple-500/10 to-transparent pointer-events-none" />
+
+              <div className="relative z-10 flex flex-col gap-6">
                 <div className="flex items-center justify-between pb-5 border-b border-white/10">
                   <Link
                     href="/"
@@ -349,7 +352,7 @@ export function Header({ data }: HeaderProps) {
                   </Link>
                   <button
                     onClick={() => setMobileMenuOpen(false)}
-                    className="p-2 rounded-xl border border-white/10 bg-white/5 text-white/70 hover:text-white"
+                    className="p-2 rounded-xl border border-white/15 bg-white/10 text-white/80 hover:text-white hover:bg-white/20 transition-colors"
                   >
                     <X size={20} />
                   </button>
@@ -365,12 +368,12 @@ export function Header({ data }: HeaderProps) {
                         onClick={() => setMobileMenuOpen(false)}
                         className={`group relative px-4 py-3.5 rounded-2xl text-sm font-semibold flex items-center justify-between transition-all duration-300 ${
                           active
-                            ? "bg-gradient-to-r from-primary/25 via-purple-500/20 to-primary/10 text-white border border-primary/40 shadow-[0_0_20px_rgba(99,102,241,0.25)]"
+                            ? "bg-gradient-to-r from-primary/30 via-purple-500/25 to-primary/15 text-white border border-primary/50 shadow-[0_0_20px_rgba(99,102,241,0.30)]"
                             : "text-white/70 hover:text-white hover:bg-white/5 border border-transparent"
                         }`}
                       >
                         <div className="flex items-center gap-3">
-                          <span className={`w-2 h-2 rounded-full transition-all ${active ? "bg-primary shadow-[0_0_8px_#6366f1]" : "bg-white/20 group-hover:bg-white/50"}`} />
+                          <span className={`w-2 h-2 rounded-full transition-all ${active ? "bg-primary shadow-[0_0_10px_#6366f1]" : "bg-white/20 group-hover:bg-white/50"}`} />
                           <span>{link.name}</span>
                         </div>
                         {link.icon ? link.icon : active && <span className="text-xs font-bold text-primary">●</span>}
@@ -380,10 +383,10 @@ export function Header({ data }: HeaderProps) {
                 </nav>
               </div>
 
-              <div className="pt-6 border-t border-white/10 flex flex-col gap-4">
+              <div className="relative z-10 pt-6 border-t border-white/10 flex flex-col gap-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-white/50 uppercase tracking-widest flex items-center gap-1.5">
-                    <Globe size={14} className="text-primary" /> {t("nav.language")}
+                  <span className="text-xs font-bold text-white/60 uppercase tracking-widest flex items-center gap-1.5">
+                    <Globe size={14} className="text-primary" /> {language === "uz" ? "Til" : language === "ru" ? "Язык" : "Language"}
                   </span>
                   <div className="flex items-center gap-1.5">
                     {languages.map((l) => {
