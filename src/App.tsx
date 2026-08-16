@@ -135,7 +135,7 @@ function AppContent() {
     <>
       <SubtleVideoBackground index={getVideoIndex(currentPath)} />
       <Header />
-      <main className={isAiPage ? "" : "pt-16 isolate"}>
+      <main className={isAiPage ? "" : "pt-16"}>
         {currentPath === "/" && <HomePage />}
         {currentPath === "/projects" && <ProjectsPage />}
         {currentPath === "/certificates" && <CertificatesPage />} 
