@@ -62,7 +62,6 @@ export function Footer({ data }: FooterProps) {
   return (
     <footer className="relative z-10 border-t border-white/15 bg-black/80 backdrop-blur-2xl py-14 text-white">
       <div className="max-w-7xl mx-auto px-6 lg:px-8 flex flex-col items-center text-center">
-        {/* Author Avatar & Title */}
         <div className="mb-8 flex flex-col items-center">
           <div
             onClick={handleSecretClick}
@@ -85,7 +84,6 @@ export function Footer({ data }: FooterProps) {
           </p>
         </div>
 
-        {/* Quick Nav Links */}
         <nav className="flex flex-wrap justify-center gap-x-8 gap-y-3 mb-10">
           <Link href="/" className="text-sm font-medium text-white/70 hover:text-white transition-colors">
             {t("nav.home")}
@@ -107,7 +105,6 @@ export function Footer({ data }: FooterProps) {
           </Link>
         </nav>
 
-        {/* Social Link Buttons */}
         <div className="flex justify-center gap-4 mb-12 flex-wrap">
           {socialLinks.map((social) => (
             <a
@@ -123,7 +120,6 @@ export function Footer({ data }: FooterProps) {
           ))}
         </div>
 
-        {/* Copyright & Tech Stack */}
         <div className="w-full pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-white/50 text-xs">
           <p>© {currentYear} {authorName}. {t("footer.rights")}</p>
 

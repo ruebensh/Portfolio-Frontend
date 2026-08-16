@@ -12,7 +12,6 @@ const ChatAI = () => {
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Stateless floating chatbot uchun "temp_" prefiksli vaqtinchalik session ID ishlatamiz
   const [sessionId] = useState(() => {
     return 'temp_sid_' + Math.random().toString(36).substring(2, 11);
   });
@@ -55,13 +54,11 @@ const ChatAI = () => {
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
             className="mb-5 w-[380px] sm:w-[420px] h-[600px] flex flex-col overflow-hidden rounded-[2.5rem] border border-white/20 shadow-[0_20px_50px_rgba(0,0,0,0.3)] bg-slate-900/80 backdrop-blur-2xl"
           >
-            {/* Ambient Background Decor */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
               <div className="absolute -top-[10%] -left-[10%] w-40 h-40 bg-blue-600/20 rounded-full blur-[60px]" />
               <div className="absolute top-[20%] -right-[10%] w-40 h-40 bg-purple-600/20 rounded-full blur-[60px]" />
             </div>
 
-            {/* Header */}
             <div className="relative z-10 p-5 border-b border-white/10 bg-white/5 backdrop-blur-md flex justify-between items-center">
               <div className="flex items-center gap-3">
                 <div className="relative">
@@ -90,7 +87,6 @@ const ChatAI = () => {
               </div>
             </div>
 
-            {/* Chat Area */}
             <div ref={scrollRef} className="relative z-10 flex-1 p-5 overflow-y-auto space-y-5 scrollbar-none">
               <AnimatePresence initial={false}>
                 {messages.map((msg, i) => (
@@ -124,7 +120,6 @@ const ChatAI = () => {
               )}
             </div>
 
-            {/* Input Area */}
             <div className="relative z-10 p-5 bg-white/5 backdrop-blur-xl border-t border-white/10">
               <div className="relative flex items-center group">
                 <input 
@@ -151,7 +146,6 @@ const ChatAI = () => {
         )}
       </AnimatePresence>
 
-      {/* Main Trigger Button */}
       <motion.button 
         whileHover={{ scale: 1.05, rotate: 5 }}
         whileTap={{ scale: 0.95 }}

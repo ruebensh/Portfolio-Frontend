@@ -26,7 +26,6 @@ export function AIChatPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  // 1. Mount vaqtida Chat sessionlarni yuklash
   useEffect(() => {
     const localSessions = localStorage.getItem("ruebensh_chat_sessions");
     let sessionList: ChatSession[] = [];
@@ -40,7 +39,6 @@ export function AIChatPage() {
     }
 
     if (sessionList.length === 0) {
-      // Yangi session yaratish
       const newId = "sid_" + Math.random().toString(36).substring(2, 11);
       const defaultSession: ChatSession = {
         id: newId,
@@ -53,7 +51,6 @@ export function AIChatPage() {
 
     setSessions(sessionList);
 
-    // Faol sessionni tanlash
     const savedActiveId = localStorage.getItem("ruebensh_active_session_id");
     if (savedActiveId && sessionList.some(s => s.id === savedActiveId)) {
       setActiveSessionId(savedActiveId);
@@ -63,7 +60,6 @@ export function AIChatPage() {
     }
   }, []);
 
-  // 2. Faol session o'zgarganda xabarlar tarixini yuklash
   useEffect(() => {
     if (!activeSessionId) return;
 
@@ -78,7 +74,6 @@ export function AIChatPage() {
           if (data && data.length > 0) {
             setMessages(data);
           } else {
-            // Tarix bo'sh bo'lsa default xabar
             setMessages([
               {
                 role: "ai",
@@ -97,21 +92,18 @@ export function AIChatPage() {
     loadHistory();
   }, [activeSessionId]);
 
-  // 3. Scrollni har doim oxiriga tushirish
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
     el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
   }, [messages, isLoading, historyLoading]);
 
-  // Inputga fokus berish
   useEffect(() => {
     if (!isLoading && !historyLoading) {
       inputRef.current?.focus();
     }
   }, [isLoading, historyLoading, activeSessionId]);
 
-  // 4. Yangi suhbat yaratish
   const handleNewChat = () => {
     const newId = "sid_" + Math.random().toString(36).substring(2, 11);
     const newSession: ChatSession = {
@@ -127,11 +119,9 @@ export function AIChatPage() {
     setIsSidebarOpen(false);
   };
 
-  // 5. Suhbatni o'chirish (Database va LocalStorage-dan)
   const handleDeleteChat = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation(); // Ota element klikini to'xtatish
     
-    // Serverdan o'chirish
     try {
       await fetch(`${API_URL}/ai/session/${id}`, { method: "DELETE" });
     } catch (err) {
@@ -159,7 +149,6 @@ export function AIChatPage() {
     }
   };
 
-  // 6. Xabar jo'natish
   const handleSend = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!input.trim() || isLoading || historyLoading) return;
@@ -172,7 +161,6 @@ export function AIChatPage() {
     setMessages((prev) => [...prev, { role: "user", text: userMsg }]);
     setIsLoading(true);
 
-    // Agar bu birinchi xabar bo'lsa va mavzu hali "Yangi suhbat" bo'lsa, nomni yangilaymiz
     const currentSession = sessions.find(s => s.id === activeSessionId);
     if (currentSession && currentSession.title === "Yangi suhbat") {
       const newTitle = userMsg.length > 28 ? userMsg.substring(0, 25) + "..." : userMsg;
@@ -316,7 +304,6 @@ export function AIChatPage() {
         }
       `}</style>
 
-      {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 md:hidden"
@@ -325,7 +312,6 @@ export function AIChatPage() {
       )}
 
       <div className="ai-chat-container">
-        {/* SIDEBAR */}
         <aside className={`chat-sidebar ${isSidebarOpen ? "open" : ""}`}>
           <div className="p-4 border-b border-white/5 flex flex-col gap-3 items-center">
             <div onClick={handleNewChat} className="w-full flex justify-center">
@@ -345,7 +331,6 @@ export function AIChatPage() {
             </div>
           </div>
 
-          {/* Sessionlar ro'yxati */}
           <div className="flex-1 overflow-y-auto py-3 space-y-0.5 scrollbar-thin scrollbar-thumb-white/5">
             <div className="px-4 mb-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
               Yaqindagi suhbatlar
@@ -379,9 +364,7 @@ export function AIChatPage() {
           </div>
         </aside>
 
-        {/* CHAT MAIN WORKSPACE */}
         <main className="chat-main">
-          {/* Mobile Header */}
           <div className="md:hidden flex items-center justify-between px-4 py-3.5 bg-black/40 backdrop-blur-md border-b border-white/5">
             <button
               onClick={() => setIsSidebarOpen(true)}
@@ -401,12 +384,9 @@ export function AIChatPage() {
             </button>
           </div>
 
-          {/* Desktop Header */}
           <div className="hidden md:flex items-center justify-between px-6 py-4 border-b border-white/5 opacity-0 pointer-events-none h-0 p-0 m-0">
-            {/* Bo'sh joy qoldiramiz, shunda padding o'zgarmaydi, lekin ko'rinmaydi */}
           </div>
 
-          {/* Xabarlar ro'yxati */}
           <div
             ref={scrollRef}
             className="flex-1 overflow-y-auto px-4 md:px-8 py-6 space-y-5 scrollbar-thin scrollbar-thumb-white/5"
@@ -464,7 +444,6 @@ export function AIChatPage() {
             )}
           </div>
 
-          {/* Kiritish qismi (Sticky Bottom) */}
           <form
             onSubmit={handleSend}
             className="border-t border-white/5 bg-black/10 backdrop-blur-md px-4 md:px-8 py-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]"

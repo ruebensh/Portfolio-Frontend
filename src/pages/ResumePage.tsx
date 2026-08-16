@@ -26,7 +26,6 @@ const slides = Array.from({ length: 11 }, (_, index) => `/portfolio-slides/${ind
 export function ResumePage() {
   const { t, td, language } = useLanguage();
 
-  // Portfolio Slideshow is active FIRST by default
   const [mode, setMode] = useState<ViewMode>("portfolio");
   const [currentSlide, setCurrentSlide] = useState(0);
   const [direction, setDirection] = useState(1);
@@ -49,7 +48,6 @@ export function ResumePage() {
     setCurrentSlide(index);
   };
 
-  // Automatic slideshow transition every 4.5 seconds
   useEffect(() => {
     if (mode !== "portfolio" || !isPlaying) return;
 
@@ -88,7 +86,6 @@ export function ResumePage() {
     }
   };
 
-  // Absolute URL for Google Docs PDF viewer fallback (helps mobile Safari & Chrome)
   const absolutePdfUrl =
     typeof window !== "undefined"
       ? `${window.location.origin}${resumeUrl}`
@@ -105,7 +102,6 @@ export function ResumePage() {
             <span className="sm:hidden">{t("nav.home")}</span>
           </Link>
 
-          {/* Mode Switcher (Portfolio Default First) */}
           <div className="mx-auto flex w-fit items-center">
             <NeonBorder color="#FFD700" rounded={16} thickness={2} borderSize={35} glow={70} speed={12}>
               <div className="flex items-center rounded-2xl border border-amber-400/40 bg-black/70 p-1 backdrop-blur-xl">
@@ -175,7 +171,6 @@ export function ResumePage() {
                     <Presentation size={16} className="text-amber-400" /> Portfolio Deck
                   </div>
 
-                  {/* Top Slide Counter & Play State */}
                   <div className="flex items-center gap-3">
                     <span className="rounded-full border border-white/10 bg-black/40 px-3 py-1 font-mono text-[11px] font-bold text-amber-300">
                       {currentSlide + 1} / {slides.length}
@@ -212,7 +207,6 @@ export function ResumePage() {
                     </div>
                   )}
 
-                  {/* Side Navigation Arrows */}
                   <button
                     onClick={previousSlide}
                     className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full border border-white/15 bg-black/60 p-3 text-white/80 backdrop-blur transition hover:bg-amber-400 hover:text-black shadow-lg"
@@ -228,9 +222,7 @@ export function ResumePage() {
                     <ChevronRight size={22} />
                   </button>
 
-                  {/* 3 CONTROL BUTTONS: < (Ortga), PAUZA / O'YNATISH, > (Oldinga) */}
                   <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-3 rounded-2xl border border-amber-400/30 bg-black/75 px-4 py-2 shadow-2xl backdrop-blur-xl">
-                    {/* 1. Ortga (<) */}
                     <button
                       onClick={previousSlide}
                       title="Ortga"
@@ -239,7 +231,6 @@ export function ResumePage() {
                       <ChevronLeft size={18} />
                     </button>
 
-                    {/* 2. Pauza / Play */}
                     <button
                       onClick={() => setIsPlaying((playing) => !playing)}
                       className="flex items-center gap-2 rounded-xl bg-amber-400 px-4 py-2 text-xs font-extrabold text-black transition hover:bg-amber-300 shadow-[0_0_15px_rgba(255,215,0,0.4)]"
@@ -249,7 +240,6 @@ export function ResumePage() {
                       <span>{isPlaying ? td("PAUZA", language) : td("O'YNATISH", language)}</span>
                     </button>
 
-                    {/* 3. Oldinga (>) */}
                     <button
                       onClick={nextSlide}
                       title="Oldinga"
@@ -260,7 +250,6 @@ export function ResumePage() {
                   </div>
                 </div>
 
-                {/* Bottom Slide Indicators */}
                 <div className="flex items-center justify-center gap-1.5 border-t border-white/10 bg-black/40 py-2.5">
                   {slides.map((_, index) => (
                     <button
@@ -302,7 +291,6 @@ export function ResumePage() {
                 </div>
 
                 <div className="relative flex-1 bg-[#171717] p-2 sm:p-5" style={{ minHeight: 620 }}>
-                  {/* Object PDF container with fallback iframe for Mobile Safari & Android Chrome */}
                   <object
                     data={`${resumeUrl}#view=FitH&navpanes=0&toolbar=0`}
                     type="application/pdf"
@@ -317,7 +305,6 @@ export function ResumePage() {
                     />
                   </object>
 
-                  {/* Direct Action Bar below PDF preview for mobile browsers */}
                   <div className="mt-3 flex items-center justify-between rounded-xl border border-white/10 bg-black/50 p-3 sm:hidden">
                     <span className="text-xs text-white/70">{td("PDF mobil brauzerda ochilmadimi?", language)}</span>
                     <a

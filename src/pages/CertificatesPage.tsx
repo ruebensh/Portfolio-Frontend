@@ -11,7 +11,6 @@ import { SecondaryStarField } from "../components/SecondaryStarField";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-// ProjectsPage dagi interaktiv fon komponenti
 function SoftCertificatesBackground() {
   const { tier } = usePerformance();
 
@@ -138,7 +137,6 @@ export function CertificatesPage() {
       <SoftCertificatesBackground />
 
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        {/* Header Section */}
         <motion.div
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
@@ -167,7 +165,6 @@ export function CertificatesPage() {
           </div>
         </motion.div>
 
-        {/* Certificates Grid */}
         <motion.div
           variants={container}
           initial="hidden"
@@ -199,7 +196,6 @@ export function CertificatesPage() {
                       className="group h-full pp-glass rounded-[2.5rem] overflow-hidden flex flex-col cursor-pointer border border-cyan-500/20"
                     >
                       
-                      {/* Media Preview */}
                       <div className="relative aspect-[4/3] overflow-hidden bg-zinc-900">
                         {isPdf ? (
                           <div className="w-full h-full flex flex-col items-center justify-center p-8 bg-gradient-to-br from-zinc-800 to-black">
@@ -221,7 +217,6 @@ export function CertificatesPage() {
                           />
                         )}
                         
-                        {/* Date Overlay */}
                         <div className="absolute top-4 left-4">
                           <div className="px-4 py-2 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center gap-2">
                             <Calendar size={14} className="text-primary" />
@@ -232,7 +227,6 @@ export function CertificatesPage() {
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                       </div>
 
-                      {/* Content Section */}
                       <div className="p-8 flex-1 flex flex-col">
                         <h3 className="text-xl font-bold mb-4 line-clamp-2 text-white group-hover:text-primary transition-colors">
                           {certTitleTranslated}
@@ -265,7 +259,6 @@ export function CertificatesPage() {
           </AnimatePresence>
         </motion.div>
 
-        {/* Certificate Modal Preview with Glassmorphism */}
         <AnimatePresence>
           {selectedCert && (
             <motion.div
@@ -283,7 +276,6 @@ export function CertificatesPage() {
                 onClick={(e) => e.stopPropagation()}
                 className="pp-glass rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col border border-white/20 shadow-[0_30px_100px_rgba(0,0,0,0.8)] relative"
               >
-                {/* Header */}
                 <div className="p-6 border-b border-white/10 flex items-center justify-between bg-black/30 backdrop-blur-xl">
                   <div>
                     <h2 className="text-2xl font-bold text-white">{selectedCert.title}</h2>
@@ -299,7 +291,6 @@ export function CertificatesPage() {
                   </button>
                 </div>
 
-                {/* Body */}
                 <div className="p-6 overflow-y-auto flex-1 flex items-center justify-center bg-black/20">
                   {selectedCert.isPdf ? (
                     <iframe
@@ -316,7 +307,6 @@ export function CertificatesPage() {
                   )}
                 </div>
 
-                {/* Footer */}
                 <div className="p-4 border-t border-white/10 flex justify-end items-center gap-4 bg-black/40 backdrop-blur-xl">
                   <NeonGlowButton
                     label={t("certificates.fullPreview")}
@@ -338,7 +328,6 @@ export function CertificatesPage() {
           )}
         </AnimatePresence>
 
-        {/* Empty State */}
         {certs.length === 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}

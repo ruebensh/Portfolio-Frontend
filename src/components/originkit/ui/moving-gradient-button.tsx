@@ -390,7 +390,6 @@ export default function MovingGradientButton(props: Props) {
       try {
         visible = e.currentTarget.matches(":focus-visible");
       } catch {
-        // :focus-visible unsupported — treat it as a real focus
       }
       if (!visible) return;
       focused.current = true;

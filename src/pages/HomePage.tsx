@@ -12,7 +12,6 @@ import { Skills } from "../components/home/Skills";
 import { Experience } from "../components/home/Experience";
 import { Contact } from "../components/home/Contact";
 
-// AI Xizmatini import qilamiz
 import { sendMessageToAI } from "../services/aiService";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
@@ -74,7 +73,6 @@ function PageBackground() {
       fadeIn: number;
     };
 
-    // 6-Tier Star Count Scaling
     let targetStarCount = 250; // high default
     if (tier === "best")   targetStarCount = 1800;
     else if (tier === "max")    targetStarCount = 1200;
@@ -98,7 +96,6 @@ function PageBackground() {
 
     const spawnMeteor = () => {
       if (prefersReduced || tier === "low" || tier === "medium") return;
-      // Best & Max tier spawn meteors frequently
       const spawnChance = tier === "best" ? 0.085 : tier === "max" ? 0.055 : 0.028;
       if (Math.random() > spawnChance) return;
 
@@ -125,7 +122,6 @@ function PageBackground() {
     };
 
     const drawGlowStar = (x: number, y: number, radius: number, alpha: number) => {
-      // 3 Lower Tiers (High, Medium, Saver) use ultra-fast 2-pass arc fills (0% GC overhead, 100% smooth)
       if (tier === "low" || tier === "medium" || tier === "high") {
         const glowMult = tier === "high" ? 2.2 : tier === "medium" ? 1.5 : 1.1;
         ctx.fillStyle = tier === "high"
@@ -142,7 +138,6 @@ function PageBackground() {
         return;
       }
 
-      // Best, Max, Ultra tiers: Multi-pass radial gradient sparkle halos
       const glowRadius = tier === "best" ? radius * 12 : tier === "max" ? radius * 9 : radius * 6;
       const g = ctx.createRadialGradient(x, y, 0, x, y, glowRadius);
       g.addColorStop(0, `rgba(255,255,255,${alpha})`);
@@ -173,7 +168,6 @@ function PageBackground() {
 
     let lastT = performance.now();
     const tick = (t: number) => {
-      // 240 FPS High Refresh Rate Delta Scaling (~16.667ms baseline)
       const dtFactor = Math.min(2.5, Math.max(0.1, (t - lastT) / 16.667));
       lastT = t;
 
@@ -262,7 +256,6 @@ function PageBackground() {
         .page-vignette { background: radial-gradient(70% 55% at 50% 25%, rgba(255,255,255,.02), transparent 62%), radial-gradient(85% 80% at 50% 50%, transparent, rgba(0,0,0,.75)); }
       `}</style>
 
-      {/* Existing atmospheric layers on top */}
       <div className="absolute inset-0 page-aurora" />
       <div className="absolute inset-0 page-grid" />
       <div className="absolute inset-0 page-vignette" />
@@ -284,7 +277,6 @@ function HomeEntranceReveal() {
   const [fading, setFading] = useState(false);
 
   useEffect(() => {
-    // 50ms delay ensures browser paints initial 100% black backdrop before 2.5s inverse fade-in transition
     const fadeTimer = setTimeout(() => {
       setFading(true);
     }, 50);
@@ -469,7 +461,6 @@ export function HomePage() {
           </div>
         </Reveal>
       </section>
-      {/* ---------------------------------- */}
 
       <section className="py-24 bg-white/[0.01]">
         <Reveal delay={0.05}><Skills /></Reveal>

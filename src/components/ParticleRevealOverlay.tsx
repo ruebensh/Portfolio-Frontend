@@ -5,12 +5,10 @@ export function ParticleRevealOverlay() {
   const [fading, setFading] = useState(false);
 
   useEffect(() => {
-    // 50ms delay ensures browser paints initial 100% black overlay before starting 2.5s transition
     const fadeTimer = setTimeout(() => {
       setFading(true);
     }, 50);
 
-    // Remove overlay element after transition finishes
     const removeTimer = setTimeout(() => {
       setActive(false);
     }, 2600);
@@ -29,7 +27,6 @@ export function ParticleRevealOverlay() {
         fading ? "opacity-0 backdrop-blur-none" : "opacity-100 backdrop-blur-3xl"
       }`}
     >
-      {/* Soft atmospheric cosmic glow fading out with pitch black */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <div
           className={`w-[400px] h-[400px] sm:w-[700px] sm:h-[700px] rounded-full bg-indigo-500/20 blur-3xl transition-all duration-[2500ms] ease-in-out ${

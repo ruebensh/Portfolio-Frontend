@@ -30,7 +30,6 @@ export function Header({ data }: HeaderProps) {
   const selectTier = (selectedTier: QualityTier) => {
     setTier(selectedTier);
     setGraphicsMenuOpen(false);
-    // Reload so canvas effects re-initialize with the new tier settings
     setTimeout(() => window.location.reload(), 80);
   };
 
@@ -44,7 +43,6 @@ export function Header({ data }: HeaderProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Per-tier color theme: soft glassmorphism via inline CSS
   const tierColors: Record<QualityTier, {
     bg: string; border: string; text: string; shadow: string;
     activeBg: string; activeBorder: string; activeText: string; activeShadow: string;
@@ -138,7 +136,6 @@ export function Header({ data }: HeaderProps) {
                 ) : (
                   <Bot size={22} className="text-white relative z-10 drop-shadow-md group-hover:animate-pulse" />
                 )}
-                {/* Online Status Dot */}
                 <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-green-500 border-[3px] border-background rounded-full shadow-[0_0_10px_rgba(34,197,94,0.8)] z-20"></div>
               </div>
               <div className="flex flex-col justify-center min-w-0">
@@ -151,7 +148,6 @@ export function Header({ data }: HeaderProps) {
               </div>
             </Link>
 
-            {/* AI Online Indicator */}
             <div className="hidden lg:flex items-center">
               <MovingGradientButton
                 label={t("nav.askAi")}
@@ -188,19 +184,16 @@ export function Header({ data }: HeaderProps) {
           </nav>
 
           <div className="flex items-center gap-2 flex-shrink-0">
-            {/* Graphics Quality Dropdown Container */}
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setGraphicsMenuOpen(!graphicsMenuOpen)}
                 title="Graphics Quality Menu"
                 className={`px-2.5 py-1.5 rounded-xl border flex items-center gap-1.5 text-xs font-bold transition-all duration-300 backdrop-blur-md shadow-md hover:scale-105 active:scale-95 ${tierLabels[tier].color}`}
               >
-                {/* Mobile: short badge (SD / HD / FHD / UHD / MAX / BEST) */}
                 <span className="sm:hidden text-[10px] font-black tracking-widest flex items-center gap-1">
                   {tierLabels[tier].mobileLabel}
                   <ChevronDown size={11} className={`transition-transform duration-200 ${graphicsMenuOpen ? "rotate-180" : ""}`} />
                 </span>
-                {/* Desktop: emoji + "Graphics: Ultra" */}
                 <span className="hidden sm:flex items-center gap-1.5">
                   <span>{tierLabels[tier].icon}</span>
                   <span className="text-[11px] font-black tracking-wider uppercase">
@@ -211,7 +204,6 @@ export function Header({ data }: HeaderProps) {
                 </span>
               </button>
 
-              {/* Graphics Dropdown Menu List — mobile: fixed bottom-up, desktop: below button */}
               <AnimatePresence>
                 {graphicsMenuOpen && (
                   <motion.div
@@ -278,7 +270,6 @@ export function Header({ data }: HeaderProps) {
               </AnimatePresence>
             </div>
 
-            {/* Language buttons — smaller on mobile */}
             <div className="flex items-center gap-1 sm:gap-2">
               {languages.map((l) => {
                 const active = language === l.code;
@@ -319,7 +310,6 @@ export function Header({ data }: HeaderProps) {
         </div>
       </div>
 
-      {/* Mobile Menu */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
@@ -345,7 +335,6 @@ export function Header({ data }: HeaderProps) {
 
               <hr className="my-2 border-white/5" />
 
-              {/* Mobile Graphics Quality Selector */}
               <div className="px-2 py-2">
                 <span className="text-xs font-bold text-white/40 uppercase tracking-widest flex items-center gap-2 mb-2">
                   <Zap size={13} /> {translateDynamicText("Grafika Rejimi", language)}
@@ -377,7 +366,6 @@ export function Header({ data }: HeaderProps) {
 
               <hr className="my-2 border-white/5" />
 
-              {/* Mobile Language Selector */}
               <div className="flex items-center justify-between px-2 py-2">
                 <span className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                   <Globe size={16} /> {t("nav.language")}:

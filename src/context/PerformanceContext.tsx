@@ -39,7 +39,6 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
     }
   };
 
-  // Background Audio Controller for Best, Max, and Ultra tiers
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -54,7 +53,6 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
     const MUSIC_TIERS: QualityTier[] = ["best", "max", "ultra"];
     const isMusicTier = MUSIC_TIERS.includes(tier);
 
-    // Tier specific volumes (38% best, 33% max, 28% ultra)
     const volumeMap: Record<string, number> = {
       best: 0.38,
       max: 0.33,
@@ -78,7 +76,6 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
     tryPlay();
 
-    // Catch any user gesture (click, tap, scroll, keypress) to unblock autoplay
     const handleGesture = () => {
       if (isMusicTier && audio.paused) {
         audio.play().then(() => setIsPlayingAudio(true)).catch(() => {});
@@ -109,7 +106,6 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
       return;
     }
 
-    // ── Fresh visit auto-detection ──
     const cores = navigator.hardwareConcurrency || 4;
     const memory = (navigator as any).deviceMemory || 4;
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -138,7 +134,6 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
         }
       }
     } catch (e) {
-      // Ignore WebGL errors
     }
 
     let detectedTier: QualityTier;

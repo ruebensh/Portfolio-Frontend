@@ -55,7 +55,6 @@ export function ProfileCard({ data }: { data: any }) {
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-purple-500/5 pointer-events-none" />
         
         <div className="relative flex flex-col lg:flex-row gap-8 items-center lg:items-start">
-          {/* Avatar */}
           <div className="flex justify-center shrink-0">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-br from-primary to-purple-500 rounded-2xl blur-2xl opacity-30" />
@@ -76,7 +75,6 @@ export function ProfileCard({ data }: { data: any }) {
             </div>
           </div>
 
-          {/* Info */}
           <div className="flex-1 text-center lg:text-left w-full">
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 text-white">
               {profileAuthor}

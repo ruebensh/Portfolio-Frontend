@@ -77,7 +77,6 @@ function AppContent() {
     }
   }, [currentPath, isAdminRoute]);
 
-  // Admin yo'nalishlari uchun mantiq
   if (isAdminRoute) {
     if (!authChecked) {
       return <AdminLoginPage onSuccess={() => setAuthChecked(true)} />;
@@ -99,13 +98,11 @@ function AppContent() {
     return (
       <>
         {AdminContent}
-        {/* Admin paneldan AI chat tugmasini olib tashlashingiz ham mumkin */}
         <ChatAI />
       </>
     );
   }
 
-  // Welcome Page
   if (!welcomeDismissed) {
     return (
       <WelcomePage
@@ -130,7 +127,6 @@ function AppContent() {
     }
   };
 
-  // Foydalanuvchi yo'nalishlari
   return (
     <>
       <SubtleVideoBackground index={getVideoIndex(currentPath)} />
@@ -148,7 +144,6 @@ function AppContent() {
       </main>
       <Footer />
       {!isAiPage && <ChatAI />}
-      {/* Live Status Widget - hamma sahifada ko'rinadi */}
       <LiveStatusWidget />
     </>
   );

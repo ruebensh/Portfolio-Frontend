@@ -13,7 +13,6 @@ export function SubtleVideoBackground({ index }: Props) {
 
   const src = VIDEOS[index % VIDEOS.length];
 
-  // Distinct video opacity, filters, and vignette per tier
   const videoConfig: Record<QualityTier, { opacity: number; filter: string; vignette: string }> = {
     best: {
       opacity: 0.95,

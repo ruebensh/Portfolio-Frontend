@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Language } from "./i18n";
 
-// ── Dictionary Mappings for Instant Common Translations ──────────────────────
 const COMMON_DICTIONARY: Record<string, Record<Language, string>> = {
   "Live": { uz: "Faol", en: "Live", ru: "В эфире" },
   "In Progress": { uz: "Jarayonda", en: "In Progress", ru: "В процессе" },
@@ -61,7 +60,6 @@ const COMMON_DICTIONARY: Record<string, Record<Language, string>> = {
   }
 };
 
-// ── In-Memory & LocalStorage Translation Cache ───────────────────────────────
 const MEMORY_CACHE = new Map<string, string>();
 
 function getCacheKey(text: string, targetLang: string): string {
@@ -81,7 +79,6 @@ function getCachedTranslation(text: string, targetLang: string): string | null {
         return saved;
       }
     } catch (e) {
-      // localStorage disabled or full
     }
   }
   return null;
@@ -94,12 +91,10 @@ function setCachedTranslation(text: string, targetLang: string, translated: stri
     try {
       localStorage.setItem(key, translated);
     } catch (e) {
-      // localStorage disabled or full
     }
   }
 }
 
-// Listeners for dynamic updates when async translation arrives
 type Listener = () => void;
 const listeners = new Set<Listener>();
 
@@ -114,13 +109,11 @@ export async function translateTextAsync(text: string, targetLang: Language): Pr
   if (!text || !text.trim()) return text;
   const trimmed = text.trim();
 
-  // If target language is UZ (default) or dictionary hit
   if (targetLang === "uz") return text;
   if (COMMON_DICTIONARY[trimmed]?.[targetLang]) {
     return COMMON_DICTIONARY[trimmed][targetLang];
   }
 
-  // Check cache
   const cached = getCachedTranslation(trimmed, targetLang);
   if (cached) return cached;
 
@@ -153,25 +146,20 @@ export function translateDynamicText(text: string | null | undefined, targetLang
 
   if (targetLang === "uz") return text;
 
-  // 1. Direct dictionary match
   if (COMMON_DICTIONARY[trimmed]?.[targetLang]) {
     return COMMON_DICTIONARY[trimmed][targetLang];
   }
 
-  // 2. Case-insensitive dictionary match
   const lowerKey = Object.keys(COMMON_DICTIONARY).find(k => k.toLowerCase() === trimmed.toLowerCase());
   if (lowerKey && COMMON_DICTIONARY[lowerKey]?.[targetLang]) {
     return COMMON_DICTIONARY[lowerKey][targetLang];
   }
 
-  // 3. Check Cache
   const cached = getCachedTranslation(trimmed, targetLang);
   if (cached) return cached;
 
-  // 4. Trigger async translation in background
   translateTextAsync(trimmed, targetLang);
 
-  // Return original while waiting for async translation
   return text;
 }
 

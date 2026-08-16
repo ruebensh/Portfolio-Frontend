@@ -33,7 +33,6 @@ export function SecondaryStarField() {
 
     type Star = { x: number; y: number; z: number; r: number; p: number; tw: number };
 
-    // Lightweight star counts per tier (no meteors!)
     let targetStarCount = 120;
     if (tier === "best") targetStarCount = 600;
     else if (tier === "max") targetStarCount = 400;
@@ -51,7 +50,6 @@ export function SecondaryStarField() {
       tw: 0.3 + Math.random() * 0.8,
     }));
 
-    // In Low (Saver) tier: draw static stars once and exit (0% RAF CPU load)
     if (tier === "low") {
       ctx.clearRect(0, 0, w, h);
       ctx.fillStyle = "rgba(255, 255, 255, 0.25)";

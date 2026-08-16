@@ -239,12 +239,10 @@ export default function NeonBorder(props: Props) {
         let corner = 0;
         let stepT = 0;
 
-        // Low tier: NO neon borders or lights at all (saver mode = 0% neon load)
         if (tier === "low") {
             return;
         }
 
-        // Medium tier: static stationary dim neon border (no rotation animation / RAF)
         if (tier === "medium") {
             const p = live.current;
             const { w, h } = sizeRef.current;
@@ -261,12 +259,10 @@ export default function NeonBorder(props: Props) {
                 return;
             }
 
-            // High refresh rate & smooth 60-240 FPS rendering across all animated tiers
             const dt = Math.min(0.05, Math.max(0.001, (now - last) / 1000));
             last = now;
             const p = live.current;
             const s = Math.max(1, Math.min(20, p.speed));
-            // Speed scaling: Best (2.48x), Max (1.65x), Ultra (1.2x), High (1.0x)
             const speedMultiplier = tier === "best" ? 2.48 : tier === "max" ? 1.65 : tier === "ultra" ? 1.2 : 1.0;
 
             if (s > 0) {
@@ -340,7 +336,6 @@ export default function NeonBorder(props: Props) {
         />
     );
 
-    // Dynamic glow opacity multiplier per quality tier
     const opacityMult =
         tier === "medium" ? 0.30 :
         tier === "high" ? 0.65 :
@@ -407,7 +402,6 @@ export default function NeonBorder(props: Props) {
         </div>
     );
 
-    // In Low (Saver) tier, do NOT render any neon glow overlays or borders
     if (tier === "low") {
         return (
             <div
@@ -443,4 +437,4 @@ export default function NeonBorder(props: Props) {
             {children && <div style={{ position: "relative", zIndex: 10, width: "100%", height: "100%" }}>{children}</div>}
         </div>
     );
-}
+}

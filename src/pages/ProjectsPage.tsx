@@ -174,7 +174,6 @@ export function ProjectsPage() {
       <SoftProjectsBackground />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header Section */}
         <motion.div
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
@@ -197,7 +196,6 @@ export function ProjectsPage() {
               {t("projects.subtitle")}
             </p>
 
-            {/* Filter Category Chips */}
             <div className="mt-8 flex gap-2 overflow-x-auto pb-2">
               {categories.map((cat) => {
                 const active = selectedCategory === cat;
@@ -228,7 +226,6 @@ export function ProjectsPage() {
           </div>
         </motion.div>
 
-        {/* Projects Grid */}
         <motion.div
           variants={container}
           initial="hidden"
@@ -259,7 +256,6 @@ export function ProjectsPage() {
                   <NeonBorder color="#00f0ff" rounded={24} thickness={2} borderSize={40} glow={75} speed={12} className="h-full">
                     <Link href={`/project/${project.id}`}>
                       <div className="group h-full pp-glass rounded-3xl overflow-hidden shadow-[0_18px_80px_rgba(0,0,0,.40)] border border-cyan-500/20">
-                        {/* Image Preview */}
                         <div className="relative aspect-video overflow-hidden">
                           <img
                             src={img}
@@ -273,7 +269,6 @@ export function ProjectsPage() {
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
 
-                          {/* Status Badge */}
                           <div className="absolute top-4 right-4">
                             <div
                               className={`px-3 py-1 rounded-full text-xs font-medium border backdrop-blur-md ${getStatusClass(
@@ -285,7 +280,6 @@ export function ProjectsPage() {
                           </div>
                         </div>
 
-                        {/* Card Body */}
                         <div className="p-6">
                           <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
                             {titleTranslated}
@@ -295,7 +289,6 @@ export function ProjectsPage() {
                             {descTranslated}
                           </p>
 
-                          {/* Desktop footer */}
                           <div className="hidden sm:flex pt-4 border-t border-white/10 items-center justify-between">
                             <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">
                               {t("projects.viewDetails")}
@@ -309,7 +302,6 @@ export function ProjectsPage() {
                             </span>
                           </div>
 
-                          {/* Mobile-only NeonGlowButton */}
                           <div className="sm:hidden pt-4 border-t border-white/10 flex justify-center">
                             <NeonGlowButton
                               label={t("projects.open")}
