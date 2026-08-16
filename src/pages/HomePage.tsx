@@ -311,7 +311,7 @@ function HomeEntranceReveal() {
 }
 
 export function HomePage() {
-  const { language, t } = useLanguage();
+  const { language, t, td } = useLanguage();
   const [settings, setSettings] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   
@@ -358,11 +358,11 @@ export function HomePage() {
   );
 
   const heroTitle = settings?.title 
-    ? translateDynamicText(settings.title, language) 
+    ? (td(settings.title) || translateDynamicText(settings.title, language)) 
     : t("home.defaultTitle");
 
   const heroDesc = settings?.description 
-    ? translateDynamicText(settings.description, language) 
+    ? (td(settings.description) || translateDynamicText(settings.description, language)) 
     : t("home.defaultDesc");
 
   return (

@@ -14,9 +14,11 @@ export function Experience() {
     fetch(`${API_URL}/experience`)
       .then((res) => res.json())
       .then((data) => {
-        const formatted = data.map((exp: any) => ({
+        const formatted = (data || []).map((exp: any) => ({
           ...exp,
-          impact: exp.impacts?.map((i: any) => i.text) || []
+          impact: (exp.impacts || []).map((i: any) =>
+            typeof i === "string" ? i : i?.text || i?.name || String(i || "")
+          )
         }));
         setExperienceData(formatted);
       })

@@ -17,27 +17,27 @@ export function ProfileCard({ data }: { data: any }) {
     { 
       icon: Folder, 
       label: t("profile.projects"), 
-      value: data?.projectCount || "10+",
+      value: data?.projectCount ? td(data.projectCount) : "10+",
       color: "text-blue-400",
       bg: "bg-blue-400/10",
     },
     { 
       icon: Briefcase, 
       label: t("profile.experience"), 
-      value: data?.experienceYears || "3+ Years",
+      value: data?.experienceYears ? td(data.experienceYears) : "3+ Years",
       color: "text-purple-400",
       bg: "bg-purple-400/10",
     },
     { 
       icon: Code, 
       label: t("profile.mainStack"), 
-      value: data?.mainStack || "Next.js / NestJS",
+      value: data?.mainStack ? td(data.mainStack) : "Next.js / NestJS",
       color: "text-emerald-400",
       bg: "bg-emerald-400/10",
     },
   ];
 
-  const profileAuthor = data?.author || t("profile.defaultTitle");
+  const profileAuthor = data?.author ? td(data.author) : t("profile.defaultTitle");
   const profileDesc = data?.description 
     ? translateDynamicText(data.description, language)
     : t("profile.defaultDesc");
