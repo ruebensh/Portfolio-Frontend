@@ -176,7 +176,11 @@ const DEFAULT_REACTION_OPTIONS = [
   "🤝",
 ];
 
+import { usePerformance } from "../context/PerformanceContext";
+import { SubtleVideoBackground } from "../components/SubtleVideoBackground";
+
 function PageBackground() {
+  const { tier } = usePerformance();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const mouseRef = useRef({ x: 0, y: 0, tx: 0, ty: 0 });
   const scrollRef = useRef({ y: 0, ty: 0 });
@@ -221,7 +225,16 @@ function PageBackground() {
       fadeIn: number;
     };
 
-    const starCount = Math.floor(Math.min(700, Math.max(320, (w * h) / 2200)));
+    let targetStarCount = 250;
+    if (tier === "best") targetStarCount = 1800;
+    else if (tier === "max") targetStarCount = 1200;
+    else if (tier === "ultra") targetStarCount = 600;
+    else if (tier === "high") targetStarCount = 250;
+    else if (tier === "medium") targetStarCount = 120;
+    else if (tier === "low") targetStarCount = 60;
+
+    const densityDivisor = tier === "best" ? 900 : tier === "max" ? 1400 : tier === "ultra" ? 2200 : 4500;
+    const starCount = Math.floor(Math.min(targetStarCount, Math.max(40, (w * h) / densityDivisor)));
     const stars: Star[] = Array.from({ length: starCount }, () => ({
       x: Math.random() * w,
       y: Math.random() * h,
@@ -233,7 +246,10 @@ function PageBackground() {
     const meteors: Meteor[] = [];
 
     const spawnMeteor = () => {
-      if (prefersReduced || Math.random() > 0.028) return;
+      if (prefersReduced || tier === "low" || tier === "medium") return;
+      const spawnChance = tier === "best" ? 0.085 : tier === "max" ? 0.055 : 0.028;
+      if (Math.random() > spawnChance) return;
+
       const z = Math.random() < 0.15 ? 0.75 + Math.random() * 0.25 : Math.pow(Math.random(), 2.2);
       const angle = (Math.PI * 7) / 6 + (Math.random() - 0.5) * (0.22 + (1 - z) * 0.18);
       const speed = (10 + Math.random() * 6) * (0.65 + z * 1.25);
@@ -259,13 +275,30 @@ function PageBackground() {
     };
 
     const drawGlowStar = (x: number, y: number, radius: number, alpha: number) => {
-      const g = ctx.createRadialGradient(x, y, 0, x, y, radius * 6);
+      if (tier === "low" || tier === "medium" || tier === "high") {
+        const glowMult = tier === "high" ? 2.2 : tier === "medium" ? 1.5 : 1.1;
+        ctx.fillStyle = tier === "high"
+          ? `rgba(220,190,255,${alpha * 0.25})`
+          : `rgba(255,255,255,${alpha * 0.18})`;
+        ctx.beginPath();
+        ctx.arc(x, y, Math.max(1, radius * glowMult), 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = `rgba(255,255,255,${Math.min(1, alpha * 1.1)})`;
+        ctx.beginPath();
+        ctx.arc(x, y, Math.max(0.5, radius * 0.85), 0, Math.PI * 2);
+        ctx.fill();
+        return;
+      }
+
+      const glowRadius = tier === "best" ? radius * 12 : tier === "max" ? radius * 9 : radius * 6;
+      const g = ctx.createRadialGradient(x, y, 0, x, y, glowRadius);
       g.addColorStop(0, `rgba(255,255,255,${alpha})`);
       g.addColorStop(0.25, `rgba(255,255,255,${alpha * 0.3})`);
       g.addColorStop(1, `rgba(255,255,255,0)`);
       ctx.fillStyle = g;
       ctx.beginPath();
-      ctx.arc(x, y, radius * 6, 0, Math.PI * 2);
+      ctx.arc(x, y, glowRadius, 0, Math.PI * 2);
       ctx.fill();
       ctx.fillStyle = `rgba(255,255,255,${Math.min(1, alpha * 1.05)})`;
       ctx.beginPath();

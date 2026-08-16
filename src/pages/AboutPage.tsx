@@ -10,10 +10,13 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
+import { usePerformance } from "../context/PerformanceContext";
+import { SubtleVideoBackground } from "../components/SubtleVideoBackground";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 function SoftAboutBackground() {
+  const { tier } = usePerformance();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const mouseRef = useRef({ x: 0, y: 0, tx: 0, ty: 0 });
 
@@ -52,14 +55,23 @@ function SoftAboutBackground() {
       tw: number;
     };
 
-    const starCount = Math.floor(Math.min(520, Math.max(240, (w * h) / 2800)));
+    let targetStarCount = 250;
+    if (tier === "best") targetStarCount = 1800;
+    else if (tier === "max") targetStarCount = 1200;
+    else if (tier === "ultra") targetStarCount = 600;
+    else if (tier === "high") targetStarCount = 250;
+    else if (tier === "medium") targetStarCount = 120;
+    else if (tier === "low") targetStarCount = 60;
+
+    const densityDivisor = tier === "best" ? 900 : tier === "max" ? 1400 : tier === "ultra" ? 2200 : 4500;
+    const starCount = Math.floor(Math.min(targetStarCount, Math.max(40, (w * h) / densityDivisor)));
     const stars: Star[] = Array.from({ length: starCount }, () => ({
       x: Math.random() * w,
       y: Math.random() * h,
       z: Math.pow(Math.random(), 1.65),
       r: 0.22 + Math.random() * 0.85,
       p: Math.random() * Math.PI * 2,
-      tw: 0.35 + Math.random() * 0.9,
+      tw: 0.3 + Math.random() * 0.85,
     }));
 
     const onMove = (e: PointerEvent) => {
@@ -71,18 +83,26 @@ function SoftAboutBackground() {
     window.addEventListener("pointermove", onMove, { passive: true });
 
     const glowDot = (x: number, y: number, r: number, a: number) => {
-      const g = ctx.createRadialGradient(x, y, 0, x, y, r * 7);
+      if (tier === "low" || tier === "medium" || tier === "high") {
+        ctx.fillStyle = `rgba(255,255,255,${a * 0.4})`;
+        ctx.beginPath();
+        ctx.arc(x, y, Math.max(0.6, r), 0, Math.PI * 2);
+        ctx.fill();
+        return;
+      }
+
+      const g = ctx.createRadialGradient(x, y, 0, x, y, r * 6.5);
       g.addColorStop(0, `rgba(255,255,255,${a})`);
-      g.addColorStop(0.25, `rgba(255,255,255,${a * 0.25})`);
+      g.addColorStop(0.2, `rgba(255,255,255,${a * 0.25})`);
       g.addColorStop(1, "rgba(255,255,255,0)");
       ctx.fillStyle = g;
       ctx.beginPath();
-      ctx.arc(x, y, r * 7, 0, Math.PI * 2);
+      ctx.arc(x, y, r * 6.5, 0, Math.PI * 2);
       ctx.fill();
 
-      ctx.fillStyle = `rgba(255,255,255,${Math.min(1, a * 0.70)})`;
+      ctx.fillStyle = `rgba(255,255,255,${Math.min(1, a * 0.8)})`;
       ctx.beginPath();
-      ctx.arc(x, y, Math.max(0.6, r), 0, Math.PI * 2);
+      ctx.arc(x, y, Math.max(0.55, r), 0, Math.PI * 2);
       ctx.fill();
     };
 
@@ -90,34 +110,34 @@ function SoftAboutBackground() {
       ctx.clearRect(0, 0, w, h);
 
       const m = mouseRef.current;
-      m.tx += (m.x - m.tx) * 0.06;
-      m.ty += (m.y - m.ty) * 0.06;
+      m.tx += (m.x - m.tx) * 0.05;
+      m.ty += (m.y - m.ty) * 0.05;
 
       const bg = ctx.createRadialGradient(
-        w * 0.55 + m.tx * 70,
-        h * 0.22 + m.ty * 55,
-        Math.min(w, h) * 0.16,
+        w * 0.5 + m.tx * 60,
+        h * 0.3 + m.ty * 45,
+        Math.min(w, h) * 0.15,
         w * 0.5,
         h * 0.5,
         Math.max(w, h) * 0.95
       );
-      bg.addColorStop(0, "rgba(255,255,255,0.010)");
+      bg.addColorStop(0, "rgba(255,255,255,0.008)");
       bg.addColorStop(1, "rgba(0,0,0,0)");
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, w, h);
 
       for (const st of stars) {
         if (!prefersReduced) {
-          st.y += (0.018 + st.z * 0.07) * 0.55;
+          st.y += (0.015 + st.z * 0.07) * 0.5;
           if (st.y > h + 30) st.y = -30;
         }
 
-        const tw = prefersReduced ? 1 : 0.86 + 0.14 * Math.sin(t * 0.0011 * st.tw + st.p);
-        const alpha = Math.min(0.20, (0.085 + st.z * 0.20) * tw);
-        const r = st.r * (0.75 + st.z * 0.85);
+        const tw = prefersReduced ? 1 : 0.88 + 0.12 * Math.sin(t * 0.001 * st.tw + st.p);
+        const alpha = Math.min(0.2, (0.08 + st.z * 0.2) * tw);
+        const r = st.r * (0.7 + st.z * 0.8);
 
-        const px = st.x + m.tx * (st.z - 0.15) * 12;
-        const py = st.y + m.ty * (st.z - 0.15) * 10;
+        const px = st.x + m.tx * (st.z - 0.15) * 10;
+        const py = st.y + m.ty * (st.z - 0.15) * 8;
 
         glowDot(px, py, r, alpha);
       }
@@ -132,10 +152,11 @@ function SoftAboutBackground() {
       window.removeEventListener("pointermove", onMove);
       cancelAnimationFrame(raf);
     };
-  }, []);
+  }, [tier]);
 
   return (
     <div className="pointer-events-none fixed inset-0 -z-10">
+      <SubtleVideoBackground index={0} />
       <style>{`
         .ab-aurora {
           opacity: .22;

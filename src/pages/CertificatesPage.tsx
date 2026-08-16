@@ -5,11 +5,14 @@ import NeonGlowButton from "../components/originkit/ui/neon-glow-button";
 import NeonBorder from "../components/originkit/ui/neon-border";
 import { useLanguage } from "../context/LanguageContext";
 import { translateDynamicText } from "../lib/translator";
+import { usePerformance } from "../context/PerformanceContext";
+import { SubtleVideoBackground } from "../components/SubtleVideoBackground";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 // ProjectsPage dagi interaktiv fon komponenti
 function SoftCertificatesBackground() {
+  const { tier } = usePerformance();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const mouseRef = useRef({ x: 0, y: 0, tx: 0, ty: 0 });
 
@@ -40,7 +43,17 @@ function SoftCertificatesBackground() {
     window.addEventListener("resize", resize);
 
     type Star = { x: number; y: number; z: number; r: number; p: number; tw: number };
-    const starCount = Math.floor(Math.min(160, Math.max(80, (w * h) / 6000)));
+
+    let targetStarCount = 250;
+    if (tier === "best") targetStarCount = 1800;
+    else if (tier === "max") targetStarCount = 1200;
+    else if (tier === "ultra") targetStarCount = 600;
+    else if (tier === "high") targetStarCount = 250;
+    else if (tier === "medium") targetStarCount = 120;
+    else if (tier === "low") targetStarCount = 60;
+
+    const densityDivisor = tier === "best" ? 900 : tier === "max" ? 1400 : tier === "ultra" ? 2200 : 4500;
+    const starCount = Math.floor(Math.min(targetStarCount, Math.max(40, (w * h) / densityDivisor)));
     const stars: Star[] = Array.from({ length: starCount }, () => ({
       x: Math.random() * w,
       y: Math.random() * h,
@@ -59,6 +72,14 @@ function SoftCertificatesBackground() {
     window.addEventListener("pointermove", onMove, { passive: true });
 
     const glowDot = (x: number, y: number, r: number, a: number) => {
+      if (tier === "low" || tier === "medium" || tier === "high") {
+        ctx.fillStyle = `rgba(255,255,255,${a * 0.4})`;
+        ctx.beginPath();
+        ctx.arc(x, y, Math.max(0.6, r), 0, Math.PI * 2);
+        ctx.fill();
+        return;
+      }
+
       const g = ctx.createRadialGradient(x, y, 0, x, y, r * 7);
       g.addColorStop(0, `rgba(255,255,255,${a})`);
       g.addColorStop(0.25, `rgba(255,255,255,${a * 0.25})`);
@@ -114,10 +135,11 @@ function SoftCertificatesBackground() {
       window.removeEventListener("pointermove", onMove);
       cancelAnimationFrame(raf);
     };
-  }, []);
+  }, [tier]);
 
   return (
     <div className="pointer-events-none fixed inset-0 -z-10">
+      <SubtleVideoBackground index={1} />
       <style>{`
         .pp-aurora {
           opacity: .26;
