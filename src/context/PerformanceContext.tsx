@@ -11,39 +11,53 @@ interface PerformanceContextType {
 
 const PerformanceContext = createContext<PerformanceContextType | undefined>(undefined);
 
+// Session key: survives page reload (within same tab) but NOT a fresh visit / new tab
+const SESSION_KEY = "portfolio_tier_session";
+const VALID_TIERS: QualityTier[] = ["max", "ultra", "high", "medium", "low"];
+
 export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [tier, setTierState] = useState<QualityTier>(() => {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("portfolio_quality_tier") as QualityTier;
-      if (saved && ["max", "ultra", "high", "medium", "low"].includes(saved)) {
-        return saved;
+      // sessionStorage survives a manual reload (triggered by tier button)
+      // but NOT a fresh browser tab or new navigation — perfect for auto-detect UX
+      const session = sessionStorage.getItem(SESSION_KEY) as QualityTier;
+      if (session && VALID_TIERS.includes(session)) {
+        return session;
       }
     }
-    return "high"; // Default fallback while detecting
+    return "high"; // Default while hardware detection runs
   });
 
   const [fps, setFps] = useState<number>(60);
   const [isCpuRendering, setIsCpuRendering] = useState<boolean>(false);
 
+  // setTier: update state + save to sessionStorage (survives reload, not new visit)
   const setTier = (newTier: QualityTier) => {
     setTierState(newTier);
     if (typeof window !== "undefined") {
-      localStorage.setItem("portfolio_quality_tier", newTier);
+      sessionStorage.setItem(SESSION_KEY, newTier);
     }
   };
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    // Check if user already manually set a tier
-    const saved = localStorage.getItem("portfolio_quality_tier");
-    
+    // If a session override exists (user clicked button → reload), respect it — skip detection
+    const sessionOverride = sessionStorage.getItem(SESSION_KEY);
+    if (sessionOverride && VALID_TIERS.includes(sessionOverride as QualityTier)) {
+      // Clear the session override so NEXT fresh visit auto-detects again
+      // But keep it for this load (state already set in useState above)
+      return;
+    }
+
+    // ── Fresh visit: always auto-detect ──────────────────────────────────────
+
     // 1. Hardware Detection
     const cores = navigator.hardwareConcurrency || 4;
     const memory = (navigator as any).deviceMemory || 4;
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-    // 2. WebGL Renderer Detection (Detect VirtualBox / SwiftShader / Software Renderer)
+    // 2. WebGL GPU Detection (VirtualBox / SwiftShader / Software Renderer)
     let isSoftwareGpu = false;
     try {
       const canvas = document.createElement("canvas");
@@ -52,7 +66,7 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
         const debugInfo = (gl as WebGLRenderingContext).getExtension("WEBGL_debug_renderer_info");
         if (debugInfo) {
           const renderer = (gl as WebGLRenderingContext).getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) || "";
-          const vendor = (gl as WebGLRenderingContext).getParameter(debugInfo.UNMASKED_VENDOR_WEBGL) || "";
+          const vendor  = (gl as WebGLRenderingContext).getParameter(debugInfo.UNMASKED_VENDOR_WEBGL) || "";
           const lower = (renderer + " " + vendor).toLowerCase();
           if (
             lower.includes("swiftshader") ||
@@ -68,29 +82,29 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
         }
       }
     } catch (e) {
-      // Ignore WebGL check errors
+      // Ignore WebGL errors
     }
 
-    // Determine initial tier based on hardware if not saved
-    let initialTier: QualityTier = "high";
+    // 3. Determine initial tier based on hardware
+    let detectedTier: QualityTier;
     if (isSoftwareGpu || cores <= 2 || memory <= 2) {
-      initialTier = "low";
-    } else if (isMobile || cores <= 4 || memory <= 4) {
-      initialTier = "medium";
+      detectedTier = "low";
+    } else if (isMobile && (cores <= 4 || memory <= 4)) {
+      detectedTier = "medium";
+    } else if (isMobile) {
+      detectedTier = "high";
     } else if (cores >= 8 && memory >= 8) {
-      initialTier = "ultra";
+      detectedTier = "ultra";
     } else {
-      initialTier = "high";
+      detectedTier = "high";
     }
 
-    if (!saved) {
-      setTierState(initialTier);
-    }
+    setTierState(detectedTier);
 
-    // 3. Live FPS Benchmark Scaler (Monitor first 1.5 seconds)
+    // 4. Live FPS Benchmark (first 1.5 seconds) — may downgrade tier further
     let frameCount = 0;
-    let startTime = performance.now();
     let rafId = 0;
+    const startTime = performance.now();
 
     const measureFps = (now: number) => {
       frameCount++;
@@ -99,13 +113,10 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
         const measuredFps = Math.round((frameCount * 1000) / elapsed);
         setFps(measuredFps);
 
-        // Auto-scale tier if FPS is lagging and user didn't manually set preference
-        if (!saved) {
-          if (measuredFps < 32) {
-            setTierState("low");
-          } else if (measuredFps < 48 && (initialTier === "ultra" || initialTier === "high")) {
-            setTierState("medium");
-          }
+        if (measuredFps < 32) {
+          setTierState("low");
+        } else if (measuredFps < 48 && (detectedTier === "ultra" || detectedTier === "high")) {
+          setTierState("medium");
         }
         return;
       }
