@@ -28,6 +28,8 @@ export function Header({ data }: HeaderProps) {
     const tiers: QualityTier[] = ["max", "ultra", "high", "medium", "low"];
     const nextIdx = (tiers.indexOf(tier) + 1) % tiers.length;
     setTier(tiers[nextIdx]);
+    // Reload so canvas effects re-initialize with the new tier settings
+    setTimeout(() => window.location.reload(), 80);
   };
 
   const tierLabels: Record<QualityTier, { label: string; mobileLabel: string; icon: string; color: string }> = {
