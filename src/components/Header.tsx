@@ -193,18 +193,18 @@ export function Header({ data }: HeaderProps) {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 6, scale: 0.95 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute right-0 top-full mt-2.5 w-60 sm:w-64 rounded-2xl border border-white/25 bg-[#0b0c14] p-2 shadow-[0_20px_50px_rgba(0,0,0,0.95)] backdrop-blur-3xl z-[100] overflow-hidden"
+                    className="absolute right-0 top-full mt-2.5 w-60 sm:w-64 rounded-2xl border border-amber-400/35 bg-[#090a10] p-2 shadow-[0_25px_60px_rgba(0,0,0,0.98)] z-[999] overflow-hidden"
                   >
-                    <div className="px-2.5 py-1.5 border-b border-white/10 mb-1.5 flex items-center justify-between gap-2 whitespace-nowrap">
+                    <div className="px-2.5 py-1.5 border-b border-white/10 mb-1.5 flex items-center justify-between gap-2 whitespace-nowrap bg-[#090a10]">
                       <span className="text-[10px] font-black uppercase tracking-wider text-amber-400 truncate">
                         {translateDynamicText("Grafika Rejimi", language)}
                       </span>
-                      <span className="text-[9px] text-white/50 font-mono font-bold flex-shrink-0">
+                      <span className="text-[9px] text-amber-200/60 font-mono font-bold flex-shrink-0">
                         {language === "uz" ? "6 ta Rejim" : language === "ru" ? "6 Режимов" : "6 Options"}
                       </span>
                     </div>
 
-                    <div className="flex flex-col gap-1">
+                    <div className="flex flex-col gap-1.5">
                       {tierOptions.map((optId) => {
                         const opt = tierLabels[optId];
                         const isActiveTier = tier === optId;
@@ -212,16 +212,16 @@ export function Header({ data }: HeaderProps) {
                           <button
                             key={optId}
                             onClick={() => selectTier(optId)}
-                            className={`w-full flex items-center justify-between px-3 py-2 rounded-xl border transition-all duration-200 text-left hover:scale-[1.03] hover:z-10 ${
+                            className={`w-full flex items-center justify-between px-3 py-2 rounded-xl border transition-all duration-200 text-left hover:scale-[1.03] ${
                               isActiveTier
-                                ? "bg-amber-400/20 border-amber-400/70 text-amber-200 shadow-[0_0_15px_rgba(255,215,0,0.35)] backdrop-blur-xl"
-                                : "bg-white/[0.08] border-white/15 text-white/90 hover:bg-white/20 hover:border-white/35 hover:text-white backdrop-blur-md shadow-md"
+                                ? "bg-amber-400/20 border-amber-400/80 text-amber-200 shadow-[0_0_15px_rgba(255,215,0,0.35)] font-bold"
+                                : "bg-[#121320] border-white/15 text-white hover:bg-[#1c1d30] hover:border-amber-400/50 hover:text-amber-200 shadow-md"
                             }`}
                           >
                             <div className="flex items-center gap-2.5 min-w-0">
                               <span className="text-base flex-shrink-0">{opt.icon}</span>
                               <span className="text-xs font-black uppercase tracking-wider whitespace-nowrap">{opt.label}</span>
-                              <span className="text-[9px] font-mono font-extrabold px-1.5 py-0.5 rounded-md bg-white/10 text-white/80 border border-white/15">
+                              <span className="text-[9px] font-mono font-extrabold px-1.5 py-0.5 rounded-md bg-black/40 text-white/90 border border-white/15">
                                 {opt.mobileLabel}
                               </span>
                             </div>
