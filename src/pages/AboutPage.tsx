@@ -255,6 +255,45 @@ const sectionItem = {
   },
 };
 
+const getItemText = (item: any) => {
+  if (!item) return "";
+  if (typeof item === "string") return item;
+  if (typeof item === "object") return item.text || item.name || item.title || item.degree || "";
+  return String(item);
+};
+
+const DEFAULT_FALLBACK_STORY = `Men Sun'iy Intellekt, Machine Learning va Python backend yo'nalishida faoliyat yurituvchi dasturchiman.
+School 21 o'quv maskanida Data Science va Machine Learning yo'nalishida o'qiyman.
+Masshtablanuvchi veb-ilovalar, neyron tarmoqlari hamda aqlli raqamli tizimlar yaratish bo'yicha tajribaga egaman.`;
+
+const DEFAULT_EDUCATION = [
+  { degree: "Data Science & Machine Learning", institution: "School 21", year: "2023 - Hozir" },
+  { degree: "Software Engineering & Python Development", institution: "Self-Taught & Specialized Courses", year: "2021 - 2023" }
+];
+
+const DEFAULT_CERTIFICATES = [
+  { name: "Machine Learning Specialization", issuer: "Coursera / Stanford Online", year: "2023" },
+  { name: "Full-Stack Web Development with Python & React", issuer: "Professional Certification", year: "2023" }
+];
+
+const DEFAULT_VALUES = [
+  "Doimiy o'rganish va amaliyot orqali yangi texnologiyalarni egallash",
+  "Toza, o'qilishi oson va masshtablanuvchi kod yozish madaniyati",
+  "Muammolarga innovatsion va sun'iy intellektga asoslangan yechimlar topish"
+];
+
+const DEFAULT_LEARNING = [
+  "Deep Learning & PyTorch Architecture",
+  "Large Language Models (LLM) & RAG Systems",
+  "High-Performance Async Backend Systems"
+];
+
+const DEFAULT_WORKING = [
+  "AI Portfolio & Interactive Web Platform",
+  "Custom Machine Learning Pipeline & Data Analytics Tools",
+  "Rubensh AI Assistant Integration"
+];
+
 function safeArray(v: any) {
   return Array.isArray(v) ? v : [];
 }
@@ -267,8 +306,8 @@ export function AboutPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch(`${API_URL}/about`).then((res) => res.json()),
-      fetch(`${API_URL}/settings`).then((res) => res.json()),
+      fetch(`${API_URL}/about`).then((res) => res.ok ? res.json() : null).catch(() => null),
+      fetch(`${API_URL}/settings`).then((res) => res.ok ? res.json() : null).catch(() => null),
     ])
       .then(([aboutData, settingsData]) => {
         setData(aboutData);
@@ -279,21 +318,20 @@ export function AboutPage() {
   }, []);
 
   const getAvatarUrl = () => {
-    if (!settings?.avatarUrl) return "https://via.placeholder.com/600x600.png?text=Avatar";
+    if (!settings?.avatarUrl) return "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800";
     if (settings.avatarUrl.startsWith("http")) return settings.avatarUrl;
     return `${API_URL}${settings.avatarUrl}`;
   };
 
   const content = useMemo(() => {
-    const fallback = {
-      story: "",
-      education: [],
-      certificates: [],
-      values: [],
-      currentlyLearning: [],
-      currentlyWorking: [],
+    return {
+      story: data?.story || DEFAULT_FALLBACK_STORY,
+      education: (data?.education && safeArray(data.education).length > 0) ? data.education : DEFAULT_EDUCATION,
+      certificates: (data?.certificates && safeArray(data.certificates).length > 0) ? data.certificates : DEFAULT_CERTIFICATES,
+      values: (data?.values && safeArray(data.values).length > 0) ? data.values : DEFAULT_VALUES,
+      currentlyLearning: (data?.currentlyLearning && safeArray(data.currentlyLearning).length > 0) ? data.currentlyLearning : DEFAULT_LEARNING,
+      currentlyWorking: (data?.currentlyWorking && safeArray(data.currentlyWorking).length > 0) ? data.currentlyWorking : DEFAULT_WORKING,
     };
-    return data || fallback;
   }, [data]);
 
   const education = safeArray(content.education);
@@ -319,7 +357,6 @@ export function AboutPage() {
       <SoftAboutBackground />
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        {}
         <motion.div
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
@@ -330,21 +367,20 @@ export function AboutPage() {
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full ab-chip mb-6">
               <Sparkles size={16} className="text-primary" />
               <span className="text-xs md:text-sm text-muted-foreground">
-                Men haqimda:
+                {td("Men haqimda:")}
               </span>
             </div>
 
             <h1 className="text-3xl sm:text-4xl lg:text-6xl font-extrabold tracking-tight mb-4 ab-title">
-              About Me
+              {td("About Me")}
             </h1>
 
             <p className="text-muted-foreground text-lg max-w-3xl">
-              Tanishing bu men
+              {td("Tanishing bu men")}
             </p>
           </div>
         </motion.div>
 
-        {}
         <motion.div
           variants={sectionWrap}
           initial="hidden"
@@ -353,12 +389,11 @@ export function AboutPage() {
         >
           <motion.div variants={sectionItem} className="ab-glass rounded-3xl p-8 md:p-10">
             <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
-              {}
               <div className="relative shrink-0">
                 <div className="absolute -inset-6 rounded-[28px] bg-gradient-to-br from-primary/25 via-purple-500/10 to-sky-400/10 blur-2xl opacity-80" />
                 <motion.img
                   src={getAvatarUrl()}
-                  alt={settings?.author || "Jaloliddin"}
+                  alt={settings?.author || "Jaloliddin Xalimov"}
                   className="relative w-44 h-44 md:w-52 md:h-52 rounded-[28px] object-cover border border-white/10 shadow-[0_30px_90px_rgba(0,0,0,.50)]"
                   initial={{ opacity: 0, scale: 0.92 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -366,11 +401,10 @@ export function AboutPage() {
                 />
               </div>
 
-              {}
               <div className="flex-1 w-full">
                 <div className="text-center md:text-left">
                   <h2 className="text-2xl md:text-3xl font-bold mb-3">
-                    {settings?.author || "Jaloliddin"}
+                    {settings?.author || "Jaloliddin Xalimov"}
                   </h2>
                   <p className="text-muted-foreground">
                     {td(settings?.subtitle || "AI/ML Student & Python Developer")}
@@ -389,12 +423,6 @@ export function AboutPage() {
                         {td(paragraph)}
                       </p>
                     ))}
-
-                  {!content.story && (
-                    <p className="text-muted-foreground italic text-center md:text-left">
-                      Hozircha story yozilmagan.
-                    </p>
-                  )}
                 </div>
               </div>
             </div>
@@ -421,14 +449,14 @@ export function AboutPage() {
                       transition={{ duration: 0.25 }}
                       className="rounded-2xl border border-white/10 bg-white/5 hover:bg-white/7 transition-colors p-6"
                     >
-                      <h3 className="font-semibold mb-1">{td(edu.degree)}</h3>
+                      <h3 className="font-semibold mb-1">{td(getItemText(edu.degree || edu))}</h3>
                       <p className="text-muted-foreground text-sm">
-                        {td(edu.institution)} • {edu.year}
+                        {td(getItemText(edu.institution))} • {edu.year || "2023 - Hozir"}
                       </p>
                     </motion.div>
                   ))
                 ) : (
-                  <p className="text-muted-foreground italic">Education ma’lumotlari yo‘q.</p>
+                  <p className="text-muted-foreground italic">{td("Education ma’lumotlari yo‘q.")}</p>
                 )}
               </div>
             </motion.div>
@@ -453,29 +481,28 @@ export function AboutPage() {
                       transition={{ duration: 0.25 }}
                       className="rounded-2xl border border-white/10 bg-white/5 hover:bg-white/7 transition-colors p-6"
                     >
-                      <h3 className="font-semibold mb-1">{td(cert.name)}</h3>
+                      <h3 className="font-semibold mb-1">{td(getItemText(cert.name || cert))}</h3>
                       <p className="text-muted-foreground text-sm">
-                        {td(cert.issuer)} • {cert.year}
+                        {td(getItemText(cert.issuer))} • {cert.year || "2023"}
                       </p>
                     </motion.div>
                   ))
                 ) : (
                   <p className="text-muted-foreground italic md:col-span-2">
-                    Certificates yo‘q.
+                    {td("Certificates yo‘q.")}
                   </p>
                 )}
               </div>
             </motion.div>
           </motion.section>
 
-          {}
           <motion.section variants={sectionWrap} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-90px" }}>
             <motion.div variants={sectionItem} className="ab-glass rounded-3xl p-8 md:p-10">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-11 h-11 rounded-2xl bg-primary/10 border border-white/10 flex items-center justify-center">
                   <Heart className="text-primary" size={20} />
                 </div>
-                <h2 className="text-2xl font-bold">Values & Principles</h2>
+                <h2 className="text-2xl font-bold">{td("Values & Principles")}</h2>
               </div>
 
               <div className="space-y-4">
@@ -489,17 +516,16 @@ export function AboutPage() {
                       className="rounded-2xl border border-white/10 bg-white/5 hover:bg-white/7 transition-colors p-6 flex items-start gap-4"
                     >
                       <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0 shadow-[0_0_18px_rgba(99,102,241,.35)]" />
-                      <p className="text-muted-foreground">{v.text}</p>
+                      <p className="text-muted-foreground">{td(getItemText(v))}</p>
                     </motion.div>
                   ))
                 ) : (
-                  <p className="text-muted-foreground italic">Values yo‘q.</p>
+                  <p className="text-muted-foreground italic">{td("Values yo‘q.")}</p>
                 )}
               </div>
             </motion.div>
           </motion.section>
 
-          {}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <motion.section variants={sectionWrap} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-90px" }}>
               <motion.div variants={sectionItem} className="ab-glass rounded-3xl p-8 md:p-10 h-full">
@@ -507,7 +533,7 @@ export function AboutPage() {
                   <div className="w-11 h-11 rounded-2xl bg-primary/10 border border-white/10 flex items-center justify-center">
                     <BookOpen className="text-primary" size={20} />
                   </div>
-                  <h2 className="text-2xl font-bold">Currently Learning</h2>
+                  <h2 className="text-2xl font-bold">{td("Currently Learning")}</h2>
                 </div>
 
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
@@ -516,12 +542,12 @@ export function AboutPage() {
                       currentlyLearning.map((item: any, index: number) => (
                         <li key={index} className="flex items-start gap-3">
                           <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
-                          <span className="text-muted-foreground text-sm">{item.text}</span>
+                          <span className="text-muted-foreground text-sm">{td(getItemText(item))}</span>
                         </li>
                       ))
                     ) : (
                       <li className="text-muted-foreground italic text-sm">
-                        Hozircha learning ro‘yxati yo‘q.
+                        {td("Hozircha learning ro‘yxati yo‘q.")}
                       </li>
                     )}
                   </ul>
@@ -535,7 +561,7 @@ export function AboutPage() {
                   <div className="w-11 h-11 rounded-2xl bg-primary/10 border border-white/10 flex items-center justify-center">
                     <Code className="text-primary" size={20} />
                   </div>
-                  <h2 className="text-2xl font-bold">Currently Working On</h2>
+                  <h2 className="text-2xl font-bold">{td("Currently Working On")}</h2>
                 </div>
 
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
@@ -544,12 +570,12 @@ export function AboutPage() {
                       currentlyWorking.map((item: any, index: number) => (
                         <li key={index} className="flex items-start gap-3">
                           <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
-                          <span className="text-muted-foreground text-sm">{item.text}</span>
+                          <span className="text-muted-foreground text-sm">{td(getItemText(item))}</span>
                         </li>
                       ))
                     ) : (
                       <li className="text-muted-foreground italic text-sm">
-                        Hozircha working ro‘yxati yo‘q.
+                        {td("Hozircha working ro‘yxati yo‘q.")}
                       </li>
                     )}
                   </ul>
