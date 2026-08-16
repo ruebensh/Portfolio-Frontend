@@ -192,16 +192,16 @@ export function Header({ data }: HeaderProps) {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 6, scale: 0.95 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute right-0 top-full mt-2 w-56 sm:w-72 rounded-2xl border border-white/15 bg-black/90 p-2 shadow-2xl backdrop-blur-2xl z-50 overflow-hidden"
+                    className="absolute right-0 top-full mt-2.5 w-48 sm:w-52 rounded-2xl border border-white/20 bg-[#08080f]/95 p-1.5 shadow-[0_12px_40px_rgba(0,0,0,0.85)] backdrop-blur-2xl z-50 overflow-hidden"
                   >
-                    <div className="px-2.5 py-1.5 border-b border-white/10 mb-1 flex items-center justify-between">
-                      <span className="text-[10px] font-black uppercase tracking-wider text-amber-400">
+                    <div className="px-2.5 py-1 border-b border-white/10 mb-1 flex items-center justify-between">
+                      <span className="text-[9px] font-black uppercase tracking-widest text-amber-400">
                         Grafika Rejimi
                       </span>
-                      <span className="text-[9px] text-white/40 font-mono font-bold">6 ta Option</span>
+                      <span className="text-[9px] text-white/40 font-mono font-bold">6 Options</span>
                     </div>
 
-                    <div className="flex flex-col gap-1.5">
+                    <div className="flex flex-col gap-1">
                       {tierOptions.map((optId) => {
                         const opt = tierLabels[optId];
                         const isActiveTier = tier === optId;
@@ -209,26 +209,20 @@ export function Header({ data }: HeaderProps) {
                           <button
                             key={optId}
                             onClick={() => selectTier(optId)}
-                            className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl border backdrop-blur-xl transition-all duration-200 text-left hover:scale-[1.03] hover:z-10 ${
+                            className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl border transition-all duration-200 text-left hover:scale-[1.04] hover:z-10 ${
                               isActiveTier
-                                ? "bg-amber-400/15 border-amber-400/50 text-amber-200 shadow-[0_0_12px_rgba(255,215,0,0.2)]"
-                                : "bg-white/[0.04] border-white/10 text-white/80 hover:bg-white/15 hover:border-white/30 hover:text-white hover:shadow-lg"
+                                ? "bg-amber-400/20 border-amber-400/60 text-amber-200 shadow-[0_0_15px_rgba(255,215,0,0.3)] backdrop-blur-xl"
+                                : "bg-white/[0.06] border-white/10 text-white/80 hover:bg-white/20 hover:border-white/30 hover:text-white backdrop-blur-md shadow-md"
                             }`}
                           >
                             <div className="flex items-center gap-2 min-w-0">
                               <span className="text-base flex-shrink-0">{opt.icon}</span>
-                              <div className="flex flex-col min-w-0">
-                                <div className="flex items-center gap-1.5">
-                                  <span className="text-[11px] font-black uppercase tracking-wider">{opt.label}</span>
-                                  <span className="text-[9px] font-mono font-extrabold px-1.5 py-0.5 rounded-md bg-white/10 text-white/70 border border-white/10">
-                                    {opt.mobileLabel}
-                                  </span>
-                                </div>
-                                {/* Long description ONLY on desktop (hidden on mobile) */}
-                                <span className="hidden sm:block text-[9px] text-white/50 truncate mt-0.5">{opt.desc}</span>
-                              </div>
+                              <span className="text-xs font-black uppercase tracking-wider">{opt.label}</span>
+                              <span className="text-[9px] font-mono font-extrabold px-1.5 py-0.5 rounded-md bg-white/10 text-white/70 border border-white/10">
+                                {opt.mobileLabel}
+                              </span>
                             </div>
-                            {isActiveTier && <Check size={14} className="text-amber-400 flex-shrink-0 ml-1.5" />}
+                            {isActiveTier && <Check size={14} className="text-amber-400 flex-shrink-0 ml-1" />}
                           </button>
                         );
                       })}
