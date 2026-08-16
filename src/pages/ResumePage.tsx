@@ -24,7 +24,7 @@ const portfolioPdfUrl = "/Jaloliddin_Xalimov_Portfolio.pdf";
 const slides = Array.from({ length: 11 }, (_, index) => `/portfolio-slides/${index + 1}.png`);
 
 export function ResumePage() {
-  const { t } = useLanguage();
+  const { t, td, language } = useLanguage();
 
   // Portfolio Slideshow is active FIRST by default
   const [mode, setMode] = useState<ViewMode>("portfolio");
@@ -157,7 +157,7 @@ export function ResumePage() {
           <div>
             <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.28em] text-amber-400/80">{t("resume.title")}</p>
             <h1 className="text-2xl font-bold tracking-tight sm:text-4xl">
-              {mode === "portfolio" ? "Portfolio Presentation" : t("resume.subtitle")}
+              {mode === "portfolio" ? td("Portfolio Presentation", language) : t("resume.subtitle")}
             </h1>
           </div>
           <span className="hidden rounded-full border border-white/10 px-3 py-1.5 text-[11px] text-white/40 sm:inline">
@@ -208,7 +208,7 @@ export function ResumePage() {
 
                   {imageErrors[currentSlide] && (
                     <div className="absolute inset-0 flex items-center justify-center text-sm text-white/50">
-                      Portfolio slide topilmadi.
+                      {td("Portfolio slide topilmadi.", language)}
                     </div>
                   )}
 
@@ -246,7 +246,7 @@ export function ResumePage() {
                       aria-label={isPlaying ? "Pause slideshow" : "Play slideshow"}
                     >
                       {isPlaying ? <Pause size={15} /> : <Play size={15} />}
-                      <span>{isPlaying ? "PAUZA" : "O'YNATISH"}</span>
+                      <span>{isPlaying ? td("PAUZA", language) : td("O'YNATISH", language)}</span>
                     </button>
 
                     {/* 3. Oldinga (>) */}
@@ -288,7 +288,7 @@ export function ResumePage() {
                       rel="noreferrer"
                       className="flex items-center gap-1.5 text-xs text-amber-300 hover:underline"
                     >
-                      <ExternalLink size={13} /> <span>Open PDF</span>
+                      <ExternalLink size={13} /> <span>{td("Open PDF", language)}</span>
                     </a>
                     <a
                       href={googlePdfViewer}
@@ -296,7 +296,7 @@ export function ResumePage() {
                       rel="noreferrer"
                       className="flex items-center gap-1.5 text-xs text-white/60 hover:text-white"
                     >
-                      <Maximize2 size={13} /> <span className="hidden sm:inline">To‘liq oynada</span>
+                      <Maximize2 size={13} /> <span className="hidden sm:inline">{td("To‘liq oynada", language)}</span>
                     </a>
                   </div>
                 </div>
@@ -319,14 +319,14 @@ export function ResumePage() {
 
                   {/* Direct Action Bar below PDF preview for mobile browsers */}
                   <div className="mt-3 flex items-center justify-between rounded-xl border border-white/10 bg-black/50 p-3 sm:hidden">
-                    <span className="text-xs text-white/70">PDF mobil brauzerda ochilmadimi?</span>
+                    <span className="text-xs text-white/70">{td("PDF mobil brauzerda ochilmadimi?", language)}</span>
                     <a
                       href={resumeUrl}
                       target="_blank"
                       rel="noreferrer"
                       className="rounded-lg bg-amber-400 px-3 py-1.5 text-xs font-bold text-black"
                     >
-                      PDF ko'rish
+                      {td("PDF ko'rish", language)}
                     </a>
                   </div>
                 </div>

@@ -7,6 +7,7 @@ import NeonBorder from "./originkit/ui/neon-border";
 import { useLanguage } from "../context/LanguageContext";
 import { usePerformance, QualityTier } from "../context/PerformanceContext";
 import { Language } from "../lib/i18n";
+import { translateDynamicText } from "../lib/translator";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -196,9 +197,11 @@ export function Header({ data }: HeaderProps) {
                   >
                     <div className="px-2.5 py-1 border-b border-white/10 mb-1 flex items-center justify-between">
                       <span className="text-[9px] font-black uppercase tracking-widest text-amber-400">
-                        Grafika Rejimi
+                        {translateDynamicText("Grafika Rejimi", language)}
                       </span>
-                      <span className="text-[9px] text-white/40 font-mono font-bold">6 Options</span>
+                      <span className="text-[9px] text-white/40 font-mono font-bold">
+                        {language === "uz" ? "6 ta Rejim" : language === "ru" ? "6 Режимов" : "6 Options"}
+                      </span>
                     </div>
 
                     <div className="flex flex-col gap-1">
