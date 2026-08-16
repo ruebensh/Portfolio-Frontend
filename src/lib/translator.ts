@@ -73,6 +73,21 @@ const COMMON_DICTIONARY: Record<string, Record<Language, string>> = {
     en: "I build smart, scalable digital products",
     ru: "Я создаю умные и масштабируемые цифровые продукты"
   },
+  "Men Sun'iy Intellekt, Machine Learning va Python backend yo'nalishida faoliyat yurituvchi dasturchiman.": {
+    uz: "Men Sun'iy Intellekt, Machine Learning va Python backend yo'nalishida faoliyat yurituvchi dasturchiman.",
+    en: "I am a software developer specializing in Artificial Intelligence, Machine Learning, and Python backend.",
+    ru: "Я разработчик, специализирующийся на искусственном интеллекте, машинном обучении и бэкенде на Python."
+  },
+  "School 21 o'quv maskanida Data Science va Machine Learning yo'nalishida o'qiyman.": {
+    uz: "School 21 o'quv maskanida Data Science va Machine Learning yo'nalishida o'qiyman.",
+    en: "I study Data Science and Machine Learning at School 21.",
+    ru: "Я изучаю Data Science и машинное обучение в Школе 21."
+  },
+  "Masshtablanuvchi veb-ilovalar, neyron tarmoqlari hamda aqlli raqamli tizimlar yaratish bo'yicha tajribaga egaman.": {
+    uz: "Masshtablanuvchi veb-ilovalar, neyron tarmoqlari hamda aqlli raqamli tizimlar yaratish bo'yicha tajribaga egaman.",
+    en: "I have experience in creating scalable web applications, neural networks, and smart digital systems.",
+    ru: "У меня есть опыт создания масштабируемых веб-приложений, нейронных сетей и интеллектуальных цифровых систем."
+  },
   "IT dunyosiga sayohatimning asosiy bosqichlari": {
     uz: "IT dunyosiga sayohatimning asosiy bosqichlari",
     en: "Key milestones of my journey in the IT world",
