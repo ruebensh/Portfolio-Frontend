@@ -30,12 +30,12 @@ export function Header({ data }: HeaderProps) {
     setTier(tiers[nextIdx]);
   };
 
-  const tierLabels: Record<QualityTier, { label: string; icon: string; color: string }> = {
-    max:   { label: "Max",    icon: "💎", color: "border-rose-400/60 text-rose-200 bg-rose-500/15 shadow-rose-500/20" },
-    ultra: { label: "Ultra",  icon: "🚀", color: "border-purple-500/40 text-purple-300 bg-purple-500/10" },
-    high:  { label: "High",   icon: "✨", color: "border-cyan-500/40 text-cyan-300 bg-cyan-500/10" },
-    medium:{ label: "Medium", icon: "⚡",  color: "border-amber-500/40 text-amber-300 bg-amber-500/10" },
-    low:   { label: "Saver",  icon: "🔋", color: "border-emerald-500/40 text-emerald-300 bg-emerald-500/10" },
+  const tierLabels: Record<QualityTier, { label: string; mobileLabel: string; icon: string; color: string }> = {
+    max:   { label: "Max",    mobileLabel: "MAX", icon: "💎", color: "border-rose-400/60 text-rose-200 bg-rose-500/15 shadow-rose-500/20" },
+    ultra: { label: "Ultra",  mobileLabel: "UHD", icon: "🚀", color: "border-purple-500/40 text-purple-300 bg-purple-500/10" },
+    high:  { label: "High",   mobileLabel: "FHD", icon: "✨", color: "border-cyan-500/40 text-cyan-300 bg-cyan-500/10" },
+    medium:{ label: "Medium", mobileLabel: "HD",  icon: "⚡",  color: "border-amber-500/40 text-amber-300 bg-amber-500/10" },
+    low:   { label: "Saver",  mobileLabel: "SD",  icon: "🔋", color: "border-emerald-500/40 text-emerald-300 bg-emerald-500/10" },
   };
 
   const navLinks = [
@@ -151,10 +151,17 @@ export function Header({ data }: HeaderProps) {
               title={`Graphics Quality: ${tierLabels[tier].label} (Click to switch)`}
               className={`px-2.5 py-1.5 rounded-xl border flex items-center gap-1.5 text-xs font-bold transition-all duration-300 backdrop-blur-md shadow-md ${tierLabels[tier].color}`}
             >
-              <span>{tierLabels[tier].icon}</span>
-              <span className="hidden sm:inline text-[11px] font-black tracking-wider uppercase">
-                <span className="opacity-50 font-medium normal-case">Graphics: </span>
-                {tierLabels[tier].label}
+              {/* Mobile: qisqa nishon (SD / HD / FHD / UHD / MAX) */}
+              <span className="sm:hidden text-[10px] font-black tracking-widest">
+                {tierLabels[tier].mobileLabel}
+              </span>
+              {/* Desktop: emoji + "Graphics: Ultra" */}
+              <span className="hidden sm:flex items-center gap-1.5">
+                <span>{tierLabels[tier].icon}</span>
+                <span className="text-[11px] font-black tracking-wider uppercase">
+                  <span className="opacity-50 font-medium normal-case">Graphics: </span>
+                  {tierLabels[tier].label}
+                </span>
               </span>
             </button>
 
