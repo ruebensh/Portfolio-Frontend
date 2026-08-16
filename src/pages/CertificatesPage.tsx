@@ -13,140 +13,16 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 // ProjectsPage dagi interaktiv fon komponenti
 function SoftCertificatesBackground() {
   const { tier } = usePerformance();
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const mouseRef = useRef({ x: 0, y: 0, tx: 0, ty: 0 });
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    let raf = 0;
-    let w = 0;
-    let h = 0;
-    const DPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
-    const prefersReduced =
-      window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false;
-
-    const resize = () => {
-      w = window.innerWidth;
-      h = window.innerHeight;
-      canvas.width = Math.floor(w * DPR);
-      canvas.height = Math.floor(h * DPR);
-      canvas.style.width = `${w}px`;
-      canvas.style.height = `${h}px`;
-      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-    };
-
-    resize();
-    window.addEventListener("resize", resize);
-
-    type Star = { x: number; y: number; z: number; r: number; p: number; tw: number };
-
-    let targetStarCount = 250;
-    if (tier === "best") targetStarCount = 1800;
-    else if (tier === "max") targetStarCount = 1200;
-    else if (tier === "ultra") targetStarCount = 600;
-    else if (tier === "high") targetStarCount = 250;
-    else if (tier === "medium") targetStarCount = 120;
-    else if (tier === "low") targetStarCount = 60;
-
-    const densityDivisor = tier === "best" ? 900 : tier === "max" ? 1400 : tier === "ultra" ? 2200 : 4500;
-    const starCount = Math.floor(Math.min(targetStarCount, Math.max(40, (w * h) / densityDivisor)));
-    const stars: Star[] = Array.from({ length: starCount }, () => ({
-      x: Math.random() * w,
-      y: Math.random() * h,
-      z: Math.pow(Math.random(), 1.7),
-      r: 0.25 + Math.random() * 0.9,
-      p: Math.random() * Math.PI * 2,
-      tw: 0.35 + Math.random() * 0.9,
-    }));
-
-    const onMove = (e: PointerEvent) => {
-      const nx = e.clientX / window.innerWidth - 0.5;
-      const ny = e.clientY / window.innerHeight - 0.5;
-      mouseRef.current.x = nx;
-      mouseRef.current.y = ny;
-    };
-    window.addEventListener("pointermove", onMove, { passive: true });
-
-    const glowDot = (x: number, y: number, r: number, a: number) => {
-      if (tier === "low" || tier === "medium" || tier === "high") {
-        ctx.fillStyle = `rgba(255,255,255,${a * 0.4})`;
-        ctx.beginPath();
-        ctx.arc(x, y, Math.max(0.6, r), 0, Math.PI * 2);
-        ctx.fill();
-        return;
-      }
-
-      const g = ctx.createRadialGradient(x, y, 0, x, y, r * 7);
-      g.addColorStop(0, `rgba(255,255,255,${a})`);
-      g.addColorStop(0.25, `rgba(255,255,255,${a * 0.25})`);
-      g.addColorStop(1, "rgba(255,255,255,0)");
-      ctx.fillStyle = g;
-      ctx.beginPath();
-      ctx.arc(x, y, r * 7, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.fillStyle = `rgba(255,255,255,${Math.min(1, a * 0.75)})`;
-      ctx.beginPath();
-      ctx.arc(x, y, Math.max(0.6, r), 0, Math.PI * 2);
-      ctx.fill();
-    };
-
-    const tick = (t: number) => {
-      ctx.clearRect(0, 0, w, h);
-      const m = mouseRef.current;
-      m.tx += (m.x - m.tx) * 0.06;
-      m.ty += (m.y - m.ty) * 0.06;
-
-      const bg = ctx.createRadialGradient(
-        w * 0.55 + m.tx * 70,
-        h * 0.25 + m.ty * 55,
-        Math.min(w, h) * 0.18,
-        w * 0.5,
-        h * 0.5,
-        Math.max(w, h) * 0.95
-      );
-      bg.addColorStop(0, "rgba(255,255,255,0.010)");
-      bg.addColorStop(1, "rgba(0,0,0,0)");
-      ctx.fillStyle = bg;
-      ctx.fillRect(0, 0, w, h);
-
-      for (const st of stars) {
-        if (!prefersReduced) {
-          st.y += (0.02 + st.z * 0.08) * 0.55;
-          if (st.y > h + 30) st.y = -30;
-        }
-        const tw = prefersReduced ? 1 : 0.86 + 0.14 * Math.sin(t * 0.0011 * st.tw + st.p);
-        const alpha = Math.min(0.22, (0.09 + st.z * 0.22) * tw);
-        const r = st.r * (0.75 + st.z * 0.85);
-        const px = st.x + m.tx * (st.z - 0.15) * 12;
-        const py = st.y + m.ty * (st.z - 0.15) * 10;
-        glowDot(px, py, r, alpha);
-      }
-      raf = requestAnimationFrame(tick);
-    };
-
-    raf = requestAnimationFrame(tick);
-    return () => {
-      window.removeEventListener("resize", resize);
-      window.removeEventListener("pointermove", onMove);
-      cancelAnimationFrame(raf);
-    };
-  }, [tier]);
 
   return (
     <div className="pointer-events-none fixed inset-0 -z-10">
       <SubtleVideoBackground index={1} />
       <style>{`
         .pp-aurora {
-          opacity: .26;
+          opacity: ${tier === "low" ? "0.1" : tier === "medium" ? "0.18" : "0.26"};
           filter: blur(95px);
           background:
             radial-gradient(45% 45% at 15% 20%, rgba(99,102,241,.18), transparent 60%),
-            radial-gradient(45% 45% at 85% 25%, rgba(168,85,247,.12), transparent 60%),
             radial-gradient(60% 60% at 50% 85%, rgba(56,189,248,.09), transparent 65%);
           animation: ppAurora 18s ease-in-out infinite alternate;
           transform: translateZ(0);
