@@ -15,6 +15,7 @@ import {
     type AnimationPlaybackControls,
     type Transition,
 } from "framer-motion";
+import { usePerformance } from "../../../context/PerformanceContext";
 
 const radiusFromPercent = (w: number, h: number, pct: number) =>
     (Math.min(w, h) / 2) * (Math.max(0, Math.min(100, pct)) / 100);
@@ -231,6 +232,8 @@ export default function NeonGlowButton(props: Props) {
         style,
     } = props;
 
+    const { tier } = usePerformance();
+
     const fill = colors?.fill ?? fillProp ?? "#010201";
     const textColor = colors?.textColor ?? textColorProp ?? "#FFFFFF";
     const hoverFill = colors?.hoverFill ?? "#120A1F";
@@ -370,6 +373,8 @@ export default function NeonGlowButton(props: Props) {
             runningRef.current.forEach((c) => c.stop());
             runningRef.current = [];
 
+            if (tier === "low" || tier === "medium") return; // Medium has static non-rotating glow rings; Low has 0 glow
+
             const isFocus = focused.current;
             const isHover = hovered.current;
             const base = transition as any;
@@ -396,7 +401,7 @@ export default function NeonGlowButton(props: Props) {
                 );
             });
         },
-        [animate, rings, transition, reducedMotion]
+        [animate, rings, transition, reducedMotion, tier]
     );
 
     const paintColors = useCallback(
@@ -505,23 +510,25 @@ export default function NeonGlowButton(props: Props) {
                 ...style,
             }}
         >
-            <div
-                aria-hidden
-                style={{
-                    position: "absolute",
-                    top: -spread,
-                    right: -spread,
-                    bottom: -spread,
-                    left: -spread,
-                    boxSizing: "border-box",
-                    padding: spread,
-                    borderRadius: radiusPx + spread,
-                    pointerEvents: "none",
-                    zIndex: 0,
-                    ...OUTSIDE_MASK,
-                }}
-            >
-                {rings.map((ring, i) => {
+            {tier !== "low" && (
+                <div
+                    aria-hidden
+                    style={{
+                        position: "absolute",
+                        top: -spread,
+                        right: -spread,
+                        bottom: -spread,
+                        left: -spread,
+                        boxSizing: "border-box",
+                        padding: spread,
+                        borderRadius: radiusPx + spread,
+                        pointerEvents: "none",
+                        zIndex: 0,
+                        opacity: tier === "medium" ? 0.35 : tier === "high" ? 0.65 : tier === "ultra" ? 0.85 : 1.0,
+                        ...OUTSIDE_MASK,
+                    }}
+                >
+                    {rings.map((ring, i) => {
                     const cover = Math.ceil(longest * ring.cover);
                     const off = spread - ring.inset;
                     return (
@@ -559,6 +566,7 @@ export default function NeonGlowButton(props: Props) {
                     );
                 })}
             </div>
+            )}
 
             <Tag
                 {...tagProps}

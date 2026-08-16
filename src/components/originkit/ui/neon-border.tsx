@@ -239,13 +239,19 @@ export default function NeonBorder(props: Props) {
         let corner = 0;
         let stepT = 0;
 
-        // Low tier uses a static CSS gradient with 0 CPU load
+        // Low tier: NO neon borders or lights at all (saver mode = 0% neon load)
         if (tier === "low") {
+            return;
+        }
+
+        // Medium tier: static stationary dim neon border (no rotation animation / RAF)
+        if (tier === "medium") {
             const p = live.current;
+            const { w, h } = sizeRef.current;
             const a = groupARef.current;
-            if (a) a.style.setProperty("--arc", `conic-gradient(from 0deg, ${p.color}, transparent 60%)`);
+            if (a) a.style.setProperty("--arc", buildArc(0, p.borderSize, w, h, p.color));
             const b = groupBRef.current;
-            if (b) b.style.setProperty("--arc", `conic-gradient(from 180deg, ${p.color}, transparent 60%)`);
+            if (b) b.style.setProperty("--arc", buildArc(0.5, p.borderSize, w, h, p.color));
             return;
         }
 
@@ -260,7 +266,7 @@ export default function NeonBorder(props: Props) {
             last = now;
             const p = live.current;
             const s = Math.max(1, Math.min(20, p.speed));
-            // Best tier spins neons 2.48x faster (exactly 1.5x faster than Max's 1.65x), ultra 1.2x
+            // Speed scaling: Best (2.48x), Max (1.65x), Ultra (1.2x), High (1.0x)
             const speedMultiplier = tier === "best" ? 2.48 : tier === "max" ? 1.65 : tier === "ultra" ? 1.2 : 1.0;
 
             if (s > 0) {
@@ -307,7 +313,7 @@ export default function NeonBorder(props: Props) {
         raf = requestAnimationFrame(frame);
 
         return () => cancelAnimationFrame(raf);
-    }, []);
+    }, [tier, size]);
 
     const thick = Math.max(1, Math.min(10, thickness));
 
@@ -334,6 +340,14 @@ export default function NeonBorder(props: Props) {
         />
     );
 
+    // Dynamic glow opacity multiplier per quality tier
+    const opacityMult =
+        tier === "medium" ? 0.30 :
+        tier === "high" ? 0.65 :
+        tier === "ultra" ? 0.85 :
+        tier === "max" ? 1.0 :
+        tier === "best" ? 1.25 : 0;
+
     const glowLayer = (
         key: string,
         r: number,
@@ -348,7 +362,7 @@ export default function NeonBorder(props: Props) {
                 boxSizing: "border-box",
                 padding: glowOuter,
                 borderRadius: radius > 0 ? radius + glowOuter : 0,
-                opacity: opacity * 2.2,
+                opacity: opacity * 2.2 * opacityMult,
                 filter: blurPx ? `blur(${blurPx.toFixed(1)}px)` : "none",
                 WebkitFilter: blurPx ? `blur(${blurPx.toFixed(1)}px)` : "none",
                 pointerEvents: "none",
@@ -384,6 +398,7 @@ export default function NeonBorder(props: Props) {
                         position: "absolute",
                         inset: 0,
                         pointerEvents: "none",
+                        opacity: tier === "medium" ? 0.45 : tier === "high" ? 0.75 : 1.0,
                     }}
                 >
                     {band(thick)}
@@ -391,6 +406,25 @@ export default function NeonBorder(props: Props) {
             ))}
         </div>
     );
+
+    // In Low (Saver) tier, do NOT render any neon glow overlays or borders
+    if (tier === "low") {
+        return (
+            <div
+                ref={rootRef}
+                className={className}
+                style={{
+                    position: "relative",
+                    width: "100%",
+                    height: "100%",
+                    borderRadius: radius,
+                    ...style,
+                }}
+            >
+                {children && <div style={{ position: "relative", zIndex: 10, width: "100%", height: "100%" }}>{children}</div>}
+            </div>
+        );
+    }
 
     return (
         <div
