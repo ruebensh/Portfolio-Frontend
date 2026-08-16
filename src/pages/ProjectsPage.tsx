@@ -240,7 +240,7 @@ export function ProjectsPage() {
                   : `${API_URL}${project.imageUrl}`
                 : projectImages[index % projectImages.length];
 
-              const titleTranslated = translateDynamicText(project.title, language);
+              const titleRaw = project.title || "";
               const descTranslated = translateDynamicText(project.description, language);
               const statusTranslated = translateDynamicText(project.status || "Live", language);
 
@@ -259,7 +259,7 @@ export function ProjectsPage() {
                         <div className="relative aspect-video overflow-hidden">
                           <img
                             src={img}
-                            alt={titleTranslated}
+                            alt={titleRaw}
                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                             loading="lazy"
                             onError={(e) => {
@@ -282,7 +282,7 @@ export function ProjectsPage() {
 
                         <div className="p-6">
                           <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
-                            {titleTranslated}
+                            {titleRaw}
                           </h3>
 
                           <p className="text-muted-foreground text-sm mb-4 line-clamp-2">

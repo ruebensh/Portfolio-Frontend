@@ -243,7 +243,7 @@ export function ProjectDetailPage() {
               transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
               className="text-4xl lg:text-6xl font-extrabold tracking-tight mb-6 pd-title"
             >
-              {td(project.title)}
+              {project.title}
             </motion.h1>
 
             <motion.p
