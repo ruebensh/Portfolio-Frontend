@@ -67,7 +67,9 @@ export function Skills() {
                   transition={{ duration: 0.3, delay: skillIndex * 0.05 }}
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">{td(skill.name)}</span>
+                    <span className="text-sm font-medium">
+                      {typeof skill === "string" ? skill : (skill.name || skill.title || "")}
+                    </span>
                     <span className="text-sm text-muted-foreground">{skill.level}%</span>
                   </div>
                   <div className="h-2 bg-muted rounded-full overflow-hidden">
