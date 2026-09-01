@@ -24,9 +24,17 @@ interface Project {
   isFeatured?: boolean;
 }
 
-function normalizeProject(p: any): Project {
+function normalizeProject(p: any, index: number): Project {
+  const fallbackSeed = String(p.title ?? p.name ?? p.imageUrl ?? p.image_url ?? "project")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "untitled";
+
   return {
-    id:          p.id ?? p.slug ?? String(Math.random()),
+    // Render vaqtida Math.random ishlatilmaydi: server va client bir xil key oladi.
+    id:          String(p.id ?? p.slug ?? `project-${index}-${fallbackSeed}`),
+
     title:       p.title ?? p.name ?? "Loyiha",
     description: p.description ?? p.short_description ?? "",
     imageUrl:    p.imageUrl ?? p.image_url ?? p.thumbnail ?? "",
@@ -247,7 +255,7 @@ const Mobile3DCubeShowcase = ({ projects, onSelect }: { projects: Project[]; onS
 // ── Main component ─────────────────────────────────────────────────────────────
 export const ProjectsShowcase = ({ projects = [] }: { projects?: any[] }) => {
   const { td } = useLanguage();
-  const normalized = projects.map(normalizeProject);
+  const normalized = projects.map((project, index) => normalizeProject(project, index));
   
   const featured = normalized.filter(p => p.isFeatured);
   const regular = normalized.filter(p => !p.isFeatured);
