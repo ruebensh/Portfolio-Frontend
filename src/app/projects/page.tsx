@@ -7,12 +7,20 @@ import { EyebrowBadge } from "@/components/ui/EyebrowBadge";
 import { useLanguage } from "@/context/LanguageContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ArrowSquareOut, GithubLogo, Globe } from "@phosphor-icons/react/dist/ssr";
+import RoundCarousel from "@/components/originkit/ui/roundcarousel";
 
 export default function ProjectsPage() {
   const { td } = useLanguage();
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedProject, setSelectedProject] = useState<any>(null);
+
+  const carouselImages = projects
+    .filter((project) => project?.imageUrl)
+    .slice(0, 8)
+    .map((project) => ({
+      src: resolveUrl(project.imageUrl),
+    }));
 
   useEffect(() => {
     getProjects()
@@ -43,7 +51,49 @@ export default function ProjectsPage() {
             </p>
           </AnimatedItem>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {carouselImages.length > 0 && (
+            <AnimatedItem className="mb-12 hidden xl:block">
+              <div className="rounded-[2rem] border border-white/10 bg-[#05070d]/90 p-4 shadow-[0_25px_80px_rgba(0,0,0,0.45)]">
+                <div className="mb-4 flex items-center justify-between">
+                  <EyebrowBadge>{td("Featured Projects")}</EyebrowBadge>
+                  <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted">
+                    {Math.min(projects.length, 8)} Featured
+                  </span>
+                </div>
+                <div className="h-[500px] w-full bg-[#05070d] rounded-[1.5rem]">
+                  <RoundCarousel
+                    items={projects
+                      .filter((project) => project?.imageUrl)
+                      .slice(0, 8)
+                      .map((project) => ({
+                      id: project.id || project._id,
+                      src: resolveUrl(project.imageUrl),
+                      title: project.title,
+                      category: project.category || "General",
+                      description: project.description,
+                      status: project.status || "In Progress",
+                      ...project,
+                    }))}
+                    imageWidth={300}
+                    imageHeight={420}
+                    spacing={8}
+                    speed={3.2}
+                    direction="right"
+                    drag={true}
+                    sensitivity={5}
+                    tilt={-9}
+                    perspective={2400}
+                    cornerRadius={28}
+                    innerDim={4.2}
+                    background="#05070d"
+                    onSelect={(item) => setSelectedProject(item)}
+                  />
+                </div>
+              </div>
+            </AnimatedItem>
+          )}
+
+          <div className="mt-14 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
             {projects.map((project: any) => (
               <AnimatedItem key={project.id || project._id}>
                 <div
