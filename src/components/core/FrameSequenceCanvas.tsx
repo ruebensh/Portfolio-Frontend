@@ -45,6 +45,14 @@ export const FrameSequenceCanvas = forwardRef<
   framePathRef.current      = framePath;
 
   const [loadedState, setLoadedState] = useState(false);
+  const slowDeviceRef = useRef(false);
+
+  const getFrameWindowSize = () => {
+    if (typeof window === "undefined") return 5;
+    const mobile = window.innerWidth <= 768;
+    const slowCpu = typeof navigator !== "undefined" && navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4;
+    return mobile || slowCpu ? 3 : 5;
+  };
 
   // ── Stable draw helpers ────────────────────────────────────────────────────
   const drawFrameIndexFn = useRef((index: number) => {
@@ -143,39 +151,60 @@ export const FrameSequenceCanvas = forwardRef<
   });
 
   const ensureFrameWindow = useRef((targetIndex: number) => {
+    if (!visibleRef.current) return;
+
     const total = frameCountRef.current;
-    const windowSize = Math.min(12, Math.max(6, Math.ceil(total * 0.08)));
+    const windowSize = getFrameWindowSize();
     const start = Math.max(0, targetIndex - windowSize);
     const end = Math.min(total - 1, targetIndex + windowSize);
 
+    const delayedLoads: number[] = [];
     for (let i = start; i <= end; i += 1) {
-      loadSingleFrame.current(i);
+      if (!framesRef.current[i] && !loadingRefs.current.has(i)) {
+        delayedLoads.push(i);
+      }
     }
+
+    delayedLoads.forEach((index, offset) => {
+      window.setTimeout(() => {
+        if (visibleRef.current) {
+          loadSingleFrame.current(index);
+        }
+      }, offset * 18);
+    });
   });
 
   // ── Smart Frame Loader with narrow preloading window ───────────────────────
   useEffect(() => {
     let cancelled = false;
     const total = frameCount;
+    const hasLowCoreCount = typeof navigator !== "undefined" && !!navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4;
+    const isSlow = typeof window !== "undefined" && (window.innerWidth <= 768 || hasLowCoreCount);
+    slowDeviceRef.current = Boolean(isSlow);
+
     framesRef.current = new Array(total).fill(null);
     currentIdxRef.current = -1;
     loadingRefs.current.clear();
     loadedCountRef.current = 0;
     setLoadedState(false);
 
-    const initialWindow = Math.min(8, Math.max(4, Math.ceil(total * 0.12)));
-    for (let i = 0; i <= Math.min(initialWindow, total - 1); i += 1) {
-      if (!cancelled) {
-        loadSingleFrame.current(i);
-      }
-    }
+    const initialWindow = slowDeviceRef.current ? 2 : 3;
+    const initialLoads = Array.from({ length: Math.min(initialWindow, total) }, (_, i) => i);
+
+    initialLoads.forEach((index, offset) => {
+      window.setTimeout(() => {
+        if (!cancelled && visibleRef.current) {
+          loadSingleFrame.current(index);
+        }
+      }, offset * 25);
+    });
 
     const fallbackTimer = window.setTimeout(() => {
       if (!cancelled) {
         setLoadedState(true);
         onLoadedRef.current?.();
       }
-    }, 6000);
+    }, slowDeviceRef.current ? 3500 : 5500);
 
     return () => {
       cancelled = true;

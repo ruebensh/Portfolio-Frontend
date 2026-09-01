@@ -65,12 +65,12 @@ export const ContactSection = ({ settings }: { settings: any }) => {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-center gap-4 p-4 border border-card-border bg-card-bg/60 backdrop-blur-md hover:bg-card-bg/80 hover:border-accent group transition-colors rounded-xl"
+      className="flex items-center gap-3 sm:gap-4 p-3.5 sm:p-4 border border-card-border bg-card-bg/60 backdrop-blur-md hover:bg-card-bg/80 hover:border-accent group transition-colors rounded-2xl"
     >
-      <div className="w-9 h-9 border border-card-border rounded-lg flex items-center justify-center text-muted group-hover:border-accent group-hover:text-accent transition-colors shrink-0">
+      <div className="w-9 h-9 sm:w-10 sm:h-10 border border-card-border rounded-xl flex items-center justify-center text-muted group-hover:border-accent group-hover:text-accent transition-colors shrink-0">
         {icon}
       </div>
-      <div className="min-w-0">
+      <div className="min-w-0 flex-1">
         <p className="font-display text-sm font-semibold text-foreground">{td(label)}</p>
         <p className="font-mono text-[10px] text-muted truncate">{sub}</p>
       </div>
@@ -95,11 +95,11 @@ export const ContactSection = ({ settings }: { settings: any }) => {
             </p>
           </AnimatedItem>
 
-          <div className="grid lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
 
             {/* ── Column 1: Direct links ──────────────────────────────────── */}
             <AnimatedItem>
-              <div className="card-surface p-8 h-full flex flex-col gap-4">
+              <div className="card-surface p-5 sm:p-6 md:p-8 h-full flex flex-col gap-3 sm:gap-4">
                 <h3 className="font-display text-lg font-bold text-foreground mb-2">
                   {td("Aloqa manbalari")}
                 </h3>
@@ -141,7 +141,7 @@ export const ContactSection = ({ settings }: { settings: any }) => {
 
             {/* ── Column 2: Contact form ──────────────────────────────────── */}
             <AnimatedItem>
-              <div className="card-surface p-8 h-full flex flex-col">
+              <div className="card-surface p-5 sm:p-6 md:p-8 h-full flex flex-col">
                 <h3 className="font-display text-lg font-bold text-foreground mb-1">
                   {td("Xabar qoldirish")}
                 </h3>
@@ -206,7 +206,7 @@ export const ContactSection = ({ settings }: { settings: any }) => {
 
             {/* ── Column 3: AI widget ─────────────────────────────────────── */}
             <AnimatedItem>
-              <div className="card-surface p-8 h-full flex flex-col">
+              <div className="card-surface p-5 sm:p-6 md:p-8 h-full flex flex-col">
                 <div className="flex items-center gap-3 mb-1">
                   <span className="font-mono text-[10px] text-accent border border-accent/20 px-2 py-0.5 rounded-md uppercase tracking-widest">AI</span>
                   <h3 className="font-display text-lg font-bold text-foreground">{td("AI ga so'rang")}</h3>
