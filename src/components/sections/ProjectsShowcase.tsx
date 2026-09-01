@@ -9,7 +9,9 @@ import { resolveUrl } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Globe, GithubLogo } from "@phosphor-icons/react/dist/ssr";
 
-const TUNNEL_FRAME_COUNT = 60;
+const TUNNEL_FRAME_START = 1;
+const TUNNEL_FRAME_END = 97;
+const TUNNEL_FRAME_COUNT = TUNNEL_FRAME_END - TUNNEL_FRAME_START + 1;
 
 interface Project {
   id: string;
@@ -342,7 +344,10 @@ export const ProjectsShowcase = ({ projects = [] }: { projects?: any[] }) => {
           <FrameSequenceCanvas
             ref={canvasRef}
             frameCount={TUNNEL_FRAME_COUNT}
-            framePath={(idx) => `/tunnel-frames/frame_${String(idx).padStart(4, "0")}.jpg`}
+            framePath={(idx) => {
+              const frameNumber = Math.min(TUNNEL_FRAME_END, Math.max(TUNNEL_FRAME_START, idx));
+              return `/tunnel-frames/frame_${String(frameNumber).padStart(4, "0")}.jpg`;
+            }}
             onLoaded={() => setIsLoaded(true)}
             className="opacity-75"
           />

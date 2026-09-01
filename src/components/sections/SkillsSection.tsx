@@ -7,7 +7,7 @@ import { EyebrowBadge } from "@/components/ui/EyebrowBadge";
 import { useLanguage } from "@/context/LanguageContext";
 
 const SKILL_FRAME_START = 24;
-const SKILL_FRAME_END = 97;
+const SKILL_FRAME_END = 212;
 const SKILL_FRAME_COUNT = SKILL_FRAME_END - SKILL_FRAME_START + 1;
 
 function normalizeSkillCategories(skills: any[]) {

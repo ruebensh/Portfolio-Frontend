@@ -10,7 +10,9 @@ import { Button } from "@/components/ui/Button";
 import { Heart, BookOpen, Code } from "@phosphor-icons/react/dist/ssr";
 import { useLanguage } from "@/context/LanguageContext";
 
-const FRAME_COUNT = 120;
+const FRAME_START = 1;
+const FRAME_END = 300;
+const FRAME_COUNT = FRAME_END - FRAME_START + 1;
 
 // ── Timelines for the 3 distinct info cards ──────────────────────────────
 const card1Timeline: ChoreoTimeline = {
@@ -110,7 +112,10 @@ export const Hero = ({ settings }: { settings?: any }) => {
             <FrameSequenceCanvas
               ref={canvasRef}
               frameCount={FRAME_COUNT}
-              framePath={(i) => `/frames/frame_${String(i).padStart(4, "0")}.jpg`}
+              framePath={(i) => {
+                const frameNumber = Math.min(FRAME_END, Math.max(FRAME_START, i));
+                return `/frames/frame_${String(frameNumber).padStart(4, "0")}.jpg`;
+              }}
               className="opacity-75 dark:opacity-65"
             />
           ) : (
