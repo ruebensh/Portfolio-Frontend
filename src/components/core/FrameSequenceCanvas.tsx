@@ -51,14 +51,30 @@ export const FrameSequenceCanvas = forwardRef<
     if (typeof window === "undefined") return 5;
     const mobile = window.innerWidth <= 768;
     const slowCpu = typeof navigator !== "undefined" && navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4;
-    return mobile || slowCpu ? 3 : 5;
+    return mobile || slowCpu ? 3 : 6;
+  };
+
+  const getNearestLoadedImage = (index: number) => {
+    const total = frameCountRef.current;
+    const maxRadius = total;
+
+    for (let radius = 0; radius <= maxRadius; radius += 1) {
+      const candidates = [index - radius, index + radius];
+      for (const candidate of candidates) {
+        if (candidate < 0 || candidate >= total) continue;
+        const img = framesRef.current[candidate];
+        if (img && img.complete && img.naturalWidth > 0) return img;
+      }
+    }
+
+    return null;
   };
 
   // ── Stable draw helpers ────────────────────────────────────────────────────
   const drawFrameIndexFn = useRef((index: number) => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
-    const img = framesRef.current[index];
+    const img = framesRef.current[index] ?? getNearestLoadedImage(index);
 
     if (!canvas || !ctx || !img || !img.complete || img.naturalWidth === 0) return;
     if (!visibleRef.current) return;
@@ -151,12 +167,11 @@ export const FrameSequenceCanvas = forwardRef<
   });
 
   const ensureFrameWindow = useRef((targetIndex: number) => {
-    if (!visibleRef.current) return;
-
     const total = frameCountRef.current;
     const windowSize = getFrameWindowSize();
     const start = Math.max(0, targetIndex - windowSize);
     const end = Math.min(total - 1, targetIndex + windowSize);
+    const tailStart = Math.max(0, total - Math.max(12, Math.ceil(total * 0.18)));
 
     const delayedLoads: number[] = [];
     for (let i = start; i <= end; i += 1) {
@@ -165,11 +180,18 @@ export const FrameSequenceCanvas = forwardRef<
       }
     }
 
-    delayedLoads.forEach((index, offset) => {
-      window.setTimeout(() => {
-        if (visibleRef.current) {
-          loadSingleFrame.current(index);
+    if (targetIndex >= tailStart || total <= 40) {
+      for (let i = tailStart; i < total; i += 1) {
+        if (!framesRef.current[i] && !loadingRefs.current.has(i)) {
+          delayedLoads.push(i);
         }
+      }
+    }
+
+    const uniqueLoads = [...new Set(delayedLoads)];
+    uniqueLoads.forEach((index, offset) => {
+      window.setTimeout(() => {
+        loadSingleFrame.current(index);
       }, offset * 18);
     });
   });
@@ -189,11 +211,17 @@ export const FrameSequenceCanvas = forwardRef<
     setLoadedState(false);
 
     const initialWindow = slowDeviceRef.current ? 2 : 3;
-    const initialLoads = Array.from({ length: Math.min(initialWindow, total) }, (_, i) => i);
+    const tailWindow = Math.min(24, Math.max(12, Math.ceil(total * 0.2)));
+    const initialLoads = Array.from(
+      new Set([
+        ...Array.from({ length: Math.min(initialWindow, total) }, (_, i) => i),
+        ...Array.from({ length: tailWindow }, (_, i) => Math.max(0, total - tailWindow + i)),
+      ])
+    );
 
     initialLoads.forEach((index, offset) => {
       window.setTimeout(() => {
-        if (!cancelled && visibleRef.current) {
+        if (!cancelled) {
           loadSingleFrame.current(index);
         }
       }, offset * 25);
@@ -253,9 +281,10 @@ export const FrameSequenceCanvas = forwardRef<
       ensureFrameWindow.current(index);
     },
     drawProgress: (progress: number) => {
+      const clamped = Math.min(1, Math.max(0, progress));
       const idx = Math.min(
         frameCountRef.current - 1,
-        Math.max(0, Math.floor(progress * frameCountRef.current))
+        Math.max(0, Math.round(clamped * (frameCountRef.current - 1)))
       );
       if (!visibleRef.current) return;
       drawFrameIndexFn.current(idx);

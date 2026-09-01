@@ -37,7 +37,7 @@ export const ScrollScene: React.FC<ScrollSceneProps> = ({
     const scrollY = window.scrollY || window.pageYOffset;
     topRef.current = rect.top + scrollY;
     totalHRef.current = section.offsetHeight;
-    scrollableRef.current = Math.max(1, totalHRef.current - window.innerHeight);
+    scrollableRef.current = Math.max(1, totalHRef.current);
   };
 
   useEffect(() => {
