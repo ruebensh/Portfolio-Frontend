@@ -117,12 +117,29 @@ const Mobile3DCubeShowcase = ({ projects, onSelect }: { projects: Project[]; onS
   const { td } = useLanguage();
   const cubeRef      = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const dragStateRef = useRef({
+    active: false,
+    startX: 0,
+    startY: 0,
+    startRotX: 12,
+    startRotY: 0,
+    startRotZ: 0,
+  });
+
+  const applyRotation = useCallback((rotX: number, rotY: number, rotZ: number) => {
+    if (!cubeRef.current) return;
+    cubeRef.current.style.transform = `rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg) rotateZ(${rotZ.toFixed(2)}deg)`;
+  }, []);
 
   // Direct GPU-accelerated DOM animation loop (0 React re-renders, IntersectionObserver paused)
   useEffect(() => {
     let animId: number;
-    let step = 0;
+    let rotX = 18;
     let rotY = 0;
+    let rotZ = 0;
+    let velX = (Math.random() - 0.5) * 0.9;
+    let velY = (Math.random() - 0.5) * 1.4;
+    let velZ = (Math.random() - 0.5) * 1.2;
     let isVisible = true;
 
     const observer = new IntersectionObserver(
@@ -137,13 +154,18 @@ const Mobile3DCubeShowcase = ({ projects, onSelect }: { projects: Project[]; onS
     }
 
     const animate = () => {
-      if (isVisible && cubeRef.current) {
-        step += 0.012;
-        rotY = (rotY + 0.45) % 360;
-        const rotX = 12 + Math.sin(step) * 14;
-        const rotZ = Math.cos(step * 0.6) * 8;
+      if (isVisible && cubeRef.current && !dragStateRef.current.active) {
+        rotX += velX;
+        rotY += velY;
+        rotZ += velZ;
 
-        cubeRef.current.style.transform = `rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg) rotateZ(${rotZ.toFixed(2)}deg)`;
+        if (Math.random() < 0.03) {
+          velX = (Math.random() - 0.5) * 1.1;
+          velY = (Math.random() - 0.5) * 1.6;
+          velZ = (Math.random() - 0.5) * 1.4;
+        }
+
+        applyRotation(rotX, rotY, rotZ);
       }
       animId = requestAnimationFrame(animate);
     };
@@ -153,6 +175,37 @@ const Mobile3DCubeShowcase = ({ projects, onSelect }: { projects: Project[]; onS
       cancelAnimationFrame(animId);
       observer.disconnect();
     };
+  }, [applyRotation]);
+
+  const handlePointerDown = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
+    dragStateRef.current = {
+      active: true,
+      startX: event.clientX,
+      startY: event.clientY,
+      startRotX: Number.parseFloat(cubeRef.current?.style.transform.match(/rotateX\(([-0-9.]+)deg\)/)?.[1] ?? "12"),
+      startRotY: Number.parseFloat(cubeRef.current?.style.transform.match(/rotateY\(([-0-9.]+)deg\)/)?.[1] ?? "0"),
+      startRotZ: Number.parseFloat(cubeRef.current?.style.transform.match(/rotateZ\(([-0-9.]+)deg\)/)?.[1] ?? "0"),
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }, []);
+
+  const handlePointerMove = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragStateRef.current.active) return;
+
+    const dx = event.clientX - dragStateRef.current.startX;
+    const dy = event.clientY - dragStateRef.current.startY;
+
+    const nextRotY = dragStateRef.current.startRotY + dx * 0.9;
+    const nextRotX = dragStateRef.current.startRotX - dy * 0.7;
+    const nextRotZ = dragStateRef.current.startRotZ + dx * 0.25;
+
+    applyRotation(nextRotX, nextRotY, nextRotZ);
+  }, [applyRotation]);
+
+  const handlePointerUp = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragStateRef.current.active) return;
+    dragStateRef.current.active = false;
+    event.currentTarget.releasePointerCapture(event.pointerId);
   }, []);
 
   // Ensure 6 faces exist
@@ -178,11 +231,16 @@ const Mobile3DCubeShowcase = ({ projects, onSelect }: { projects: Project[]; onS
   ];
 
   return (
-    <div ref={containerRef} className="flex flex-col items-center py-4">
+    <div className="flex flex-col items-center py-4">
       {/* 3D Viewport — 210px x 210px with mt-16 & mb-16 spacing */}
       <div
-        className="relative w-[210px] h-[210px] mt-16 mb-16 select-none pointer-events-auto"
-        style={{ perspective: "900px" }}
+        ref={containerRef}
+        className="relative w-[210px] h-[210px] mt-16 mb-16 select-none pointer-events-auto touch-pan-y"
+        style={{ perspective: "900px", touchAction: "none" }}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerLeave={handlePointerUp}
       >
         {/* 3D Rotating Cube Container */}
         <div
