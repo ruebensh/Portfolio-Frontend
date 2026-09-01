@@ -9,7 +9,7 @@ import { resolveUrl } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Globe, GithubLogo } from "@phosphor-icons/react/dist/ssr";
 
-const TUNNEL_FRAME_COUNT = 97;
+const TUNNEL_FRAME_COUNT = 60;
 
 interface Project {
   id: string;

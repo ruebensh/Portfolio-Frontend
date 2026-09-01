@@ -31,6 +31,9 @@ export const FrameSequenceCanvas = forwardRef<
   const framesRef      = useRef<(HTMLImageElement | null)[]>([]);
   const currentIdxRef  = useRef(-1);
   const frameCountRef  = useRef(frameCount);
+  const visibleRef     = useRef(true);
+  const loadingRefs    = useRef<Set<number>>(new Set());
+  const loadedCountRef = useRef(0);
   frameCountRef.current = frameCount;
 
   // Store callbacks in refs to avoid effect dependencies
@@ -46,27 +49,32 @@ export const FrameSequenceCanvas = forwardRef<
   // ── Stable draw helpers ────────────────────────────────────────────────────
   const drawFrameIndexFn = useRef((index: number) => {
     const canvas = canvasRef.current;
-    const ctx    = canvas?.getContext("2d");
-    const img    = framesRef.current[index];
+    const ctx = canvas?.getContext("2d");
+    const img = framesRef.current[index];
 
     if (!canvas || !ctx || !img || !img.complete || img.naturalWidth === 0) return;
+    if (!visibleRef.current) return;
     if (index === currentIdxRef.current) return;
 
     const cw = canvas.width;
     const ch = canvas.height;
     ctx.clearRect(0, 0, cw, ch);
 
-    const imgRatio    = img.naturalWidth / img.naturalHeight;
+    const imgRatio = img.naturalWidth / img.naturalHeight;
     const canvasRatio = cw / ch;
     let drawW: number, drawH: number;
 
     if (canvasRatio > imgRatio) {
-      drawW = cw; drawH = cw / imgRatio;
+      drawW = cw;
+      drawH = cw / imgRatio;
     } else {
-      drawH = ch; drawW = ch * imgRatio;
+      drawH = ch;
+      drawW = ch * imgRatio;
     }
+
     if (typeof window !== "undefined" && window.innerWidth <= 768) {
-      drawW *= 1.2; drawH *= 1.2;
+      drawW *= 1.15;
+      drawH *= 1.15;
     }
 
     ctx.drawImage(img, (cw - drawW) / 2, (ch - drawH) / 2, drawW, drawH);
@@ -76,97 +84,105 @@ export const FrameSequenceCanvas = forwardRef<
   const resizeCanvasFn = useRef(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const dpr = Math.min(typeof window !== "undefined" ? (window.devicePixelRatio || 1) : 1, 1.5);
-    canvas.width  = window.innerWidth  * dpr;
+    const dpr = Math.min(typeof window !== "undefined" ? (window.devicePixelRatio || 1) : 1, 1.25);
+    canvas.width = window.innerWidth * dpr;
     canvas.height = window.innerHeight * dpr;
     const last = currentIdxRef.current;
     currentIdxRef.current = -1;
     if (last >= 0) drawFrameIndexFn.current(last);
   });
 
-  // ── Smart Frame Loader with Timeouts ───────────────────────────────────────
+  const loadSingleFrame = useRef((idx: number) => {
+    if (idx < 0 || idx >= frameCountRef.current) return;
+    if (framesRef.current[idx] || loadingRefs.current.has(idx)) return;
+
+    loadingRefs.current.add(idx);
+    const img = new window.Image();
+    img.decoding = "async";
+
+    const timeoutId = window.setTimeout(() => {
+      if (!img.complete) {
+        img.src = "";
+        loadingRefs.current.delete(idx);
+        if (idx === currentIdxRef.current || Math.abs(idx - currentIdxRef.current) <= 1) {
+          drawFrameIndexFn.current(currentIdxRef.current >= 0 ? currentIdxRef.current : 0);
+        }
+      }
+    }, 4000);
+
+    img.onload = () => {
+      window.clearTimeout(timeoutId);
+      framesRef.current[idx] = img;
+      loadingRefs.current.delete(idx);
+      loadedCountRef.current = framesRef.current.filter(Boolean).length;
+      const progress = loadedCountRef.current / frameCountRef.current;
+      onLoadProgressRef.current?.(progress);
+
+      if (idx === currentIdxRef.current || Math.abs(idx - currentIdxRef.current) <= 1) {
+        drawFrameIndexFn.current(idx);
+      }
+
+      if (loadedCountRef.current >= frameCountRef.current && !loadedState) {
+        setLoadedState(true);
+        onLoadedRef.current?.();
+      }
+    };
+
+    img.onerror = () => {
+      window.clearTimeout(timeoutId);
+      loadingRefs.current.delete(idx);
+      framesRef.current[idx] = null;
+      loadedCountRef.current = framesRef.current.filter(Boolean).length;
+      if (loadedCountRef.current >= frameCountRef.current && !loadedState) {
+        setLoadedState(true);
+        onLoadedRef.current?.();
+      }
+    };
+
+    img.src = framePathRef.current(idx + 1);
+  });
+
+  const ensureFrameWindow = useRef((targetIndex: number) => {
+    const total = frameCountRef.current;
+    const windowSize = Math.min(12, Math.max(6, Math.ceil(total * 0.08)));
+    const start = Math.max(0, targetIndex - windowSize);
+    const end = Math.min(total - 1, targetIndex + windowSize);
+
+    for (let i = start; i <= end; i += 1) {
+      loadSingleFrame.current(i);
+    }
+  });
+
+  // ── Smart Frame Loader with narrow preloading window ───────────────────────
   useEffect(() => {
     let cancelled = false;
     const total = frameCount;
-    const imgs: (HTMLImageElement | null)[] = new Array(total).fill(null);
-    framesRef.current = imgs;
+    framesRef.current = new Array(total).fill(null);
     currentIdxRef.current = -1;
+    loadingRefs.current.clear();
+    loadedCountRef.current = 0;
     setLoadedState(false);
 
-    let completedCount = 0;
-    let nextIndex = 0;
-    const CONCURRENCY = 8; // High concurrency for fast parallel image preloading
-
-    const onComplete = () => {
-      completedCount++;
-      const progress = completedCount / total;
-      onLoadProgressRef.current?.(progress);
-
-      if (completedCount === total && !cancelled) {
-        setLoadedState(true);
-        onLoadedRef.current?.();
+    const initialWindow = Math.min(8, Math.max(4, Math.ceil(total * 0.12)));
+    for (let i = 0; i <= Math.min(initialWindow, total - 1); i += 1) {
+      if (!cancelled) {
+        loadSingleFrame.current(i);
       }
-    };
-
-    const loadNext = () => {
-      if (cancelled) return;
-      
-      // If we loaded everything, we're done with this thread
-      if (nextIndex >= total) return;
-      
-      const idx = nextIndex++;
-      const img = new window.Image();
-      
-      // Safety timeout: if image hangs for 5s, mark it as failed and move on
-      // This prevents the whole sequence from stalling if a request is dropped
-      let timeoutId = setTimeout(() => {
-        if (!cancelled && !img.complete) {
-          img.src = ""; // Cancel load
-          imgs[idx] = null; // Mark as failed
-          onComplete();
-          loadNext(); // Free up thread
-        }
-      }, 5000);
-
-      const finish = () => {
-        if (cancelled) return;
-        clearTimeout(timeoutId);
-        onComplete();
-        loadNext();
-      };
-
-      img.onload = () => {
-        imgs[idx] = img;
-        finish();
-      };
-      img.onerror = () => {
-        imgs[idx] = null;
-        finish();
-      };
-
-      img.src = framePathRef.current(idx + 1); // 1-indexed paths
-    };
-
-    // Kick off worker threads
-    for (let i = 0; i < Math.min(CONCURRENCY, total); i++) {
-      loadNext();
     }
 
-    // Ultimate fallback: force resolve after 15s if things are completely stuck
-    const ultimateTimer = setTimeout(() => {
-      if (!cancelled && completedCount < total) {
-        cancelled = true; // Stop worker threads
+    const fallbackTimer = window.setTimeout(() => {
+      if (!cancelled) {
         setLoadedState(true);
         onLoadedRef.current?.();
       }
-    }, 15_000);
+    }, 6000);
 
     return () => {
       cancelled = true;
-      clearTimeout(ultimateTimer);
-      // Clean up in-flight requests
-      for (let i = 0; i < total; i++) {
-        const img = imgs[i];
+      window.clearTimeout(fallbackTimer);
+      loadingRefs.current.clear();
+      for (let i = 0; i < total; i += 1) {
+        const img = framesRef.current[i];
         if (img && !img.complete) {
           img.onload = null;
           img.onerror = null;
@@ -174,27 +190,47 @@ export const FrameSequenceCanvas = forwardRef<
         }
       }
     };
-  }, [frameCount]); // Only run when frameCount changes, framePath is in a ref
+  }, [frameCount]);
 
-  // ── Canvas init ────────────────────────────────────────────────────────────
+  // ── Canvas init / visibility ───────────────────────────────────────────────
   useEffect(() => {
-    if (!loadedState) return;
     resizeCanvasFn.current();
-    drawFrameIndexFn.current(0);
     const onResize = () => resizeCanvasFn.current();
     window.addEventListener("resize", onResize, { passive: true });
-    return () => window.removeEventListener("resize", onResize);
-  }, [loadedState]);
+
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries.some((entry) => entry.isIntersecting);
+      visibleRef.current = visible;
+      if (visible && currentIdxRef.current >= 0) {
+        drawFrameIndexFn.current(currentIdxRef.current);
+      }
+    }, { threshold: 0.05 });
+
+    if (canvasRef.current) {
+      observer.observe(canvasRef.current);
+    }
+
+    return () => {
+      window.removeEventListener("resize", onResize);
+      observer.disconnect();
+    };
+  }, []);
 
   // ── API ────────────────────────────────────────────────────────────────────
   useImperativeHandle(ref, () => ({
-    drawFrameIndex: (index: number) => drawFrameIndexFn.current(index),
+    drawFrameIndex: (index: number) => {
+      if (!visibleRef.current) return;
+      drawFrameIndexFn.current(index);
+      ensureFrameWindow.current(index);
+    },
     drawProgress: (progress: number) => {
       const idx = Math.min(
         frameCountRef.current - 1,
         Math.max(0, Math.floor(progress * frameCountRef.current))
       );
+      if (!visibleRef.current) return;
       drawFrameIndexFn.current(idx);
+      ensureFrameWindow.current(idx);
     },
     get isLoaded() { return loadedState; },
   }), [loadedState]);

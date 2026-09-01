@@ -6,7 +6,7 @@ import { FrameSequenceCanvas, FrameSequenceCanvasRef } from "../core/FrameSequen
 import { EyebrowBadge } from "@/components/ui/EyebrowBadge";
 import { useLanguage } from "@/context/LanguageContext";
 
-const SKILL_FRAME_COUNT = 189;
+const SKILL_FRAME_COUNT = 90;
 
 function normalizeSkillCategories(skills: any[]) {
   if (!Array.isArray(skills) || skills.length === 0) return [];

@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { Heart, BookOpen, Code } from "@phosphor-icons/react/dist/ssr";
 import { useLanguage } from "@/context/LanguageContext";
 
-const FRAME_COUNT = 300;
+const FRAME_COUNT = 120;
 
 // ── Timelines for the 3 distinct info cards ──────────────────────────────
 const card1Timeline: ChoreoTimeline = {
