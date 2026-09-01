@@ -1,116 +1,179 @@
 import { useState, useEffect } from "react";
 import { Language } from "./i18n";
 
+const KNOWN_PROPER_NOUNS = [
+  "jaloliddin xalimov",
+  "jaloliddin",
+  "rubensh",
+  "school 21",
+  "mizan",
+  "mizan ai",
+  "scraper bot",
+  "bunker game",
+  "workshop console",
+  "revolutionary-layers-method",
+  "portfolio sayt",
+  "devini",
+  "devini.io",
+  "devini ai platform",
+  "coursera",
+  "deeplearning.ai",
+  "gitlab",
+  "github",
+  "python",
+  "pytorch",
+  "tensorflow",
+  "fastapi",
+  "django",
+  "next.js",
+  "react",
+  "docker",
+  "kubernetes"
+];
+
 const COMMON_DICTIONARY: Record<string, Record<Language, string>> = {
+  // Proper Nouns — Preserve across all languages
+  "Jaloliddin Xalimov": { uz: "Jaloliddin Xalimov", en: "Jaloliddin Xalimov", ru: "Jaloliddin Xalimov" },
+  "School 21": { uz: "School 21", en: "School 21", ru: "School 21" },
+  "Mizan": { uz: "Mizan", en: "Mizan", ru: "Mizan" },
+  "Mizan AI": { uz: "Mizan AI", en: "Mizan AI", ru: "Mizan AI" },
+  "Scraper Bot": { uz: "Scraper Bot", en: "Scraper Bot", ru: "Scraper Bot" },
+  "Bunker Game": { uz: "Bunker Game", en: "Bunker Game", ru: "Bunker Game" },
+  "Workshop Console": { uz: "Workshop Console", en: "Workshop Console", ru: "Workshop Console" },
+  "Revolutionary-Layers-Method": { uz: "Revolutionary-Layers-Method", en: "Revolutionary-Layers-Method", ru: "Revolutionary-Layers-Method" },
+  "Portfolio sayt": { uz: "Portfolio sayt", en: "Portfolio sayt", ru: "Portfolio sayt" },
+  "Devini AI Platform": { uz: "Devini AI Platform", en: "Devini AI Platform", ru: "Devini AI Platform" },
+  "Coursera": { uz: "Coursera", en: "Coursera", ru: "Coursera" },
+  "DeepLearning.AI": { uz: "DeepLearning.AI", en: "DeepLearning.AI", ru: "DeepLearning.AI" },
+
+  // Navigation & General
+  "Asosiy": { uz: "Asosiy", en: "Home", ru: "Главная" },
+  "Loyihalar": { uz: "Loyihalar", en: "Projects", ru: "Проекты" },
+  "Sertifikatlar": { uz: "Sertifikatlar", en: "Certificates", ru: "Сертификаты" },
+  "Resume": { uz: "Resume", en: "Resume", ru: "Резюме" },
+  "AI Chat": { uz: "AI Chat", en: "AI Chat", ru: "ИИ Чат" },
+  "Blog": { uz: "Blog", en: "Blog", ru: "Блог" },
+  "Men Haqimda": { uz: "Men Haqimda", en: "About Me", ru: "Обо мне" },
+  "Admin Panel": { uz: "Admin Panel", en: "Admin Panel", ru: "Админ Панель" },
+
+  // Statuses & Categories
   "Live": { uz: "Faol", en: "Live", ru: "В эфире" },
   "In Progress": { uz: "Jarayonda", en: "In Progress", ru: "В процессе" },
   "Completed": { uz: "Yakunlangan", en: "Completed", ru: "Завершен" },
   "General": { uz: "Umumiy", en: "General", ru: "Общий" },
   "Web Development": { uz: "Veb Dasturlash", en: "Web Development", ru: "Веб-Разработка" },
-  "Mobile Apps": { uz: "Mobil Ilovalar", en: "Mobile Apps", ru: "Мобильные Приложения" },
   "AI & ML": { uz: "Sun'iy Intellekt va Machine Learning", en: "AI & ML", ru: "ИИ и Машинное Обучение" },
   "Data Science": { uz: "Ma'lumotlar Ilmi", en: "Data Science", ru: "Наука о Данных" },
-  "Frontend": { uz: "Frontend", en: "Frontend", ru: "Фронтенд" },
   "Backend": { uz: "Backend", en: "Backend", ru: "Бэкенд" },
-  "DevOps": { uz: "DevOps", en: "DevOps", ru: "DevOps" },
-  "Portfolio": { uz: "Portfolio", en: "Portfolio", ru: "Портфолио" },
-  "Experience": { uz: "Tajriba", en: "Experience", ru: "Опыт работы" },
-  "Skills & Expertise": { uz: "Ko'nikmalar va Tajriba", en: "Skills & Expertise", ru: "Навыки и Опыт" },
-  "About Me": { uz: "Men haqimda", en: "About Me", ru: "Обо мне" },
-  "Certificates": { uz: "Sertifikatlar", en: "Certificates", ru: "Сертификаты" },
-  "Projects": { uz: "Loyihalar", en: "Projects", ru: "Проекты" },
-  "Resume": { uz: "Rezyume", en: "Resume", ru: "Резюме" },
-  "Contact": { uz: "Aloqa", en: "Contact", ru: "Контакты" },
-  "Grafika Rejimi": { uz: "Grafika Rejimi", en: "Graphics Quality", ru: "Качество Графики" },
-  "Grafika va Unumdorlik": { uz: "Grafika va Unumdorlik", en: "Graphics & Performance", ru: "Графика и Производительность" },
-  "Hi, I’m Jaloliddin — I build practical AI and machine-learning projects.": {
-    uz: "Salom, men Jaloliddinman — Men sun'iy intellekt va mashinali o'rgatish bo'yicha amaliy loyihalar yarataman.",
-    en: "Hi, I’m Jaloliddin — I build practical AI and machine-learning projects.",
-    ru: "Привет, я Джалолиддин — я создаю практические проекты в области ИИ и машинного обучения."
-  },
-  "Hi, I'm Jaloliddin — I build practical AI and machine-learning projects.": {
-    uz: "Salom, men Jaloliddinman — Men sun'iy intellekt va mashinali o'rgatish bo'yicha amaliy loyihalar yarataman.",
-    en: "Hi, I'm Jaloliddin — I build practical AI and machine-learning projects.",
-    ru: "Привет, я Джалолиддин — я создаю практические проекты в области ИИ и машинного обучения."
-  },
-  "Jaloliddin Xalimov Data Science — Machine Learning student at School 21": {
-    uz: "Jaloliddin Xalimov — School 21 da Data Science va Machine Learning talabasi",
-    en: "Jaloliddin Xalimov Data Science — Machine Learning student at School 21",
-    ru: "Джалолиддин Халимов — Студент Data Science и машинного обучения в Школе 21"
-  },
-  "26 ML/Data Science projects completed at School 21 and stored in a private GitLab repository.": {
-    uz: "School 21 da bajarilgan va shaxsiy GitLab repozitoriysida saqlangan 26 ta ML/Data Science loyihasi.",
-    en: "26 ML/Data Science projects completed at School 21 and stored in a private GitLab repository.",
-    ru: "26 проектов по ML/Data Science, выполненных в Школе 21 и сохраненных в приватном репозитории GitLab."
-  },
-  "1+ year of hands-on ML learning": {
-    uz: "1+ yillik amaliy ML ta'limi",
-    en: "1+ year of hands-on ML learning",
-    ru: "1+ год практического обучения ML"
-  },
-  "Python • PyTorch • scikit-learn": {
-    uz: "Python • PyTorch • scikit-learn",
-    en: "Python • PyTorch • scikit-learn",
-    ru: "Python • PyTorch • scikit-learn"
-  },
-  "AI/ML Student & Python Developer": {
-    uz: "AI/ML Talabasi & Python Dasturchi",
-    en: "AI/ML Student & Python Developer",
-    ru: "Студент AI/ML & Python Разработчик"
-  },
-  "Senior Full-Stack Engineer & AI Specialist": {
-    uz: "Katta Full-Stack Muxandisi & AI Mutaxassisi",
-    en: "Senior Full-Stack Engineer & AI Specialist",
-    ru: "Ведущий Full-Stack Инженер и ИИ Специалист"
-  },
-  "Full-stack software engineer specializing in modern web technologies.": {
-    uz: "Zamonaviy veb-texnologiyalar va Sun'iy Intellekt bo'yicha mutaxassis.",
-    en: "Full-stack software engineer specializing in modern web technologies and AI.",
-    ru: "Full-stack разработчик, специализирующийся на современных веб-технологиях и ИИ."
-  },
-  "I build smart, scalable digital products": {
-    uz: "Men aqlli va masshtablanuvchi raqamli mahsulotlar yarataman",
-    en: "I build smart, scalable digital products",
-    ru: "Я создаю умные и масштабируемые цифровые продукты"
-  },
-  "Men Sun'iy Intellekt, Machine Learning va Python backend yo'nalishida faoliyat yurituvchi dasturchiman.": {
-    uz: "Men Sun'iy Intellekt, Machine Learning va Python backend yo'nalishida faoliyat yurituvchi dasturchiman.",
-    en: "I am a software developer specializing in Artificial Intelligence, Machine Learning, and Python backend.",
-    ru: "Я разработчик, специализирующийся на искусственном интеллекте, машинном обучении и бэкенде на Python."
-  },
-  "School 21 o'quv maskanida Data Science va Machine Learning yo'nalishida o'qiyman.": {
-    uz: "School 21 o'quv maskanida Data Science va Machine Learning yo'nalishida o'qiyman.",
-    en: "I study Data Science and Machine Learning at School 21.",
-    ru: "Я изучаю Data Science и машинное обучение в Школе 21."
-  },
-  "Masshtablanuvchi veb-ilovalar, neyron tarmoqlari hamda aqlli raqamli tizimlar yaratish bo'yicha tajribaga egaman.": {
-    uz: "Masshtablanuvchi veb-ilovalar, neyron tarmoqlari hamda aqlli raqamli tizimlar yaratish bo'yicha tajribaga egaman.",
-    en: "I have experience in creating scalable web applications, neural networks, and smart digital systems.",
-    ru: "У меня есть опыт создания масштабируемых веб-приложений, нейронных сетей и интеллектуальных цифровых систем."
-  },
-  "IT dunyosiga sayohatimning asosiy bosqichlari": {
-    uz: "IT dunyosiga sayohatimning asosiy bosqichlari",
-    en: "Key milestones of my journey in the IT world",
-    ru: "Ключевые этапы моего пути в мире IT"
-  },
-  "Ko'nikmalarim va texnologiyalar bo'yicha bilimlarim": {
-    uz: "Ko'nikmalarim va texnologiyalar bo'yicha bilimlarim",
-    en: "My skills and technological expertise",
-    ru: "Мои навыки и технологический опыт"
-  }
+  "Tools & Deployment": { uz: "Asboblar va Joylashtirish", en: "Tools & Deployment", ru: "Инструменты и Деплой" },
+  "Frontend": { uz: "Frontend", en: "Frontend", ru: "Фронтенд" },
+  "Machine Learning / AI": { uz: "Mashinani o'rganish / AI", en: "Machine Learning / AI", ru: "Машинное обучение / ИИ" },
+
+  // Home Tunnel & Sections
+  "LOYIHALAR ARXIVI": { uz: "LOYIHALAR ARXIVI", en: "PROJECT ARCHIVE", ru: "АРХИВ ПРОЕКТОВ" },
+  "Men Yaratgan Arxitekturalar": { uz: "Men Yaratgan Arxitekturalar", en: "Architectures I Built", ru: "Архитектуры, Которые Я Создал" },
+  "SCROLL QILIB KASHF ETING": { uz: "SCROLL QILIB KASHF ETING", en: "SCROLL TO DISCOVER", ru: "ПРОКРУТИТЕ ДЛЯ ИЗУЧЕНИЯ" },
+  "BARCHA LOYIHALARNI KO'RISH →": { uz: "BARCHA LOYIHALARNI KO'RISH →", en: "VIEW ALL PROJECTS →", ru: "СМОТРЕТЬ ВСЕ ПРОЕКТЫ →" },
+  "Barcha loyihalarni ko'rish →": { uz: "Barcha loyihalarni ko'rish →", en: "View All Projects →", ru: "Посмотреть все проекты →" },
+  "KO'RISH ↗": { uz: "KO'RISH ↗", en: "VIEW ↗", ru: "СМОТРЕТЬ ↗" },
+  "BATAFSIL KO'RISH →": { uz: "BATAFSIL KO'RISH →", en: "VIEW DETAILS →", ru: "ПОДРОБНЕЕ →" },
+
+  // Skills & Bento
+  "TEXNIK ARSENALIM": { uz: "TEXNIK ARSENALIM", en: "TECHNICAL ARSENAL", ru: "ТЕХНИЧЕСКИЙ АРСЕНАЛ" },
+  "Ko'nikmalar va Texnologiyalar": { uz: "Ko'nikmalar va Texnologiyalar", en: "Skills & Technologies", ru: "Навыки и Технологии" },
+  "Ko'nikmalarim va texnologiyalar bo'yicha bilim va darajalarim": { uz: "Ko'nikmalarim va texnologiyalar bo'yicha bilim va darajalarim", en: "My knowledge and levels in skills and technologies", ru: "Мои знания и уровни в навыках и технологиях" },
+  "Xizmatlar & Ko'nikmalar": { uz: "Xizmatlar & Ko'nikmalar", en: "Services & Skills", ru: "Услуги и Навыки" },
+  "Murakkab muammolarga": { uz: "Murakkab muammolarga", en: "Modern solutions to", ru: "Современные решения" },
+  "zamonaviy yechimlar": { uz: "zamonaviy yechimlar", en: "complex problems", ru: "для сложных задач" },
+  "Ko'proq": { uz: "Ko'proq", en: "More", ru: "Подробнее" },
+
+  // About & Values
+  "Tarixim & Faoliyatim": { uz: "Tarixim & Faoliyatim", en: "My Story & Activity", ru: "Моя История и Деятельность" },
+  "Ta'lim": { uz: "Ta'lim", en: "Education", ru: "Образование" },
+  "Ta'lim & Faoliyatim": { uz: "Ta'lim & Faoliyatim", en: "Education & Activity", ru: "Образование и Деятельность" },
+  "Qadriyatlar & Tamoyillar": { uz: "Qadriyatlar & Tamoyillar", en: "Values & Principles", ru: "Ценности и Принципы" },
+  "Doimiy o'rganish va amaliyot orqali yangi texnologiyalarni egallash": { uz: "Doimiy o'rganish va amaliyot orqali yangi texnologiyalarni egallash", en: "Mastering new technologies through continuous learning and practice", ru: "Освоение новых технологий через непрерывное обучение и практику" },
+  "Toza, o'qilishi oson va masshtablanuvchi kod yozish madaniyati": { uz: "Toza, o'qilishi oson va masshtablanuvchi kod yozish madaniyati", en: "Culture of writing clean, readable, and scalable code", ru: "Культура написания чистого, читаемого и масштабируемого кода" },
+  "Muammolarga innovatsion va AI yechimlar topish": { uz: "Muammolarga innovatsion va AI yechimlar topish", en: "Finding innovative and AI solutions to complex problems", ru: "Поиск инновационных и ИИ-решений для сложных проблем" },
+
+  // Projects & Certificates Pages
+  "Barcha Loyihalar": { uz: "Barcha Loyihalar", en: "All Projects", ru: "Все Проекты" },
+  "Men yaratgan eng so'nggi va asosiy loyihalar ro'yxati bilan tanishing.": { uz: "Men yaratgan eng so'nggi va asosiy loyihalar ro'yxati bilan tanishing.", en: "Explore the list of the latest and key projects I built.", ru: "Ознакомьтесь со списком последних и основных проектов, созданных мной." },
+  "Sertifikatlar va Yutuqlar": { uz: "Sertifikatlar va Yutuqlar", en: "Certificates and Achievements", ru: "Сертификаты и Достижения" },
+  "Rasmiy sertifikatlar hamda ishtirok etilgan xalqaro ideaton va tadbirlar ro'yxati.": { uz: "Rasmiy sertifikatlar hamda ishtirok etilgan xalqaro ideaton va tadbirlar ro'yxati.", en: "Official certificates and list of international ideathons and events attended.", ru: "Официальные сертификаты и список международных идеатонов и мероприятий." },
+
+  // Experience & Contact
+  "Professional Tajriba": { uz: "Professional Tajriba", en: "Professional Experience", ru: "Профессиональный Опыт" },
+  "Bosqichlar va Erishilgan Natijalar": { uz: "Bosqichlar va Erishilgan Natijalar", en: "Milestones and Achieved Results", ru: "Этапы и Достигнутые Результаты" },
+  "Takliflar yoki hamkorlik uchun xabar qoldiring": { uz: "Takliflar yoki hamkorlik uchun xabar qoldiring", en: "Leave a message for proposals or collaboration", ru: "Оставьте сообщение для предложений или сотрудничества" },
+  "Bog'lanish": { uz: "Bog'lanish", en: "Contact Me", ru: "Связаться" },
+  "Ismingiz": { uz: "Ismingiz", en: "Your Name", ru: "Ваше Имя" },
+  "Email manzilingiz": { uz: "Email manzilingiz", en: "Your Email", ru: "Ваш Email" },
+  "Xabaringiz": { uz: "Xabaringiz", en: "Your Message", ru: "Ваше Сообщение" },
+  "Xabaringiz...": { uz: "Xabaringiz...", en: "Your message...", ru: "Ваше сообщение..." },
+  "Yuborish": { uz: "Yuborish", en: "Send", ru: "Отправить" },
+  "Aloqa": { uz: "Aloqa", en: "Contact", ru: "Контакт" },
+  "Aloqa manbalari": { uz: "Aloqa manbalari", en: "Contact Links", ru: "Контакты" },
+  "Xabar qoldirish": { uz: "Xabar qoldirish", en: "Leave a Message", ru: "Написать сообщение" },
+  "Tez orada →": { uz: "Tez orada →", en: "Coming Soon →", ru: "Скоро →" },
+  "Telefon": { uz: "Telefon", en: "Phone", ru: "Телефон" },
+  "AI ga so'rang": { uz: "AI ga so'rang", en: "Ask the AI", ru: "Спросить ИИ" },
+  "Savol bering — AI javob beradi...": { uz: "Savol bering — AI javob beradi...", en: "Ask a question — AI will answer...", ru: "Задайте вопрос — ИИ ответит..." },
+  "Savolingiz...": { uz: "Savolingiz...", en: "Your question...", ru: "Ваш вопрос..." },
+  "Tajriba va loyihalar haqida tezkor savol": { uz: "Tajriba va loyihalar haqida tezkor savol", en: "Quick question about experience & projects", ru: "Быстрый вопрос об опыте и проектах" },
+  "Forma orqali to'g'ridan-to'g'ri yetib boradi": { uz: "Forma orqali to'g'ridan-to'g'ri yetib boradi", en: "Delivered directly through the form", ru: "Доставляется напрямую через форму" },
+  "Xabar yuborildi!": { uz: "Xabar yuborildi!", en: "Message sent!", ru: "Сообщение отправлено!" },
+  "Tez orada bog'lanaman.": { uz: "Tez orada bog'lanaman.", en: "I'll reach out soon.", ru: "Свяжусь с вами скоро." },
+  "Yangi xabar →": { uz: "Yangi xabar →", en: "New message →", ru: "Новое сообщение →" },
+  "Loyiha uchun mavjud": { uz: "Loyiha uchun mavjud", en: "Available for projects", ru: "Доступен для проектов" },
+  "Ish Tajribam": { uz: "Ish Tajribam", en: "My Work Experience", ru: "Мой Опыт Работы" },
+  "Tajriba va Amaliyot": { uz: "Tajriba va Amaliyot", en: "Experience & Practice", ru: "Опыт и Практика" },
+  "Vazifalar & Yutuqlar": { uz: "Vazifalar & Yutuqlar", en: "Tasks & Achievements", ru: "Задачи и Достижения" },
+  "Loyiha, hamkorlik yoki savol bo'yicha — eng qulay kanal orqali muloqot qiling.": { uz: "Loyiha, hamkorlik yoki savol bo'yicha — eng qulay kanal orqali muloqot qiling.", en: "For projects, partnerships or questions — reach out through the most convenient channel.", ru: "По проектам, партнерству или вопросам — свяжитесь через удобный канал." },
+  "Hozir O'rganayotganlar": { uz: "Hozir O'rganayotganlar", en: "Currently Learning", ru: "Сейчас Изучаю" },
+  "Hozir Ishlayotganlar": { uz: "Hozir Ishlayotganlar", en: "Currently Working On", ru: "Сейчас Работаю Над" },
 };
 
 const MEMORY_CACHE = new Map<string, string>();
+const listeners = new Set<() => void>();
 
-function getCacheKey(text: string, targetLang: string): string {
-  return `tr_v2_${targetLang}_${text.trim()}`;
+function notifyListeners() {
+  listeners.forEach(fn => fn());
 }
 
-function getCachedTranslation(text: string, targetLang: string): string | null {
-  const key = getCacheKey(text, targetLang);
-  if (MEMORY_CACHE.has(key)) {
-    return MEMORY_CACHE.get(key)!;
+/** Subscribe to async translation completions. Returns an unsubscribe function. */
+export function addTranslationListener(fn: () => void): () => void {
+  listeners.add(fn);
+  return () => { listeners.delete(fn); };
+}
+
+function isProperNoun(text: string): boolean {
+  if (!text || !text.trim()) return false;
+  const trimmed = text.trim();
+  // Paragraphs or sentences over 40 characters or 4 words are NOT proper nouns!
+  if (trimmed.length > 40 || trimmed.split(/\s+/).length > 4) return false;
+  const lower = trimmed.toLowerCase();
+  return KNOWN_PROPER_NOUNS.some((p) => lower === p || lower === `${p}.`);
+}
+
+export async function translateTextAsync(text: string, targetLang: Language): Promise<string> {
+  if (!text || !text.trim()) return text;
+  const trimmed = text.trim();
+
+  if (isProperNoun(trimmed)) return text; // Never translate proper nouns
+
+  // Dictionary hit — instant return
+  if (COMMON_DICTIONARY[trimmed]?.[targetLang]) {
+    return COMMON_DICTIONARY[trimmed][targetLang];
   }
+  const lowerKey = Object.keys(COMMON_DICTIONARY).find(k => k.toLowerCase() === trimmed.toLowerCase());
+  if (lowerKey && COMMON_DICTIONARY[lowerKey]?.[targetLang]) {
+    return COMMON_DICTIONARY[lowerKey][targetLang];
+  }
+
+  const key = `tr_v3_${targetLang}_${trimmed}`;
+  if (MEMORY_CACHE.has(key)) return MEMORY_CACHE.get(key)!;
+
   if (typeof window !== "undefined") {
     try {
       const saved = localStorage.getItem(key);
@@ -118,107 +181,67 @@ function getCachedTranslation(text: string, targetLang: string): string | null {
         MEMORY_CACHE.set(key, saved);
         return saved;
       }
-    } catch (e) {
-      // ignore
-    }
+    } catch {}
   }
-  return null;
-}
-
-function setCachedTranslation(text: string, targetLang: string, translated: string) {
-  const key = getCacheKey(text, targetLang);
-  MEMORY_CACHE.set(key, translated);
-  if (typeof window !== "undefined") {
-    try {
-      localStorage.setItem(key, translated);
-    } catch (e) {
-      // ignore
-    }
-  }
-}
-
-type Listener = () => void;
-const listeners = new Set<Listener>();
-
-function notifyListeners() {
-  listeners.forEach(fn => fn());
-}
-
-/**
- * Async Google Translate engine for arbitrary dynamic strings
- */
-export async function translateTextAsync(text: string, targetLang: Language): Promise<string> {
-  if (!text || !text.trim()) return text;
-  const trimmed = text.trim();
-
-  if (COMMON_DICTIONARY[trimmed]?.[targetLang]) {
-    return COMMON_DICTIONARY[trimmed][targetLang];
-  }
-
-  const lowerKey = Object.keys(COMMON_DICTIONARY).find(k => k.toLowerCase() === trimmed.toLowerCase());
-  if (lowerKey && COMMON_DICTIONARY[lowerKey]?.[targetLang]) {
-    return COMMON_DICTIONARY[lowerKey][targetLang];
-  }
-
-  const cached = getCachedTranslation(trimmed, targetLang);
-  if (cached) return cached;
 
   try {
-    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(trimmed)}`;
+    // Call internal proxy route /api/translate to eliminate CORS errors!
+    const url = `/api/translate?targetLang=${targetLang}&text=${encodeURIComponent(trimmed)}`;
     const res = await fetch(url);
     if (!res.ok) return text;
     const data = await res.json();
-    if (data && data[0] && Array.isArray(data[0])) {
-      const translated = data[0].map((x: any) => x[0]).join("");
-      if (translated) {
-        setCachedTranslation(trimmed, targetLang, translated);
-        notifyListeners();
-        return translated;
+    if (data && data.translatedText) {
+      const translated = data.translatedText;
+      MEMORY_CACHE.set(key, translated);
+      if (typeof window !== "undefined") {
+        try { localStorage.setItem(key, translated); } catch {}
       }
+      notifyListeners();
+      return translated;
     }
   } catch (err) {
-    console.warn("Auto-translation fetch warning:", err);
+    console.error("Translation fetch error:", err);
   }
 
   return text;
 }
 
-/**
- * Synchronous helper for immediate render (with background auto-translation trigger)
- */
 export function translateDynamicText(text: string | null | undefined, targetLang: Language): string {
   if (!text || !text.trim()) return "";
   const trimmed = text.trim();
 
+  if (isProperNoun(trimmed)) return text; // Protect proper nouns
+
+  // Dictionary hit — instant return
   if (COMMON_DICTIONARY[trimmed]?.[targetLang]) {
     return COMMON_DICTIONARY[trimmed][targetLang];
   }
-
   const lowerKey = Object.keys(COMMON_DICTIONARY).find(k => k.toLowerCase() === trimmed.toLowerCase());
   if (lowerKey && COMMON_DICTIONARY[lowerKey]?.[targetLang]) {
     return COMMON_DICTIONARY[lowerKey][targetLang];
   }
 
-  const cached = getCachedTranslation(trimmed, targetLang);
-  if (cached) return cached;
+  const key = `tr_v3_${targetLang}_${trimmed}`;
+  if (MEMORY_CACHE.has(key)) return MEMORY_CACHE.get(key)!;
+
+  if (typeof window !== "undefined") {
+    try {
+      const saved = localStorage.getItem(key);
+      if (saved) return saved;
+    } catch {}
+  }
 
   translateTextAsync(trimmed, targetLang);
-
   return text;
 }
 
-/**
- * Custom React Hook that automatically subscribes to translation updates
- */
 export function useTranslatedText(text: string | null | undefined, targetLang: Language): string {
   const [, setTick] = useState(0);
 
   useEffect(() => {
     const listener = () => setTick(t => t + 1);
     listeners.add(listener);
-    return () => {
-      listeners.delete(listener);
-    };
+    return () => { listeners.delete(listener); };
   }, []);
 
   if (!text) return "";
