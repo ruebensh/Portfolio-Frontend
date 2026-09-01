@@ -53,13 +53,13 @@ export const ScrollScene: React.FC<ScrollSceneProps> = ({
         const top = topRef.current;
         const totalH = totalHRef.current;
 
-        // Fast viewport check using scrollY (0 reflows!)
-        if (scrollY + vh < top || scrollY > top + totalH) {
+        const isInsideSection = scrollY + vh >= top && scrollY <= top + totalH;
+        if (!isInsideSection) {
           tickingRef.current = false;
           return;
         }
 
-        const relativeScroll = scrollY - top;
+        const relativeScroll = Math.max(0, scrollY - top);
         const progress = Math.min(1, Math.max(0, relativeScroll / scrollableRef.current));
 
         onProgressRef.current(progress);
