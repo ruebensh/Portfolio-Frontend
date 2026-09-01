@@ -11,6 +11,10 @@ export async function GET(req: NextRequest) {
 
   const cleanText = text.trim();
 
+  if (cleanText.length > 500) {
+    return NextResponse.json({ translatedText: cleanText });
+  }
+
   // Engine 1: Google Translate Chrome Extension Endpoint
   try {
     const googleUrl = `https://clients5.google.com/translate_a/t?client=dict-chrome-ex&sl=auto&tl=${targetLang}&q=${encodeURIComponent(cleanText)}`;

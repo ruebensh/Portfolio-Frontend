@@ -136,6 +136,11 @@ const COMMON_DICTIONARY: Record<string, Record<Language, string>> = {
 
 const MEMORY_CACHE = new Map<string, string>();
 const listeners = new Set<() => void>();
+const MAX_TRANSLATE_QUERY_LENGTH = 500;
+
+function shouldSkipTranslation(text: string): boolean {
+  return text.trim().length > MAX_TRANSLATE_QUERY_LENGTH;
+}
 
 function notifyListeners() {
   listeners.forEach(fn => fn());
@@ -161,6 +166,7 @@ export async function translateTextAsync(text: string, targetLang: Language): Pr
   const trimmed = text.trim();
 
   if (isProperNoun(trimmed)) return text; // Never translate proper nouns
+  if (shouldSkipTranslation(trimmed)) return text;
 
   // Dictionary hit — instant return
   if (COMMON_DICTIONARY[trimmed]?.[targetLang]) {
@@ -211,6 +217,7 @@ export function translateDynamicText(text: string | null | undefined, targetLang
   const trimmed = text.trim();
 
   if (isProperNoun(trimmed)) return text; // Protect proper nouns
+  if (shouldSkipTranslation(trimmed)) return text;
 
   // Dictionary hit — instant return
   if (COMMON_DICTIONARY[trimmed]?.[targetLang]) {
