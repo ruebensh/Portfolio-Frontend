@@ -10,6 +10,10 @@ export const ProfileCardContent = ({ settings }: { settings: any }) => {
   const { t, td } = useLanguage();
 
   const avatarSrc = resolveUrl(settings?.avatarUrl) || "/jaloliddin_profile.png";
+  const projectCountText = settings?.projectCount ?? settings?.stats?.projects ?? "";
+  const projectCount = String(projectCountText).match(/\d+/)?.[0] || "—";
+  const experienceYears = settings?.experienceYears ?? settings?.stats?.experience ?? "—";
+  const mainStack = settings?.mainStack ?? settings?.stats?.stack ?? "—";
 
   const socials = [
     { icon: <GithubLogo size={20} weight="fill" />, href: settings?.github, label: "GitHub" },
@@ -39,28 +43,37 @@ export const ProfileCardContent = ({ settings }: { settings: any }) => {
       {/* Info Container */}
       <div className="flex-1 text-center md:text-left z-10">
         <h2 suppressHydrationWarning className="font-display text-3xl md:text-4xl font-bold tracking-tight text-foreground mb-2 drop-shadow-md">
-          {td(settings?.author || settings?.title || "Jaloliddin Xalimov")}
+          {td(settings?.author || "Jaloliddin Xalimov")}
         </h2>
-        <p suppressHydrationWarning className="font-mono text-sm md:text-base text-accent font-semibold mb-6 tracking-wide uppercase">
-          {td(settings?.mainStack || settings?.description || "AI/ML Student & Python Backend Developer")}
+
+        <p suppressHydrationWarning className="text-sm md:text-base text-foreground/75 mb-2 leading-relaxed whitespace-pre-line">
+          {td(settings?.title || "")}
         </p>
 
-        {settings?.stats && (
-          <div className="flex flex-wrap justify-center md:justify-start gap-8 mb-8 border-y border-white/10 py-4">
-            <div className="text-center md:text-left">
-              <p className="font-display text-2xl font-bold text-foreground">{settings.stats.projects}+</p>
-              <p className="font-mono text-xs text-muted uppercase tracking-wider">{t("profile.projects")}</p>
-            </div>
-            <div className="text-center md:text-left">
-              <p className="font-display text-2xl font-bold text-foreground">{settings.stats.experience}</p>
-              <p className="font-mono text-xs text-muted uppercase tracking-wider">{t("profile.experience")}</p>
-            </div>
-            <div className="text-center md:text-left">
-              <p className="font-display text-lg font-bold text-foreground max-w-[120px] truncate">{settings.stats.stack}</p>
-              <p className="font-mono text-xs text-muted uppercase tracking-wider">{t("profile.mainStack")}</p>
-            </div>
+        <p suppressHydrationWarning className="font-mono text-sm md:text-base text-accent font-semibold mb-6 tracking-wide uppercase">
+          {td(mainStack)}
+        </p>
+
+        <div className="flex flex-wrap justify-center md:justify-start gap-8 mb-8 border-y border-white/10 py-4">
+          <div className="text-center md:text-left">
+            <p className="font-display text-2xl font-bold text-foreground">{projectCount}</p>
+            <p className="font-mono text-xs text-muted uppercase tracking-wider">{t("profile.projects")}</p>
           </div>
-        )}
+
+          <div className="text-center md:text-left">
+            <p className="font-display text-2xl font-bold text-foreground">
+              {td(String(experienceYears))}
+            </p>
+            <p className="font-mono text-xs text-muted uppercase tracking-wider">{t("profile.experience")}</p>
+          </div>
+
+          <div className="text-center md:text-left">
+            <p className="font-display text-lg font-bold text-foreground max-w-[120px] truncate">
+              {td(mainStack)}
+            </p>
+            <p className="font-mono text-xs text-muted uppercase tracking-wider">{t("profile.mainStack")}</p>
+          </div>
+        </div>
 
         <div className="flex flex-wrap justify-center md:justify-start gap-3">
           {socials.map((s) => (
