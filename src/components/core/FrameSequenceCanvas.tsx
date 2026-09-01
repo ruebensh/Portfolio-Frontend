@@ -253,13 +253,34 @@ export const FrameSequenceCanvas = forwardRef<
   useEffect(() => {
     resizeCanvasFn.current();
     const onResize = () => resizeCanvasFn.current();
+    const redrawWhenVisible = () => {
+      const shouldBeVisible = !document.hidden;
+      visibleRef.current = shouldBeVisible;
+      if (!shouldBeVisible) return;
+
+      if (currentIdxRef.current >= 0) {
+        drawFrameIndexFn.current(currentIdxRef.current);
+        return;
+      }
+
+      const fallbackIndex = Math.min(
+        Math.max(0, frameCountRef.current - 1),
+        Math.max(0, Math.round(frameCountRef.current * 0.1))
+      );
+      if (framesRef.current[fallbackIndex]) {
+        drawFrameIndexFn.current(fallbackIndex);
+      }
+    };
+
     window.addEventListener("resize", onResize, { passive: true });
+    document.addEventListener("visibilitychange", redrawWhenVisible);
+    window.addEventListener("pageshow", redrawWhenVisible);
 
     const observer = new IntersectionObserver((entries) => {
       const visible = entries.some((entry) => entry.isIntersecting);
       visibleRef.current = visible;
-      if (visible && currentIdxRef.current >= 0) {
-        drawFrameIndexFn.current(currentIdxRef.current);
+      if (visible) {
+        redrawWhenVisible();
       }
     }, { threshold: 0.05 });
 
@@ -269,6 +290,8 @@ export const FrameSequenceCanvas = forwardRef<
 
     return () => {
       window.removeEventListener("resize", onResize);
+      document.removeEventListener("visibilitychange", redrawWhenVisible);
+      window.removeEventListener("pageshow", redrawWhenVisible);
       observer.disconnect();
     };
   }, []);
