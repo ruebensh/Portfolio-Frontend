@@ -699,7 +699,7 @@ export default function AdminPage() {
               <input
                 type="email"
                 required
-                placeholder="jaloliddinxalimov.0102@gmail.com"
+                placeholder="email@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className={inputStyle}

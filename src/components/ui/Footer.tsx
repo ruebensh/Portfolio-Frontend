@@ -29,7 +29,7 @@ export const Footer = ({ settings }: { settings?: any }) => {
   const authorRole = settings?.description || "AI/ML Student & Python Developer";
 
   const socialLinks = [
-    { name: "GitHub",    Icon: GithubLogo,    href: settings?.github    || "https://github.com/jaloliddinxalimov" },
+    { name: "GitHub",    Icon: GithubLogo,    href: settings?.github    || "https://github.com/ruebensh" },
     { name: "LinkedIn",  Icon: LinkedinLogo,  href: settings?.linkedin  || "https://linkedin.com" },
     { name: "Telegram",  Icon: TelegramLogo,  href: settings?.telegram ? `https://t.me/${settings.telegram.replace("@", "")}` : "https://t.me/jaloliddin_xalimov" },
     { name: "Instagram", Icon: InstagramLogo, href: settings?.instagram || "https://instagram.com" },
