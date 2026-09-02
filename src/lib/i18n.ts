@@ -22,7 +22,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "profile.experience": "Tajriba",
     "profile.mainStack": "Asosiy Stack",
 
-    "ai.title": "Jaloliddin AI dan so'rang",
+    "ai.title": "Ruebensh AI dan so'rang",
     "ai.desc": "Men va mening loyihalarim yoki tajribam haqida shaxsiy AI yordamchimdan so'rang.",
     "ai.placeholder": "Masalan: Qanday loyihalarda ishlagan?",
     "ai.submit": "So'rash",
@@ -62,7 +62,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "profile.experience": "Experience",
     "profile.mainStack": "Main Stack",
 
-    "ai.title": "Ask Jaloliddin AI",
+    "ai.title": "Ask Ruebensh AI",
     "ai.desc": "Ask my AI assistant about me, my experience, or my projects.",
     "ai.placeholder": "Example: What projects have you worked on?",
     "ai.submit": "Ask AI",
@@ -102,7 +102,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "profile.experience": "Опыт",
     "profile.mainStack": "Основной стек",
 
-    "ai.title": "Спросите Jaloliddin AI",
+    "ai.title": "Спросите Ruebensh AI",
     "ai.desc": "Задайте вопрос моему AI-ассистенту обо мне, моих проектах и опыте.",
     "ai.placeholder": "Например: Над какими проектами ты работал?",
     "ai.submit": "Спросить",
