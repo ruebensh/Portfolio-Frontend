@@ -132,6 +132,11 @@ const COMMON_DICTIONARY: Record<string, Record<Language, string>> = {
   "Loyiha, hamkorlik yoki savol bo'yicha — eng qulay ijtimoiy tarmoqlar orqali muloqot qiling.": { uz: "Loyiha, hamkorlik yoki savol bo'yicha — eng qulay ijtimoiy tarmoqlar orqali muloqot qiling.", en: "For projects, partnerships or questions — reach out through the most convenient social networks.", ru: "По проектам, партнерству или вопросам — свяжитесь через удобные социальные сети." },
   "Hozir O'rganayotganlar": { uz: "Hozir O'rganayotganlar", en: "Currently Learning", ru: "Сейчас Изучаю" },
   "Hozir Ishlayotganlar": { uz: "Hozir Ishlayotganlar", en: "Currently Working On", ru: "Сейчас Работаю Над" },
+
+  // Ai Chat
+  "Assalomu alaykum! Men Jaloliddinning raqamli yordamchisiman. Uning tajribasi, loyihalari yoki ko'nikmalari haqida so'rasangiz javob beraman.": { uz: "Assalomu alaykum! Men Jaloliddinning raqamli yordamchisiman. Uning tajribasi, loyihalari yoki ko'nikmalari haqida so'rasangiz javob beraman.", en: "Hello! I'm Jaloliddin's digital assistant. I can answer questions about his experience, projects, or skills.", ru: "Здравствуйте! Я цифровой помощник Джалолиддина. Я могу ответить на вопросы о его опыте, проектах или навыках." },
+  "Yangi suhbat": { uz: "Yangi suhbat", en: "New chat", ru: "Новый чат" },
+  "Suhbatlar": { uz: "Suhbatlar", en: "Chats", ru: "Чаты" },
 };
 
 const MEMORY_CACHE = new Map<string, string>();
