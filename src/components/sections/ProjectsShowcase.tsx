@@ -419,7 +419,7 @@ export const ProjectsShowcase = ({ projects = [] }: { projects?: any[] }) => {
               {td("LOYIHALAR ARXIVI")}
             </span>
             <h2 className="font-display text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight text-white mb-3 drop-shadow-2xl">
-              {td("Men Yaratgan Arxitekturalar")}
+              {td("Men Yaratgan Loyihalar")}
             </h2>
             <p className="font-mono text-xs text-muted max-w-sm uppercase tracking-widest">
               {td("SCROLL QILIB KASHF ETING")}
@@ -460,7 +460,7 @@ export const ProjectsShowcase = ({ projects = [] }: { projects?: any[] }) => {
               {td("LOYIHALAR ARXIVI")}
             </span>
             <h2 className="font-display text-2xl font-bold text-white mb-1">
-              {td("Men Yaratgan Arxitekturalar")}
+              {td("Men Yaratgan Loyihalar")}
             </h2>
           </div>
 
