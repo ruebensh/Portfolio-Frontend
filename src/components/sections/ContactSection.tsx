@@ -209,7 +209,7 @@ export const ContactSection = ({ settings }: { settings: any }) => {
               <div className="card-surface p-5 sm:p-6 md:p-8 h-full flex flex-col">
                 <div className="flex items-center gap-3 mb-1">
                   <span className="font-mono text-[10px] text-accent border border-accent/20 px-2 py-0.5 rounded-md uppercase tracking-widest">AI</span>
-                  <h3 className="font-display text-lg font-bold text-foreground">{td("AI ga so'rang")}</h3>
+                  <h3 className="font-display text-lg font-bold text-foreground">{td("Ruebensh AI dan so'rang")}</h3>
                 </div>
                 <p className="font-mono text-[10px] text-muted mb-6 uppercase tracking-widest">
                   {td("Tajriba va loyihalar haqida tezkor savol")}
