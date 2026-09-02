@@ -144,7 +144,7 @@ export default function AIChatPage() {
       <div className="hidden md:flex flex-col w-72 card-surface border-r border-card-border h-full flex-shrink-0 rounded-none border-t-0 border-b-0 border-l-0">
         <div className="p-4 border-b border-card-border">
           <h2 className="font-bold text-foreground flex items-center gap-2">
-            <span className="text-lg">✨</span> Jaloliddin AI
+            <span className="text-lg">✨</span> Ruebensh AI
           </h2>
         </div>
         <Sidebar />
@@ -159,7 +159,7 @@ export default function AIChatPage() {
             <motion.div initial={{ x: -300 }} animate={{ x: 0 }} exit={{ x: -300 }}
               className="relative z-10 w-72 card-surface h-full flex flex-col rounded-none">
               <div className="p-4 border-b border-card-border flex items-center justify-between">
-                <h2 className="font-bold text-foreground">✨ Jaloliddin AI</h2>
+                <h2 className="font-bold text-foreground">✨ Ruebensh AI</h2>
                 <button onClick={() => setSidebarOpen(false)} className="text-muted hover:text-foreground">
                   <X size={20} />
                 </button>

@@ -149,7 +149,7 @@ export const Hero = ({ settings }: { settings?: any }) => {
 
             <span className="inline-flex items-center gap-2 border border-card-border bg-card-bg/80 px-4 py-1.5 font-mono text-[10px] tracking-widest text-accent backdrop-blur-md uppercase">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              {td("Loyiha uchun mavjud")}
+              {td("Ruebensh")}
             </span>
 
             <h1 className="text-shimmer mx-auto mt-5 max-w-[18ch] font-display font-bold tracking-tighter leading-[1.06] text-4xl sm:text-6xl md:text-7xl lg:text-8xl drop-shadow-lg">
@@ -277,7 +277,7 @@ export const Hero = ({ settings }: { settings?: any }) => {
         {/* Status badge */}
         <span className="inline-flex items-center gap-2 border border-accent/30 bg-accent/10 px-3.5 py-1 font-mono text-[9px] tracking-widest text-accent rounded-full uppercase mb-4">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          {td("Loyiha uchun mavjud")}
+          {td("Ruebensh")}
         </span>
 
         {/* Name */}
