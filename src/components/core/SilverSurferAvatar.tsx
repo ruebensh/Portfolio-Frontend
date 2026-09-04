@@ -33,6 +33,7 @@ export function SilverSurferAvatar({
     emotion: "FRIENDLY",
   });
   const [showSpeech, setShowSpeech] = useState(true);
+  const [hasWebgl, setHasWebgl] = useState(true);
   const [idleTimerSec, setIdleTimerSec] = useState(0);
 
   // Three.js references
@@ -57,12 +58,19 @@ export function SilverSurferAvatar({
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
     camera.position.set(0, 0, 5);
 
-    // Renderer
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
-    container.appendChild(renderer.domElement);
+    // Renderer with WebGL error safety catch
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, failIfMajorPerformanceCaveat: false });
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      container.appendChild(renderer.domElement);
+    } catch (err) {
+      console.warn("WebGL context disabled or unsupported in browser/VM. Falling back smoothly:", err);
+      setHasWebgl(false);
+      return;
+    }
 
     // Lights
     const ambientLight = new THREE.AmbientLight(0xffffff, 1.8);
@@ -138,10 +146,20 @@ export function SilverSurferAvatar({
         model.scale.set(0.85, 0.85, 0.85);
         model.position.set(0, 0.05, 0);
 
-        // Ensure materials display nicely
+        // Ensure materials display as a sleek Silver Surfer Liquid Chrome Superhero
+        const silverSurferMaterial = new THREE.MeshPhysicalMaterial({
+          color: 0xddeeff,
+          metalness: 0.95,
+          roughness: 0.12,
+          clearcoat: 1.0,
+          clearcoatRoughness: 0.1,
+          reflectivity: 0.9,
+        });
+
         model.traverse((child) => {
           if ((child as THREE.Mesh).isMesh) {
             const mesh = child as THREE.Mesh;
+            mesh.material = silverSurferMaterial;
             mesh.castShadow = true;
             mesh.receiveShadow = true;
           }
@@ -281,6 +299,27 @@ export function SilverSurferAvatar({
     <div className="fixed inset-0 pointer-events-none z-30 overflow-hidden">
       {/* Three.js 3D Canvas Container */}
       <div ref={containerRef} className="w-full h-full" />
+
+      {/* Fallback 2D Avatar Badge for VirtualBox / Non-WebGL Browsers */}
+      {!hasWebgl && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="absolute bottom-28 right-6 md:right-16 flex items-center gap-3 p-3.5 rounded-2xl border border-accent/40 bg-[#0c0c1a]/90 backdrop-blur-xl text-white shadow-[0_0_35px_rgba(244,201,93,0.3)] pointer-events-auto"
+        >
+          <div className="relative w-12 h-12 rounded-xl bg-accent/20 border border-accent/40 overflow-hidden flex items-center justify-center text-xl shrink-0">
+            🤖
+          </div>
+          <div>
+            <span className="font-mono text-[9px] text-accent uppercase tracking-widest font-bold block">
+              3D AI Yo'lboshchi (Silver Surfer)
+            </span>
+            <span className="font-mono text-[10px] text-emerald-400 flex items-center gap-1 font-semibold">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> AI Director Active
+            </span>
+          </div>
+        </motion.div>
+      )}
 
       {/* Floating Dynamic Thought / Speech Bubble */}
       <AnimatePresence>
