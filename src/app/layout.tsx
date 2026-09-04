@@ -8,6 +8,7 @@ import { LanguageProvider } from "@/context/LanguageContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { GlobalVideoBackground } from "@/components/ui/GlobalVideoBackground";
 import { GlobalPreloader } from "@/components/ui/GlobalPreloader";
+import { SilverSurferAvatar } from "@/components/core/SilverSurferAvatar";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
@@ -41,6 +42,7 @@ export default function RootLayout({
         {/* Global fixed video background — sits behind ALL content */}
         <GlobalVideoBackground />
         <GlobalPreloader />
+        <SilverSurferAvatar />
         <ThemeProvider>
           <LanguageProvider>
             <SmoothScrollProvider>
