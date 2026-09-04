@@ -7,6 +7,7 @@ import { Footer } from "@/components/ui/Footer";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { GlobalVideoBackground } from "@/components/ui/GlobalVideoBackground";
+import { GlobalPreloader } from "@/components/ui/GlobalPreloader";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
@@ -39,6 +40,7 @@ export default function RootLayout({
       <body className="antialiased text-foreground transition-colors duration-300 min-h-screen flex flex-col justify-between" style={{ backgroundColor: "#050505" }}>
         {/* Global fixed video background — sits behind ALL content */}
         <GlobalVideoBackground />
+        <GlobalPreloader />
         <ThemeProvider>
           <LanguageProvider>
             <SmoothScrollProvider>
