@@ -229,3 +229,23 @@ export const uploadFile = async (file: File) => {
   }
   throw new Error("Fayl yuklashda xatolik yuz berdi");
 };
+
+export async function getAvatarDecision(context: {
+  section: string;
+  device?: string;
+  eventType: string;
+  idleTimeSec?: number;
+  lang?: string;
+  userPrompt?: string;
+}) {
+  try {
+    const res = await fetch(`${API_URL}/ai/avatar/decision`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(context),
+    });
+    if (res.ok) return await res.json();
+  } catch {}
+  return null;
+}
+

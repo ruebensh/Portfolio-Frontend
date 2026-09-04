@@ -4,6 +4,7 @@ import { ProfileCardTransitionSection } from "@/components/sections/ProfileCardT
 import { SkillsSection } from "@/components/sections/SkillsSection";
 import { ExperienceSection } from "@/components/sections/ExperienceSection";
 import { ContactSection } from "@/components/sections/ContactSection";
+import { SilverSurferAvatar } from "@/components/core/SilverSurferAvatar";
 import { getProjects, getSkills, getSettings, getExperience } from "@/lib/api";
 
 export default async function Home() {
@@ -15,7 +16,11 @@ export default async function Home() {
   ]);
 
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen relative">
+      {/* 3D Cyber-Surfer Avatar Engine & AI Director */}
+      <SilverSurferAvatar />
+
+      {/* 1. Cinematic Hero — 3D frame sequence + floating cards */}
       {/* 1. Cinematic Hero — 3D frame sequence + floating cards */}
       <Hero settings={settings} />
 
