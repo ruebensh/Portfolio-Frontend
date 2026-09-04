@@ -46,6 +46,7 @@ export function SilverSurferAvatar({
   const particlesRef = useRef<THREE.Points | null>(null);
   const laserMeshRef = useRef<THREE.Mesh | null>(null);
   const shockwaveMeshRef = useRef<THREE.Mesh | null>(null);
+  const shieldMeshRef = useRef<THREE.Mesh | null>(null);
 
   // Mouse & Target Animation State
   const mouseRef = useRef({ x: 0, y: 0 });
@@ -53,6 +54,7 @@ export function SilverSurferAvatar({
   const flipAngleRef = useRef(0);
   const rollAngleRef = useRef(0);
   const shockwaveScaleRef = useRef(0);
+  const squashStretchRef = useRef({ sy: 1, sxz: 1 });
 
   const targetPosRef = useRef({
     x: 1.5,
@@ -70,7 +72,7 @@ export function SilverSurferAvatar({
   const scrollAttemptRef = useRef(0);
   const isLockedRef = useRef(false);
 
-  // 1. Initialize Three.js 3D Engine & VFX
+  // 1. Initialize Three.js 3D Engine & Procedural Silver Surfer Engine
   useEffect(() => {
     if (!containerRef.current) return;
     const container = containerRef.current;
@@ -101,18 +103,18 @@ export function SilverSurferAvatar({
     }
 
     // Lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.8);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 2.0);
     scene.add(ambientLight);
 
-    const dirLight = new THREE.DirectionalLight(0xffffff, 2.5);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 2.8);
     dirLight.position.set(5, 8, 5);
     scene.add(dirLight);
 
-    const cyanPointLight = new THREE.PointLight(0x00f0ff, 3.5, 10);
+    const cyanPointLight = new THREE.PointLight(0x00f0ff, 4, 12);
     cyanPointLight.position.set(0, -1, 1);
     scene.add(cyanPointLight);
 
-    const goldPointLight = new THREE.PointLight(0xf4c95d, 2.5, 10);
+    const goldPointLight = new THREE.PointLight(0xf4c95d, 3, 12);
     goldPointLight.position.set(2, 2, -1);
     scene.add(goldPointLight);
 
@@ -127,12 +129,12 @@ export function SilverSurferAvatar({
     avatarGroup.add(boardGroup);
     hoverboardMeshRef.current = boardGroup;
 
-    // Board Body (Metallic Chrome)
+    // Board Body (Metallic Dark Chrome)
     const boardGeo = new THREE.BoxGeometry(0.7, 0.08, 1.8);
     const boardMat = new THREE.MeshStandardMaterial({
-      color: 0x111122,
+      color: 0x0a0a16,
       metalness: 0.95,
-      roughness: 0.15,
+      roughness: 0.1,
     });
     const boardMesh = new THREE.Mesh(boardGeo, boardMat);
     boardGroup.add(boardMesh);
@@ -144,8 +146,20 @@ export function SilverSurferAvatar({
     trimMesh.position.y = -0.02;
     boardGroup.add(trimMesh);
 
+    // Foot Binding Holographic Cyan Neon Rings (On Top of Hoverboard)
+    const footRingGeo = new THREE.RingGeometry(0.08, 0.12, 16);
+    footRingGeo.rotateX(Math.PI / 2);
+    const footRingMat = new THREE.MeshBasicMaterial({ color: 0x00ffff, side: THREE.DoubleSide });
+    const leftFootRing = new THREE.Mesh(footRingGeo, footRingMat);
+    leftFootRing.position.set(-0.15, 0.041, 0.25);
+    boardGroup.add(leftFootRing);
+
+    const rightFootRing = new THREE.Mesh(footRingGeo, footRingMat);
+    rightFootRing.position.set(0.15, 0.041, -0.25);
+    boardGroup.add(rightFootRing);
+
     // VFX 1: Laser Beam Cylinder (Front Thruster / Blaster)
-    const laserGeo = new THREE.CylinderGeometry(0.04, 0.1, 8, 16);
+    const laserGeo = new THREE.CylinderGeometry(0.04, 0.12, 8, 16);
     laserGeo.rotateX(Math.PI / 2);
     laserGeo.translate(0, 0, 4);
     const laserMat = new THREE.MeshBasicMaterial({
@@ -160,7 +174,7 @@ export function SilverSurferAvatar({
     laserMeshRef.current = laserMesh;
 
     // VFX 2: Sonic Shockwave Ring
-    const shockGeo = new THREE.RingGeometry(0.2, 0.4, 32);
+    const shockGeo = new THREE.RingGeometry(0.2, 0.45, 32);
     shockGeo.rotateX(Math.PI / 2);
     const shockMat = new THREE.MeshBasicMaterial({
       color: 0xf4c95d,
@@ -170,9 +184,23 @@ export function SilverSurferAvatar({
       blending: THREE.AdditiveBlending,
     });
     const shockMesh = new THREE.Mesh(shockGeo, shockMat);
-    shockMesh.position.set(0, -0.1, 0);
+    shockMesh.position.set(0, -0.08, 0);
     boardGroup.add(shockMesh);
     shockwaveMeshRef.current = shockMesh;
+
+    // VFX 3: Quantum Energy Shield Bubble
+    const shieldGeo = new THREE.IcosahedronGeometry(0.95, 2);
+    const shieldMat = new THREE.MeshBasicMaterial({
+      color: 0x00f0ff,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.15,
+      blending: THREE.AdditiveBlending,
+    });
+    const shieldMesh = new THREE.Mesh(shieldGeo, shieldMat);
+    shieldMesh.position.set(0, 0.6, 0);
+    avatarGroup.add(shieldMesh);
+    shieldMeshRef.current = shieldMesh;
 
     // Thruster Cosmic Particles
     const pCount = 100;
@@ -194,15 +222,13 @@ export function SilverSurferAvatar({
     boardGroup.add(particles);
     particlesRef.current = particles;
 
-    // Load Jaloliddin.glb Avatar & Apply Liquid-Platinum Silver Surfer Material
+    // Load Jaloliddin.glb Avatar & Auto-Align Feet ON TOP of Hoverboard
     const loader = new GLTFLoader();
     loader.load(
       "/Jaloliddin.glb",
       (gltf) => {
         const model = gltf.scene;
         avatarModelRef.current = model;
-        model.scale.set(0.85, 0.85, 0.85);
-        model.position.set(0, 0.05, 0);
 
         // Silver Surfer Chrome Superhero Shader Material
         const silverSurferMat = new THREE.MeshPhysicalMaterial({
@@ -222,6 +248,28 @@ export function SilverSurferAvatar({
             mesh.receiveShadow = true;
           }
         });
+
+        // Compute Bounding Box to automatically align feet ON TOP of the hoverboard (y = 0.04)
+        const initialBox = new THREE.Box3().setFromObject(model);
+        const size = new THREE.Vector3();
+        initialBox.getSize(size);
+        const maxDim = Math.max(size.x, size.y, size.z);
+
+        // Normalize scale to ~1.4 units tall
+        const targetScale = maxDim > 0 ? 1.4 / maxDim : 0.85;
+        model.scale.set(targetScale, targetScale, targetScale);
+
+        // Re-compute bounding box after scale to position feet at y = 0.04
+        const scaledBox = new THREE.Box3().setFromObject(model);
+        const center = new THREE.Vector3();
+        scaledBox.getCenter(center);
+
+        model.position.x = -center.x;
+        model.position.z = -center.z;
+        model.position.y = -scaledBox.min.y + 0.04;
+
+        // Diagonal Surfer Stance Angle on the Hoverboard
+        model.rotation.y = Math.PI / 5;
 
         avatarGroup.add(model);
       },
@@ -260,8 +308,8 @@ export function SilverSurferAvatar({
         const tp = targetPosRef.current;
 
         // Smooth Mouse Lean (Interactive Freedom)
-        const mouseLeanX = mouseRef.current.x * 0.3;
-        const mouseLeanY = mouseRef.current.y * 0.2;
+        const mouseLeanX = mouseRef.current.x * 0.35;
+        const mouseLeanY = mouseRef.current.y * 0.25;
 
         // Position Lerp
         ag.position.x += (tp.x + mouseLeanX * 0.5 - ag.position.x) * 0.06;
@@ -272,6 +320,7 @@ export function SilverSurferAvatar({
         if (flipAngleRef.current > 0) {
           ag.rotation.x += 0.25;
           flipAngleRef.current -= 0.25;
+          squashStretchRef.current = { sy: 1.25, sxz: 0.8 };
           if (flipAngleRef.current <= 0) flipAngleRef.current = 0;
         } else {
           ag.rotation.x += (tp.rotX - mouseLeanY * 0.2 - ag.rotation.x) * 0.06;
@@ -280,6 +329,7 @@ export function SilverSurferAvatar({
         if (rollAngleRef.current > 0) {
           ag.rotation.z += 0.3;
           rollAngleRef.current -= 0.3;
+          squashStretchRef.current = { sy: 0.9, sxz: 1.15 };
           if (rollAngleRef.current <= 0) rollAngleRef.current = 0;
         } else {
           ag.rotation.z += (tp.rotZ + Math.sin(time * 1.8) * 0.06 + mouseLeanX * 0.3 - ag.rotation.z) * 0.06;
@@ -288,14 +338,36 @@ export function SilverSurferAvatar({
         // Rotation Lerp
         ag.rotation.y += (tp.rotY + tp.boardSpinY + mouseLeanX * 0.4 - ag.rotation.y) * 0.06;
 
-        // Jump decay
-        if (tp.jumpY > 0) tp.jumpY *= 0.92;
+        // Jump & Squash/Stretch Decay
+        if (tp.jumpY > 0) {
+          tp.jumpY *= 0.92;
+        }
+        squashStretchRef.current.sy += (1 - squashStretchRef.current.sy) * 0.08;
+        squashStretchRef.current.sxz += (1 - squashStretchRef.current.sxz) * 0.08;
       }
 
-      // Procedural Head & Model Kinematics
+      // Procedural Surfer Body Kinematics & Speech Pulse
       if (avatarModelRef.current) {
-        const tp = targetPosRef.current;
-        avatarModelRef.current.rotation.y = Math.sin(time * 3) * tp.headShake * 0.2 + mouseRef.current.x * 0.2;
+        const model = avatarModelRef.current;
+        const speechPulse = showSpeech ? Math.sin(time * 12) * 0.02 : 0;
+        const waveBob = Math.sin(time * 4) * 0.03;
+
+        // Apply dynamic surfer stance tilt & speech pulse
+        model.rotation.z = Math.PI / 24 + speechPulse + mouseRef.current.x * 0.1;
+        model.rotation.x = waveBob;
+
+        // Apply Squash & Stretch physics to avatar model
+        model.scale.y = 1.0 * squashStretchRef.current.sy + speechPulse;
+        model.scale.x = 1.0 * squashStretchRef.current.sxz;
+        model.scale.z = 1.0 * squashStretchRef.current.sxz;
+      }
+
+      // Animate Quantum Shield Mesh
+      if (shieldMeshRef.current) {
+        shieldMeshRef.current.rotation.y = time * 0.5;
+        shieldMeshRef.current.rotation.z = Math.sin(time * 0.8) * 0.2;
+        const mat = shieldMeshRef.current.material as THREE.MeshBasicMaterial;
+        mat.opacity = 0.1 + Math.sin(time * 4) * 0.05 + (activeVfx !== "none" ? 0.3 : 0);
       }
 
       // Animate Laser Beam VFX
@@ -345,9 +417,9 @@ export function SilverSurferAvatar({
         container.removeChild(renderer.domElement);
       }
     };
-  }, [activeVfx]);
+  }, [activeVfx, showSpeech]);
 
-  // 2. Direct 3D Raycasting Canvas Click Listener (Click on Silver Surfer for Stunts)
+  // 2. Direct 3D Raycasting Canvas Click Listener
   const handleCanvasClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cameraRef.current || !sceneRef.current) return;
     const rect = containerRef.current?.getBoundingClientRect();
@@ -360,7 +432,6 @@ export function SilverSurferAvatar({
     const intersects = raycasterRef.current.intersectObjects(sceneRef.current.children, true);
 
     if (intersects.length > 0) {
-      // User clicked on 3D Surfer or Hoverboard! Trigger dynamic stunt!
       triggerStunt("SPIN");
     }
   };
