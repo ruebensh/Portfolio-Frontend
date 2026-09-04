@@ -29,20 +29,31 @@ export function SilverSurferAvatar({
   const containerRef = useRef<HTMLDivElement>(null);
   const [currentDecision, setCurrentDecision] = useState<AvatarActionPayload>({
     actionId: "HERO_INTRO_PEEK",
-    speech: "Salom! Men sizning 3D AI yo'lboshchingizman. 🚀 Shoshmang, avval meni eshiting!",
+    speech: "Salom! Men sizning 3D AI Yo'lboshchingizman. 🚀 Meni bosib ko'ring yoki laser/trick tugmalarini sinang!",
     emotion: "FRIENDLY",
   });
   const [showSpeech, setShowSpeech] = useState(true);
   const [hasWebgl, setHasWebgl] = useState(true);
+  const [isHudOpen, setIsHudOpen] = useState(true);
+  const [activeVfx, setActiveVfx] = useState<"none" | "laser" | "sonic">("none");
 
   // Three.js References
   const sceneRef = useRef<THREE.Scene | null>(null);
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const avatarGroupRef = useRef<THREE.Group | null>(null);
   const avatarModelRef = useRef<THREE.Group | null>(null);
   const hoverboardMeshRef = useRef<THREE.Group | null>(null);
   const particlesRef = useRef<THREE.Points | null>(null);
+  const laserMeshRef = useRef<THREE.Mesh | null>(null);
+  const shockwaveMeshRef = useRef<THREE.Mesh | null>(null);
 
-  // Procedural Animation State Targets
+  // Mouse & Target Animation State
+  const mouseRef = useRef({ x: 0, y: 0 });
+  const raycasterRef = useRef(new THREE.Raycaster());
+  const flipAngleRef = useRef(0);
+  const rollAngleRef = useRef(0);
+  const shockwaveScaleRef = useRef(0);
+
   const targetPosRef = useRef({
     x: 1.5,
     y: -0.2,
@@ -56,11 +67,10 @@ export function SilverSurferAvatar({
     headShake: 0,
   });
 
-  // Track user scroll attempts for humorous dialogue progression
   const scrollAttemptRef = useRef(0);
   const isLockedRef = useRef(false);
 
-  // 1. Initialize Three.js 3D Engine & Procedural Silver Surfer Avatar
+  // 1. Initialize Three.js 3D Engine & VFX
   useEffect(() => {
     if (!containerRef.current) return;
     const container = containerRef.current;
@@ -74,6 +84,7 @@ export function SilverSurferAvatar({
     // Camera
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
     camera.position.set(0, 0, 5);
+    cameraRef.current = camera;
 
     // Renderer
     let renderer: THREE.WebGLRenderer;
@@ -97,7 +108,7 @@ export function SilverSurferAvatar({
     dirLight.position.set(5, 8, 5);
     scene.add(dirLight);
 
-    const cyanPointLight = new THREE.PointLight(0x00f0ff, 3, 10);
+    const cyanPointLight = new THREE.PointLight(0x00f0ff, 3.5, 10);
     cyanPointLight.position.set(0, -1, 1);
     scene.add(cyanPointLight);
 
@@ -133,21 +144,51 @@ export function SilverSurferAvatar({
     trimMesh.position.y = -0.02;
     boardGroup.add(trimMesh);
 
-    // Board Thruster Cosmic Particles
-    const pCount = 80;
+    // VFX 1: Laser Beam Cylinder (Front Thruster / Blaster)
+    const laserGeo = new THREE.CylinderGeometry(0.04, 0.1, 8, 16);
+    laserGeo.rotateX(Math.PI / 2);
+    laserGeo.translate(0, 0, 4);
+    const laserMat = new THREE.MeshBasicMaterial({
+      color: 0x00ffff,
+      transparent: true,
+      opacity: 0,
+      blending: THREE.AdditiveBlending,
+    });
+    const laserMesh = new THREE.Mesh(laserGeo, laserMat);
+    laserMesh.position.set(0, 0, 0.9);
+    boardGroup.add(laserMesh);
+    laserMeshRef.current = laserMesh;
+
+    // VFX 2: Sonic Shockwave Ring
+    const shockGeo = new THREE.RingGeometry(0.2, 0.4, 32);
+    shockGeo.rotateX(Math.PI / 2);
+    const shockMat = new THREE.MeshBasicMaterial({
+      color: 0xf4c95d,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0,
+      blending: THREE.AdditiveBlending,
+    });
+    const shockMesh = new THREE.Mesh(shockGeo, shockMat);
+    shockMesh.position.set(0, -0.1, 0);
+    boardGroup.add(shockMesh);
+    shockwaveMeshRef.current = shockMesh;
+
+    // Thruster Cosmic Particles
+    const pCount = 100;
     const pGeo = new THREE.BufferGeometry();
     const pPos = new Float32Array(pCount * 3);
     for (let i = 0; i < pCount * 3; i += 3) {
       pPos[i] = (Math.random() - 0.5) * 0.4;
       pPos[i + 1] = (Math.random() - 0.5) * 0.1 - 0.1;
-      pPos[i + 2] = -0.9 - Math.random() * 1.0;
+      pPos[i + 2] = -0.9 - Math.random() * 1.2;
     }
     pGeo.setAttribute("position", new THREE.BufferAttribute(pPos, 3));
     const pMat = new THREE.PointsMaterial({
       color: 0xf4c95d,
-      size: 0.07,
+      size: 0.08,
       transparent: true,
-      opacity: 0.85,
+      opacity: 0.9,
     });
     const particles = new THREE.Points(pGeo, pMat);
     boardGroup.add(particles);
@@ -188,7 +229,14 @@ export function SilverSurferAvatar({
       (err) => console.warn("Failed to load /Jaloliddin.glb avatar, rendering hoverboard:", err)
     );
 
-    // Resize Listener
+    // Mouse Tracking Event Listener
+    const handlePointerMove = (e: MouseEvent) => {
+      mouseRef.current.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouseRef.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    };
+    window.addEventListener("mousemove", handlePointerMove);
+
+    // Window Resize Listener
     const handleResize = () => {
       if (!containerRef.current) return;
       const w = containerRef.current.clientWidth || window.innerWidth;
@@ -199,7 +247,7 @@ export function SilverSurferAvatar({
     };
     window.addEventListener("resize", handleResize);
 
-    // 60 FPS Procedural Animation Engine Loop
+    // 60 FPS Animation Engine Loop
     let animId: number;
     let clock = new THREE.Clock();
 
@@ -211,32 +259,75 @@ export function SilverSurferAvatar({
         const ag = avatarGroupRef.current;
         const tp = targetPosRef.current;
 
+        // Smooth Mouse Lean (Interactive Freedom)
+        const mouseLeanX = mouseRef.current.x * 0.3;
+        const mouseLeanY = mouseRef.current.y * 0.2;
+
         // Position Lerp
-        ag.position.x += (tp.x - ag.position.x) * 0.06;
-        ag.position.y += (tp.y + Math.sin(time * 2.2) * 0.09 + tp.jumpY - ag.position.y) * 0.06;
+        ag.position.x += (tp.x + mouseLeanX * 0.5 - ag.position.x) * 0.06;
+        ag.position.y += (tp.y + Math.sin(time * 2.2) * 0.09 + tp.jumpY + mouseLeanY * 0.4 - ag.position.y) * 0.06;
         ag.position.z += (tp.z - ag.position.z) * 0.06;
 
-        // Rotation Lerp
-        ag.rotation.y += (tp.rotY + tp.boardSpinY - ag.rotation.y) * 0.06;
-        ag.rotation.z += (tp.rotZ + Math.sin(time * 1.8) * 0.06 - ag.rotation.z) * 0.06;
-        ag.rotation.x += (tp.rotX - ag.rotation.x) * 0.06;
+        // Dynamic Backflip & Barrel Roll Rotations
+        if (flipAngleRef.current > 0) {
+          ag.rotation.x += 0.25;
+          flipAngleRef.current -= 0.25;
+          if (flipAngleRef.current <= 0) flipAngleRef.current = 0;
+        } else {
+          ag.rotation.x += (tp.rotX - mouseLeanY * 0.2 - ag.rotation.x) * 0.06;
+        }
 
-        // Jump impulse decay
+        if (rollAngleRef.current > 0) {
+          ag.rotation.z += 0.3;
+          rollAngleRef.current -= 0.3;
+          if (rollAngleRef.current <= 0) rollAngleRef.current = 0;
+        } else {
+          ag.rotation.z += (tp.rotZ + Math.sin(time * 1.8) * 0.06 + mouseLeanX * 0.3 - ag.rotation.z) * 0.06;
+        }
+
+        // Rotation Lerp
+        ag.rotation.y += (tp.rotY + tp.boardSpinY + mouseLeanX * 0.4 - ag.rotation.y) * 0.06;
+
+        // Jump decay
         if (tp.jumpY > 0) tp.jumpY *= 0.92;
       }
 
-      // Procedural Head & Arm Joint Control
+      // Procedural Head & Model Kinematics
       if (avatarModelRef.current) {
         const tp = targetPosRef.current;
-        avatarModelRef.current.rotation.y = Math.sin(time * 3) * tp.headShake * 0.2;
+        avatarModelRef.current.rotation.y = Math.sin(time * 3) * tp.headShake * 0.2 + mouseRef.current.x * 0.2;
       }
 
-      // Animate Thruster Particles
+      // Animate Laser Beam VFX
+      if (laserMeshRef.current) {
+        const mat = laserMeshRef.current.material as THREE.MeshBasicMaterial;
+        if (activeVfx === "laser") {
+          mat.opacity = 0.85 + Math.sin(time * 25) * 0.15;
+          laserMeshRef.current.scale.set(1 + Math.sin(time * 20) * 0.2, 1, 1);
+        } else {
+          mat.opacity = 0;
+        }
+      }
+
+      // Animate Sonic Shockwave VFX
+      if (shockwaveMeshRef.current) {
+        const mat = shockwaveMeshRef.current.material as THREE.MeshBasicMaterial;
+        if (shockwaveScaleRef.current > 0) {
+          shockwaveScaleRef.current += 0.15;
+          shockwaveMeshRef.current.scale.set(shockwaveScaleRef.current, shockwaveScaleRef.current, 1);
+          mat.opacity = Math.max(0, 1 - shockwaveScaleRef.current / 4);
+          if (shockwaveScaleRef.current > 4) shockwaveScaleRef.current = 0;
+        } else {
+          mat.opacity = 0;
+        }
+      }
+
+      // Thruster Particle Velocity
       if (particlesRef.current) {
         const posArr = particlesRef.current.geometry.attributes.position.array as Float32Array;
         for (let i = 2; i < posArr.length; i += 3) {
-          posArr[i] -= 0.04;
-          if (posArr[i] < -1.8) posArr[i] = -0.9;
+          posArr[i] -= 0.05;
+          if (posArr[i] < -2.0) posArr[i] = -0.9;
         }
         particlesRef.current.geometry.attributes.position.needsUpdate = true;
       }
@@ -246,6 +337,7 @@ export function SilverSurferAvatar({
     animate();
 
     return () => {
+      window.removeEventListener("mousemove", handlePointerMove);
       window.removeEventListener("resize", handleResize);
       cancelAnimationFrame(animId);
       renderer.dispose();
@@ -253,9 +345,99 @@ export function SilverSurferAvatar({
         container.removeChild(renderer.domElement);
       }
     };
-  }, []);
+  }, [activeVfx]);
 
-  // 2. Map AI Director Action Decisions to 3D Procedural Postures & Transforms
+  // 2. Direct 3D Raycasting Canvas Click Listener (Click on Silver Surfer for Stunts)
+  const handleCanvasClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cameraRef.current || !sceneRef.current) return;
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    const y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+    raycasterRef.current.setFromCamera(new THREE.Vector2(x, y), cameraRef.current);
+    const intersects = raycasterRef.current.intersectObjects(sceneRef.current.children, true);
+
+    if (intersects.length > 0) {
+      // User clicked on 3D Surfer or Hoverboard! Trigger dynamic stunt!
+      triggerStunt("SPIN");
+    }
+  };
+
+  // 3. Trigger Interactive Stunts & Animations
+  const triggerStunt = (type: "SPIN" | "FLIP" | "LASER" | "SONIC" | "ASK_AI" | "CYBER_DANCE") => {
+    setShowSpeech(true);
+
+    switch (type) {
+      case "SPIN":
+        rollAngleRef.current = Math.PI * 2;
+        targetPosRef.current.jumpY = 0.4;
+        setCurrentDecision({
+          actionId: "STUNT_SPIN",
+          speech: "🚀 360° Barrel Roll! Fazoviy giper-tezlik ishga tushdi!",
+          emotion: "FRIENDLY",
+        });
+        break;
+      case "FLIP":
+        flipAngleRef.current = Math.PI * 2;
+        targetPosRef.current.jumpY = 0.6;
+        setCurrentDecision({
+          actionId: "STUNT_BACKFLIP",
+          speech: "🤸 Akrobatik Backflip! Gravitatsiya men uchun muammo emas!",
+          emotion: "FRIENDLY",
+        });
+        break;
+      case "LASER":
+        setActiveVfx("laser");
+        setTimeout(() => setActiveVfx("none"), 2500);
+        setCurrentDecision({
+          actionId: "LASER_BLAST",
+          speech: "⚡ Plasma Laser Beam! Kosmik kvant nuri otildi!",
+          emotion: "FRIENDLY",
+        });
+        break;
+      case "SONIC":
+        shockwaveScaleRef.current = 0.2;
+        setCurrentDecision({
+          actionId: "SONIC_WAVE",
+          speech: "💥 Sonik Tovush To'lqini! Ekrandagi barcha ionlar tebrandi!",
+          emotion: "FRIENDLY",
+        });
+        break;
+      case "CYBER_DANCE":
+        targetPosRef.current = {
+          x: 0,
+          y: 0.2,
+          z: 0.8,
+          rotY: 0,
+          rotZ: 0.2,
+          rotX: 0,
+          boardSpinY: Math.PI * 4,
+          jumpY: 0.3,
+          armAngle: 1,
+          headShake: 1,
+        };
+        setCurrentDecision({
+          actionId: "CYBER_DANCE",
+          speech: "🕺 Kiber-Raqs Mode! Neyron tarmoqlari maromida tebranmoqda!",
+          emotion: "FRIENDLY",
+        });
+        break;
+      case "ASK_AI":
+        getAvatarDecision({
+          section: currentSection,
+          device: window.innerWidth < 768 ? "mobile" : "desktop",
+          eventType: "USER_CLICK",
+          lang,
+        }).then((data) => {
+          if (data) setCurrentDecision(data);
+        });
+        break;
+    }
+  };
+
+  // 4. Map Section & AI Director Decisions to 3D Postures
   useEffect(() => {
     if (!currentDecision) return;
     const act = currentDecision.actionId;
@@ -291,12 +473,10 @@ export function SilverSurferAvatar({
       case "MOON_SCARED":
         targetPosRef.current = { x: -1.4, y: -0.85, z: 0.5, rotY: 0.45, rotZ: -0.22, rotX: 0.2, boardSpinY: 0, jumpY: 0.2, armAngle: 0, headShake: 1 };
         break;
-      default:
-        targetPosRef.current = { x: 1.5, y: -0.2, z: 0, rotY: -0.3, rotZ: 0, rotX: 0, boardSpinY: 0, jumpY: 0, armAngle: 0, headShake: 0 };
     }
   }, [currentDecision]);
 
-  // 3. User Scroll Interception & AI Humorous Dialogue Director Trigger
+  // 5. Scroll Interception & AI Humorous Dialogue Director
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
       if (currentSection === "hero" && e.deltaY > 0) {
@@ -314,13 +494,11 @@ export function SilverSurferAvatar({
             setCurrentDecision(data);
             setShowSpeech(true);
 
-            // Handle Scroll Lock Request
             if (data.scrollLockRequested) {
               isLockedRef.current = true;
               document.body.style.overflow = "hidden";
               if (onScrollLockChange) onScrollLockChange(true);
 
-              // Auto-unlock after speech duration
               setTimeout(() => {
                 isLockedRef.current = false;
                 document.body.style.overflow = "";
@@ -339,38 +517,34 @@ export function SilverSurferAvatar({
     };
   }, [currentSection, lang, onScrollLockChange]);
 
-  // 4. Mobile Double-Tap High Five Gesture Listener
+  // 6. Autonomous AI Director Loop (Heartbeat every 16 seconds if idle)
   useEffect(() => {
-    let lastTap = 0;
-    const handleTouchStart = (e: TouchEvent) => {
-      const currentTime = new Date().getTime();
-      const tapLength = currentTime - lastTap;
-      if (tapLength < 300 && tapLength > 0) {
-        // Double tap detected!
-        getAvatarDecision({
-          section: currentSection,
-          device: "mobile",
-          eventType: "DOUBLE_TAP",
-          lang,
-        }).then((data) => {
-          if (data) {
-            setCurrentDecision(data);
-            setShowSpeech(true);
-          }
-        });
-        e.preventDefault();
-      }
-      lastTap = currentTime;
-    };
+    const interval = setInterval(() => {
+      getAvatarDecision({
+        section: currentSection,
+        device: window.innerWidth < 768 ? "mobile" : "desktop",
+        eventType: "IDLE_BEAT",
+        lang,
+      }).then((data) => {
+        if (data) {
+          setCurrentDecision(data);
+          setShowSpeech(true);
+        }
+      });
+    }, 16000);
 
-    window.addEventListener("touchstart", handleTouchStart, { passive: false });
-    return () => window.removeEventListener("touchstart", handleTouchStart);
+    return () => clearInterval(interval);
   }, [currentSection, lang]);
 
   return (
     <div className="fixed inset-0 pointer-events-none z-30 overflow-hidden">
-      {/* Three.js 3D Canvas Container */}
-      <div ref={containerRef} className="w-full h-full" />
+      {/* 3D WebGL Canvas Container */}
+      <div
+        ref={containerRef}
+        onClick={handleCanvasClick}
+        className="w-full h-full pointer-events-auto cursor-pointer"
+        title="Silver Surfer avatarini bosib harakatlantiring!"
+      />
 
       {/* Fallback 2D Avatar Badge for VirtualBox / Non-WebGL Browsers */}
       {!hasWebgl && (
@@ -393,7 +567,76 @@ export function SilverSurferAvatar({
         </motion.div>
       )}
 
-      {/* Floating Dynamic Thought / Speech Bubble */}
+      {/* Interactive Quick Stunt Control HUD */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="absolute bottom-6 right-6 z-40 pointer-events-auto flex items-center gap-2"
+      >
+        <button
+          onClick={() => setIsHudOpen(!isHudOpen)}
+          className="w-10 h-10 rounded-full bg-[#0d0d1a]/90 border border-accent/40 text-accent hover:bg-accent/20 flex items-center justify-center transition-all shadow-[0_0_20px_rgba(244,201,93,0.2)] text-base font-bold"
+          title="Stunt va AI menyusini ko'rsatish/yashirish"
+        >
+          ⚡
+        </button>
+
+        <AnimatePresence>
+          {isHudOpen && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, x: 20 }}
+              animate={{ opacity: 1, scale: 1, x: 0 }}
+              exit={{ opacity: 0, scale: 0.9, x: 20 }}
+              className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-[#0c0c1b]/95 border border-accent/30 backdrop-blur-xl shadow-[0_0_30px_rgba(0,0,0,0.5)]"
+            >
+              <button
+                onClick={() => triggerStunt("SPIN")}
+                className="px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-accent/20 border border-white/10 text-xs font-mono font-semibold text-white transition-all flex items-center gap-1"
+                title="360° Barrel Roll"
+              >
+                🚀 Roll
+              </button>
+              <button
+                onClick={() => triggerStunt("FLIP")}
+                className="px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-accent/20 border border-white/10 text-xs font-mono font-semibold text-white transition-all flex items-center gap-1"
+                title="Backflip acrobatics"
+              >
+                🤸 Flip
+              </button>
+              <button
+                onClick={() => triggerStunt("LASER")}
+                className="px-2.5 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/30 border border-cyan-400/40 text-xs font-mono font-semibold text-cyan-300 transition-all flex items-center gap-1"
+                title="Laser Plasma Beam"
+              >
+                ⚡ Laser
+              </button>
+              <button
+                onClick={() => triggerStunt("SONIC")}
+                className="px-2.5 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/30 border border-amber-400/40 text-xs font-mono font-semibold text-amber-300 transition-all flex items-center gap-1"
+                title="Sonic Shockwave"
+              >
+                💥 Wave
+              </button>
+              <button
+                onClick={() => triggerStunt("CYBER_DANCE")}
+                className="px-2.5 py-1.5 rounded-xl bg-purple-500/10 hover:bg-purple-500/30 border border-purple-400/40 text-xs font-mono font-semibold text-purple-300 transition-all flex items-center gap-1"
+                title="Cyber Dance Stunt"
+              >
+                🕺 Dance
+              </button>
+              <button
+                onClick={() => triggerStunt("ASK_AI")}
+                className="px-2.5 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/40 border border-emerald-400/50 text-xs font-mono font-bold text-emerald-300 transition-all flex items-center gap-1 shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+                title="Ask AI Director for action"
+              >
+                🤖 AI
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+
+      {/* Floating Dynamic Speech / Thought Bubble */}
       <AnimatePresence>
         {showSpeech && currentDecision?.speech && (
           <motion.div
@@ -412,9 +655,17 @@ export function SilverSurferAvatar({
                 {currentDecision.emotion === "ANNOYED" ? "😠" : currentDecision.emotion === "SARCASTIC" ? "😏" : "💬"}
               </span>
               <div className="space-y-1">
-                <span className="font-mono text-[10px] text-accent uppercase tracking-widest font-bold block">
-                  {currentDecision.emotion === "ANNOYED" ? "AI Yo'lboshchi (Jahli chiqdi!)" : "AI Yo'lboshchi (Silver Surfer)"}
-                </span>
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-[10px] text-accent uppercase tracking-widest font-bold block">
+                    {currentDecision.emotion === "ANNOYED" ? "AI Yo'lboshchi (Jahli chiqdi!)" : "AI Yo'lboshchi (Silver Surfer)"}
+                  </span>
+                  <button
+                    onClick={() => setShowSpeech(false)}
+                    className="text-xs text-white/40 hover:text-white transition-colors"
+                  >
+                    ✕
+                  </button>
+                </div>
                 <p className="font-sans text-xs md:text-sm text-white/95 leading-relaxed font-medium">
                   {currentDecision.speech}
                 </p>
@@ -428,3 +679,4 @@ export function SilverSurferAvatar({
     </div>
   );
 }
+
