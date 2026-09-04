@@ -23,7 +23,17 @@ import {
   Spinner,
   FileText,
   Certificate as CertIcon,
-  PencilSimple
+  PencilSimple,
+  Robot,
+  ChartLineUp,
+  UsersThree,
+  Pulse,
+  CheckCircle,
+  WarningCircle,
+  Lightning,
+  ShieldCheck,
+  Eye,
+  PaperPlaneRight
 } from "@phosphor-icons/react/dist/ssr";
 import { 
   getProjects, 
@@ -38,7 +48,7 @@ import {
   API_URL
 } from "@/lib/api";
 
-type Tab = "settings" | "projects" | "skills" | "about" | "experience" | "certificates" | "messages";
+type Tab = "ai_boss" | "ai_monitoring" | "ai_chats" | "settings" | "projects" | "skills" | "about" | "experience" | "certificates" | "messages";
 
 const getAuthHeader = (): Record<string, string> => {
   if (typeof window === "undefined") return {};
@@ -90,6 +100,18 @@ export default function AdminPage() {
   });
   const [messages, setMessages] = useState<any[]>([]);
   const [messageSearchQuery, setMessageSearchQuery] = useState("");
+
+  // AI Boss & Monitoring States
+  const [bossMessages, setBossMessages] = useState<Array<{ id: string; role: "user" | "assistant"; text: string; time: string; provider?: string; latencyMs?: number }>>([
+    { id: "init", role: "assistant", text: "Salom Boss! Men sizning shaxsiy AI yordamchingizman. Admin panelning Control Center qismiga xush kelibsiz! Bugungi statistikalar yoki mehmonlar haqida so'rashingiz mumkin. 🚀", time: new Date().toLocaleTimeString() }
+  ]);
+  const [bossInput, setBossInput] = useState("");
+  const [bossChatLoading, setBossChatLoading] = useState(false);
+  const [aiAnalytics, setAiAnalytics] = useState<any>(null);
+  const [guestSessions, setGuestSessions] = useState<any[]>([]);
+  const [selectedGuestSessionId, setSelectedGuestSessionId] = useState<string | null>(null);
+  const [selectedSessionMessages, setSelectedSessionMessages] = useState<any[]>([]);
+  const [loadingSessionMessages, setLoadingSessionMessages] = useState(false);
   const [replyLoadingId, setReplyLoadingId] = useState<number | string | null>(null);
 
   // Modal / Form state
@@ -109,6 +131,96 @@ export default function AdminPage() {
   const [newCategoryName, setNewCategoryName] = useState("");
 
   const avatarInputRef = useRef<HTMLInputElement>(null);
+
+    // AI API Handlers
+  const fetchAiAnalytics = async () => {
+    try {
+      const res = await fetch(`${API_URL}/ai/analytics`, { headers: getAuthHeader() });
+      if (res.ok) {
+        const data = await res.json();
+        setAiAnalytics(data);
+      }
+    } catch {}
+  };
+
+  const fetchGuestSessions = async () => {
+    try {
+      const res = await fetch(`${API_URL}/ai/sessions`, { headers: getAuthHeader() });
+      if (res.ok) {
+        const data = await res.json();
+        setGuestSessions(data.sessions || []);
+      }
+    } catch {}
+  };
+
+  const fetchSessionMessages = async (sessionId: string) => {
+    setSelectedGuestSessionId(sessionId);
+    setLoadingSessionMessages(true);
+    try {
+      const res = await fetch(`${API_URL}/ai/session-messages/${sessionId}`, { headers: getAuthHeader() });
+      if (res.ok) {
+        const msgs = await res.json();
+        setSelectedSessionMessages(msgs || []);
+      }
+    } catch {} finally {
+      setLoadingSessionMessages(false);
+    }
+  };
+
+  const handleSendBossChat = async (overrideMsg?: string) => {
+    const textToSend = overrideMsg || bossInput.trim();
+    if (!textToSend || bossChatLoading) return;
+    if (!overrideMsg) setBossInput("");
+
+    const userMsg = {
+      id: Date.now().toString(),
+      role: "user" as const,
+      text: textToSend,
+      time: new Date().toLocaleTimeString()
+    };
+    setBossMessages(prev => [...prev, userMsg]);
+    setBossChatLoading(true);
+
+    try {
+      const res = await fetch(`${API_URL}/ai/boss-chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...getAuthHeader() },
+        body: JSON.stringify({ message: textToSend }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const aiMsg = {
+          id: (Date.now() + 1).toString(),
+          role: "assistant" as const,
+          text: data.text || "Javob olindi.",
+          time: new Date().toLocaleTimeString(),
+          provider: data.provider,
+          latencyMs: data.latencyMs
+        };
+        setBossMessages(prev => [...prev, aiMsg]);
+        fetchAiAnalytics();
+      }
+    } catch {
+      setBossMessages(prev => [...prev, {
+        id: (Date.now() + 1).toString(),
+        role: "assistant" as const,
+        text: "Xatolik: Serverga bog'lanib bo'lmadi.",
+        time: new Date().toLocaleTimeString()
+      }]);
+    } finally {
+      setBossChatLoading(false);
+    }
+  };
+
+  const handleDeleteKnowledge = async (id: number) => {
+    if (!confirm("Ushbu bilimni o'chirasizmi?")) return;
+    try {
+      const res = await fetch(`${API_URL}/ai/knowledge/${id}`, { method: "DELETE", headers: getAuthHeader() });
+      if (res.ok) {
+        fetchAiAnalytics();
+      }
+    } catch {}
+  };
 
   // Check auth token on mount
   useEffect(() => {
@@ -163,6 +275,8 @@ export default function AdminPage() {
       if (expData) setExperience(expData);
       if (certData) setCertificates(certData);
       if (settsData) setSettings((prev: any) => ({ ...prev, ...settsData }));
+      fetchAiAnalytics();
+      fetchGuestSessions();
 
       // Fetch messages from backend — GET /messages with JwtAuthGuard
       try {
@@ -732,6 +846,9 @@ export default function AdminPage() {
 
   // 2. DASHBOARD
   const tabs: { id: Tab; label: string; icon: any }[] = [
+    { id: "ai_boss", label: "🤖 Boss AI Chat", icon: Robot },
+    { id: "ai_monitoring", label: "📊 AI Monitoring", icon: ChartLineUp },
+    { id: "ai_chats", label: "👥 Visitor Chats", icon: UsersThree },
     { id: "settings", label: "Sozlamalar & Profil", icon: Gear },
     { id: "projects", label: "Loyihalar", icon: Folders },
     { id: "skills", label: "Skills", icon: Brain },
@@ -1275,6 +1392,297 @@ export default function AdminPage() {
             )}
 
             {/* MESSAGES TAB */}
+            {/* 1. BOSS AI CHAT TAB */}
+            {activeTab === "ai_boss" && (
+              <div className="space-y-6">
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-6 rounded-2xl border border-accent/30 bg-gradient-to-r from-accent/10 via-purple-500/5 to-transparent backdrop-blur-xl">
+                  <div>
+                    <span className="font-mono text-xs text-accent uppercase tracking-widest font-semibold flex items-center gap-2 mb-1">
+                      <Robot size={18} weight="fill" /> Personal Control Center • Authenticated Boss Session
+                    </span>
+                    <h2 className="text-xl md:text-2xl font-bold font-display text-white">Boss AI Assistant</h2>
+                    <p className="text-xs text-muted font-mono mt-1">Siz haqiqiy Boss sifatida AIngiz bilan bevosita va maxfiy muloqot qilmoqdasiz.</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="px-3 py-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 font-mono text-xs flex items-center gap-1.5 font-bold">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                      BOSS AUTH ACTIVE
+                    </span>
+                  </div>
+                </div>
+
+                {/* Quick Prompts */}
+                <div className="flex flex-wrap gap-2">
+                  <button onClick={() => handleSendBossChat("Bugungi muloqot va AI statistikasi qanday?")} className="px-3.5 py-2 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 text-white font-mono text-xs transition-all flex items-center gap-1.5">
+                    📊 Bugungi statistika
+                  </button>
+                  <button onClick={() => handleSendBossChat("Mehmonlar oxirgi paytda ko'proq nimalar haqida so'rashmoqda?")} className="px-3.5 py-2 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 text-white font-mono text-xs transition-all flex items-center gap-1.5">
+                    💬 Mehmonlar savollari
+                  </button>
+                  <button onClick={() => handleSendBossChat("AI klaster provayderlari va tezligi holati qanday?")} className="px-3.5 py-2 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 text-white font-mono text-xs transition-all flex items-center gap-1.5">
+                    ⚡ Cluster Status
+                  </button>
+                  <button onClick={() => {
+                    const fact = prompt("AIga qanday yangi bilim o'rgatmoqchisiz?\nMasalan: o'rgan: Offset 04 jamoamiz bilan yangi ML MVP ustida ishlayapmiz");
+                    if (fact) handleSendBossChat(fact.startsWith("o'rgan:") ? fact : `o'rgan: ${fact}`);
+                  }} className="px-3.5 py-2 rounded-xl border border-accent/40 bg-accent/15 text-accent hover:bg-accent/20 font-mono text-xs font-bold transition-all flex items-center gap-1.5">
+                    🧠 Bilim O'rgatish (Learn)
+                  </button>
+                </div>
+
+                {/* Chat Display Box */}
+                <div className="card-surface p-4 sm:p-6 rounded-2xl border border-white/10 bg-[#0d0d1a]/95 backdrop-blur-xl h-[480px] flex flex-col justify-between shadow-2xl">
+                  <div className="flex-1 overflow-y-auto space-y-4 pr-2">
+                    {bossMessages.map(msg => (
+                      <div key={msg.id} className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}>
+                        <div className={`max-w-[85%] sm:max-w-[75%] p-4 rounded-2xl text-sm font-sans leading-relaxed shadow-lg ${
+                          msg.role === "user" 
+                            ? "bg-accent/20 border border-accent/40 text-white rounded-br-none" 
+                            : "bg-white/10 border border-white/15 text-white/90 rounded-bl-none"
+                        }`}>
+                          {msg.text}
+                          {msg.provider && (
+                            <div className="mt-2 pt-2 border-t border-white/10 text-[10px] font-mono text-accent/80 flex items-center justify-between gap-2">
+                              <span>⚡ Provider: {msg.provider}</span>
+                              {msg.latencyMs && <span>{msg.latencyMs}ms</span>}
+                            </div>
+                          )}
+                        </div>
+                        <span className="text-[10px] font-mono text-muted mt-1 px-1">{msg.time}</span>
+                      </div>
+                    ))}
+                    {bossChatLoading && (
+                      <div className="flex items-center gap-2 text-accent font-mono text-xs p-3 rounded-xl bg-accent/10 border border-accent/20 w-fit animate-pulse">
+                        <Spinner size={16} className="animate-spin" /> AI Boss uchun javob tayyorlamoqda...
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Input Form */}
+                  <form onSubmit={(e) => { e.preventDefault(); handleSendBossChat(); }} className="mt-4 pt-3 border-t border-white/10 flex items-center gap-2">
+                    <input
+                      type="text"
+                      placeholder="Boss, AI ga buyruq bering yoki savol so'rang... (masalan: Bugun nechta odam chatda gaplashdi?)"
+                      value={bossInput}
+                      onChange={e => setBossInput(e.target.value)}
+                      className={inputStyle}
+                    />
+                    <button
+                      type="submit"
+                      disabled={bossChatLoading || !bossInput.trim()}
+                      className="p-3 rounded-xl bg-accent text-accent-foreground font-bold hover:bg-accent/90 disabled:opacity-40 transition-all shadow-md flex items-center justify-center shrink-0"
+                    >
+                      <PaperPlaneRight size={20} weight="fill" />
+                    </button>
+                  </form>
+                </div>
+              </div>
+            )}
+
+            {/* 2. AI CLUSTER MONITORING TAB */}
+            {activeTab === "ai_monitoring" && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between p-6 rounded-2xl border border-white/10 bg-[#0e0e1b]/90 backdrop-blur-xl">
+                  <div>
+                    <span className="font-mono text-xs text-accent uppercase tracking-widest font-semibold flex items-center gap-2 mb-1">
+                      <ChartLineUp size={18} weight="fill" /> Telemetry & Telecommunication
+                    </span>
+                    <h2 className="text-xl md:text-2xl font-bold font-display text-white">AI Provider Cluster Monitoring</h2>
+                    <p className="text-xs text-muted font-mono mt-1">Multi-provider klasteringizning real-vaqtdagi faolligi va yuklamasi.</p>
+                  </div>
+                  <button onClick={fetchAiAnalytics} className="px-4 py-2 rounded-xl border border-white/20 bg-white/10 hover:bg-white/20 text-white font-mono text-xs transition-all">
+                    🔄 Yangilash
+                  </button>
+                </div>
+
+                {/* Stats Cards Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  <div className="p-5 rounded-2xl border border-accent/30 bg-accent/10 backdrop-blur-xl">
+                    <span className="text-xs font-mono uppercase text-accent font-semibold block mb-1">Total API Providers</span>
+                    <span className="text-2xl sm:text-3xl font-bold text-white font-display">
+                      {aiAnalytics?.clusterHealth?.totalProviders || 18} <span className="text-xs text-emerald-400 font-mono">Active</span>
+                    </span>
+                  </div>
+
+                  <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl">
+                    <span className="text-xs font-mono uppercase text-muted block mb-1">Total Chat Sessions</span>
+                    <span className="text-2xl sm:text-3xl font-bold text-white font-display">
+                      {aiAnalytics?.totalSessions || 0}
+                    </span>
+                  </div>
+
+                  <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl">
+                    <span className="text-xs font-mono uppercase text-muted block mb-1">Today's Sessions</span>
+                    <span className="text-2xl sm:text-3xl font-bold text-emerald-400 font-display">
+                      {aiAnalytics?.todaySessions || 0}
+                    </span>
+                  </div>
+
+                  <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl">
+                    <span className="text-xs font-mono uppercase text-muted block mb-1">Learned Facts (Knowledge)</span>
+                    <span className="text-2xl sm:text-3xl font-bold text-amber-400 font-display">
+                      {aiAnalytics?.knowledgeCount || 0}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Provider List Table */}
+                <div className="p-6 rounded-2xl border border-white/10 bg-[#0c0c16]/90 backdrop-blur-xl space-y-4">
+                  <h3 className="text-base font-bold font-display text-white flex items-center gap-2">
+                    <Lightning size={18} className="text-accent" /> Faol AI Provayderlar Klasteri
+                  </h3>
+
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs font-mono text-white/80">
+                      <thead>
+                        <tr className="border-b border-white/10 text-accent uppercase tracking-wider text-[10px]">
+                          <th className="py-3 px-3">Provayder</th>
+                          <th className="py-3 px-3">Model</th>
+                          <th className="py-3 px-3">Call Count</th>
+                          <th className="py-3 px-3">Success / Errors</th>
+                          <th className="py-3 px-3">Avg Latency</th>
+                          <th className="py-3 px-3">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/5">
+                        {aiAnalytics?.clusterHealth?.providers?.map((p: any) => (
+                          <tr key={p.name} className="hover:bg-white/5 transition-colors">
+                            <td className="py-3 px-3 font-bold text-white">{p.name}</td>
+                            <td className="py-3 px-3 text-muted">{p.model}</td>
+                            <td className="py-3 px-3">{p.calls}</td>
+                            <td className="py-3 px-3">
+                              <span className="text-emerald-400 font-bold">{p.success}</span> / <span className="text-rose-400">{p.errors}</span>
+                            </td>
+                            <td className="py-3 px-3">{p.avgLatencyMs ? `${p.avgLatencyMs}ms` : "-"}</td>
+                            <td className="py-3 px-3">
+                              {p.status === "active" && <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold border border-emerald-500/30">🟢 Active</span>}
+                              {p.status === "degraded" && <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-[10px] font-bold border border-amber-500/30">🟡 Degraded</span>}
+                              {p.status === "error" && <span className="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-400 text-[10px] font-bold border border-rose-500/30">🔴 Error</span>}
+                            </td>
+                          </tr>
+                        )) || (
+                          <tr>
+                            <td colSpan={6} className="text-center py-6 text-muted">Provayderlar ma'lumoti yuklanmoqda...</td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Learned Facts Management Section */}
+                <div className="p-6 rounded-2xl border border-white/10 bg-[#0c0c16]/90 backdrop-blur-xl space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-base font-bold font-display text-white flex items-center gap-2">
+                      <Brain size={18} className="text-accent" /> AI O'rgangan Bilimlar Bazasidagi Faktlar
+                    </h3>
+                  </div>
+
+                  <div className="space-y-2">
+                    {aiAnalytics?.knowledgeItems?.map((k: any) => (
+                      <div key={k.id} className="p-3 rounded-xl border border-white/10 bg-white/5 flex items-center justify-between gap-4 text-xs font-mono text-white/90">
+                        <span>• [ID #{k.id}] {k.fact}</span>
+                        <button onClick={() => handleDeleteKnowledge(k.id)} className="p-1.5 rounded-lg bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 transition-all">
+                          <Trash size={14} />
+                        </button>
+                      </div>
+                    ))}
+                    {(!aiAnalytics?.knowledgeItems || aiAnalytics.knowledgeItems.length === 0) && (
+                      <p className="text-xs font-mono text-muted py-4 text-center">Hozircha saqlangan maxsus bilimlar yo'q.</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 3. VISITOR CHAT MONITOR TAB */}
+            {activeTab === "ai_chats" && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between p-6 rounded-2xl border border-white/10 bg-[#0e0e1b]/90 backdrop-blur-xl">
+                  <div>
+                    <span className="font-mono text-xs text-accent uppercase tracking-widest font-semibold flex items-center gap-2 mb-1">
+                      <UsersThree size={18} weight="fill" /> Real-time Guest Chat Inspector
+                    </span>
+                    <h2 className="text-xl md:text-2xl font-bold font-display text-white">Live Visitor Conversations</h2>
+                    <p className="text-xs text-muted font-mono mt-1">Mehmonlarning AI yordamchingiz bilan qilgan barcha muloqotlari tarixi.</p>
+                  </div>
+                  <button onClick={fetchGuestSessions} className="px-4 py-2 rounded-xl border border-white/20 bg-white/10 hover:bg-white/20 text-white font-mono text-xs transition-all">
+                    🔄 Yangilash
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* Sessions List Column */}
+                  <div className="md:col-span-1 space-y-3 max-h-[600px] overflow-y-auto pr-1">
+                    <h3 className="text-xs font-mono uppercase tracking-wider text-accent font-bold mb-2">Seanslar Ro'yxati ({guestSessions.length})</h3>
+                    {guestSessions.map((s: any) => (
+                      <div
+                        key={s.sessionId}
+                        onClick={() => fetchSessionMessages(s.sessionId)}
+                        className={`p-4 rounded-xl border cursor-pointer transition-all ${
+                          selectedGuestSessionId === s.sessionId
+                            ? "border-accent bg-accent/15 text-white shadow-lg"
+                            : "border-white/10 bg-white/5 hover:bg-white/10 text-white/80"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between text-[11px] font-mono text-accent mb-1">
+                          <span className="truncate max-w-[120px]">ID: {s.sessionId}</span>
+                          <span className="px-2 py-0.5 rounded bg-white/10 text-white/70">{s.messageCount} msg</span>
+                        </div>
+                        <p className="text-xs font-sans text-white/90 line-clamp-2 mb-2 font-medium">"{s.firstMessage}"</p>
+                        <span className="text-[10px] font-mono text-muted block text-right">
+                          {new Date(s.lastActivityAt).toLocaleString()}
+                        </span>
+                      </div>
+                    ))}
+                    {guestSessions.length === 0 && (
+                      <p className="text-xs font-mono text-muted py-8 text-center border border-white/10 rounded-xl">Mehmonlar suhbatlari topilmadi.</p>
+                    )}
+                  </div>
+
+                  {/* Transcript Display Column */}
+                  <div className="md:col-span-2 card-surface p-6 rounded-2xl border border-white/10 bg-[#0d0d1a]/95 backdrop-blur-xl h-[600px] flex flex-col justify-between">
+                    {selectedGuestSessionId ? (
+                      <div className="flex flex-col h-full">
+                        <div className="pb-3 mb-4 border-b border-white/10 flex items-center justify-between">
+                          <span className="text-xs font-mono text-accent font-bold">Session Inspector: {selectedGuestSessionId}</span>
+                          <span className="text-xs font-mono text-muted">{selectedSessionMessages.length} ta xabar</span>
+                        </div>
+
+                        <div className="flex-1 overflow-y-auto space-y-4 pr-2">
+                          {loadingSessionMessages ? (
+                            <div className="flex items-center justify-center h-full text-accent font-mono text-xs gap-2">
+                              <Spinner size={20} className="animate-spin" /> Suhbat yuklanmoqda...
+                            </div>
+                          ) : (
+                            selectedSessionMessages.map((m: any) => (
+                              <div key={m.id} className={`flex flex-col ${m.role === "user" ? "items-end" : "items-start"}`}>
+                                <div className={`max-w-[85%] p-3.5 rounded-2xl text-xs font-sans leading-relaxed shadow-md ${
+                                  m.role === "user"
+                                    ? "bg-blue-600/30 border border-blue-400/30 text-white rounded-br-none"
+                                    : "bg-white/10 border border-white/15 text-white/90 rounded-bl-none"
+                                }`}>
+                                  <span className="text-[10px] font-mono text-accent/80 block mb-1 uppercase font-bold">{m.role === "user" ? "👤 Visitor (Mehmon)" : "🤖 AI Assistant"}</span>
+                                  {m.content}
+                                </div>
+                                <span className="text-[9px] font-mono text-muted mt-1 px-1">{new Date(m.createdAt).toLocaleTimeString()}</span>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center h-full text-center p-8">
+                        <Eye size={40} className="text-muted/40 mb-3" />
+                        <p className="text-xs font-mono text-muted max-w-xs">Chap tomondagi seanslardan birini tanlang va mehmon suhbatini to'liq o'qing.</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 4. MESSAGES TAB */}
             {activeTab === "messages" && (
               <div className="space-y-6 max-w-4xl">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/10 pb-4">
