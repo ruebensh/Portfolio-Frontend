@@ -139,7 +139,7 @@ export const Hero = ({ settings }: { settings?: any }) => {
             <div className="relative w-24 h-24 sm:w-28 sm:h-28 mb-6 rounded-full border border-card-border bg-card-bg overflow-hidden shadow-[0_0_40px_rgba(244,201,93,0.15)]">
               <Image
                 src={settings?.avatarUrl || "/jaloliddin_profile.png"}
-                alt={settings?.name || "Jaloliddin Xalimov"}
+                alt={settings?.name || settings?.author || ""}
                 fill
                 sizes="400px"
                 className="object-cover"
@@ -153,15 +153,15 @@ export const Hero = ({ settings }: { settings?: any }) => {
             </span>
 
             <h1 className="text-shimmer mx-auto mt-5 max-w-[18ch] font-display font-bold tracking-tighter leading-[1.06] text-4xl sm:text-6xl md:text-7xl lg:text-8xl drop-shadow-lg">
-              {td(settings?.author || settings?.title || "Jaloliddin Xalimov")}
+              {td(settings?.author || settings?.title)}
             </h1>
 
             <p className="text-shimmer-accent mx-auto mt-4 font-mono tracking-widest uppercase font-semibold text-[11px] sm:text-sm drop-shadow">
-              {td(settings?.mainStack || "AI/ML Student & Python Backend Developer")}
+              {td(settings?.mainStack)}
             </p>
 
             <p className="mx-auto mt-5 max-w-[48ch] text-sm sm:text-base leading-relaxed text-foreground/90 font-sans" style={{ textShadow: "0 1px 12px rgba(0,0,0,0.08)" }}>
-              {td(settings?.description || "Men Sun'iy Intellekt, Machine Learning va Python backend yo'nalishida faoliyat yurituvchi dasturchiman. School 21 o'quv maskanida Data Science talabasi.")}
+              {td(settings?.description)}
             </p>
 
             <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 w-full max-w-xs sm:max-w-none">
@@ -266,7 +266,7 @@ export const Hero = ({ settings }: { settings?: any }) => {
         <div className="relative w-20 h-20 mb-5 rounded-full border-2 border-accent/40 bg-black/60 overflow-hidden shadow-[0_0_30px_rgba(244,201,93,0.25)]">
           <Image
             src={settings?.avatarUrl || "/jaloliddin_profile.png"}
-            alt={settings?.name || "Jaloliddin Xalimov"}
+            alt={settings?.name || settings?.author || ""}
             fill
             sizes="160px"
             className="object-cover"
@@ -282,17 +282,17 @@ export const Hero = ({ settings }: { settings?: any }) => {
 
         {/* Name */}
         <h1 className="font-display font-extrabold text-3xl sm:text-4xl text-white tracking-tight leading-tight mb-3">
-          {td(settings?.author || settings?.title || "Jaloliddin Xalimov")}
+          {td(settings?.author || settings?.title)}
         </h1>
 
         {/* Role */}
         <p className="font-mono text-xs text-accent font-semibold uppercase tracking-wider mb-4">
-          {td(settings?.mainStack || "AI/ML Student & Python Backend Developer")}
+          {td(settings?.mainStack)}
         </p>
 
         {/* Description */}
         <p className="text-xs text-foreground/80 font-sans leading-relaxed max-w-sm mb-6">
-          {td(settings?.description || "Men Sun'iy Intellekt, Machine Learning va Python backend yo'nalishida faoliyat yurituvchi dasturchiman. School 21 o'quv maskanida Data Science talabasi.")}
+          {td(settings?.description)}
         </p>
 
         {/* Action Buttons */}

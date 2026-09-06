@@ -45,7 +45,7 @@ export default function AboutPage() {
               <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-full border-2 border-accent/60 bg-black/60 overflow-hidden flex-shrink-0 shadow-[0_0_30px_rgba(244,201,93,0.3)]">
                 <img
                   src={avatarUrl}
-                  alt={settings?.author || "Jaloliddin Xalimov"}
+                  alt={settings?.author || ""}
                   className="w-full h-full object-cover rounded-full"
                 />
               </div>
@@ -53,13 +53,13 @@ export default function AboutPage() {
               <div className="text-center sm:text-left flex-1">
                 <EyebrowBadge className="mb-3">{td("Men Haqimda")}</EyebrowBadge>
                 <h1 className="heading-gradient-emerald text-3xl sm:text-5xl font-bold tracking-tighter mb-2 font-display">
-                  {td(settings?.author || "Jaloliddin Xalimov")}
+                  {td(settings?.author)}
                 </h1>
                 <p className="font-mono text-xs sm:text-sm text-accent font-semibold uppercase tracking-wider mb-3">
-                  {td(settings?.mainStack || "AI/ML Student & Python Backend Developer")}
+                  {td(settings?.mainStack)}
                 </p>
                 <p className="text-xs sm:text-sm text-foreground/80 font-sans max-w-xl">
-                  {td(settings?.description || "Men Sun'iy Intellekt, Machine Learning va Python backend yo'nalishida faoliyat yurituvchi dasturchiman.")}
+                  {td(settings?.description)}
                 </p>
               </div>
             </div>

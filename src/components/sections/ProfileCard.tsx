@@ -33,7 +33,7 @@ export const ProfileCardContent = ({ settings }: { settings: any }) => {
         <div className="w-full h-full rounded-full p-1 border-2 border-accent/50 bg-black/60 backdrop-blur-md shadow-[0_0_25px_rgba(244,201,93,0.3)] overflow-hidden">
           <img
             src={avatarSrc}
-            alt={settings?.title || "Profile"}
+            alt={settings?.title || ""}
             className="w-full h-full object-cover rounded-full"
           />
         </div>
@@ -43,7 +43,7 @@ export const ProfileCardContent = ({ settings }: { settings: any }) => {
       {/* Info Container */}
       <div className="flex-1 text-center md:text-left z-10">
         <h2 suppressHydrationWarning className="font-display text-3xl md:text-4xl font-bold tracking-tight text-foreground mb-2 drop-shadow-md">
-          {td(settings?.author || "Jaloliddin Xalimov")}
+          {td(settings?.author)}
         </h2>
 
         <p suppressHydrationWarning className="text-sm md:text-base text-foreground/75 mb-2 leading-relaxed whitespace-pre-line">

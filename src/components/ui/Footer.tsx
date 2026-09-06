@@ -25,8 +25,8 @@ export const Footer = ({ settings }: { settings?: any }) => {
     clickTimer.current = setTimeout(() => { clickCount.current = 0; }, 700);
   };
 
-  const authorName = settings?.title || "Jaloliddin Xalimov";
-  const authorRole = settings?.description || "AI/ML Student & Python Developer";
+  const authorName = settings?.title;
+  const authorRole = settings?.description;
 
 
   const navLinks = [
