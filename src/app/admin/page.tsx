@@ -91,13 +91,19 @@ export default function AdminPage() {
     projectCount: "15+",
     experienceYears: "2+ Years",
     mainStack: "Python • PyTorch • Next.js • FastAPI",
-    email: "jaloliddin@example.com",
+    email: "",
     phone: "",
     github: "https://github.com/ruebensh",
     linkedin: "",
     telegram: "https://t.me/jaloliddin_xalimov",
     instagram: "https://instagram.com"
   });
+
+  // Drag-to-scroll for tabs
+  const tabsRef = useRef<HTMLDivElement>(null);
+  const [isDraggingTabs, setIsDraggingTabs] = useState(false);
+  const [startXTabs, setStartXTabs] = useState(0);
+  const [scrollLeftTabs, setScrollLeftTabs] = useState(0);
   const [messages, setMessages] = useState<any[]>([]);
   const [messageSearchQuery, setMessageSearchQuery] = useState("");
 
@@ -266,7 +272,7 @@ export default function AdminPage() {
         getAbout().catch(() => ({})),
         getExperience().catch(() => []),
         getCertificates().catch(() => []),
-        getSettings().catch(() => null)
+        fetch(`${API_URL}/settings/admin`, { headers: getAuthHeader() }).then(r => r.json()).catch(() => null)
       ]);
 
       if (projData) setProjects(projData);
@@ -274,7 +280,7 @@ export default function AdminPage() {
       if (aboutData) setAbout(aboutData);
       if (expData) setExperience(expData);
       if (certData) setCertificates(certData);
-      if (settsData) setSettings((prev: any) => ({ ...prev, ...settsData }));
+      if (settsData) setSettings(settsData);
       fetchAiAnalytics();
       fetchGuestSessions();
 
@@ -440,12 +446,17 @@ export default function AdminPage() {
     setSaveLoading(true);
     const endpoints = [`${API_URL}/experience/admin`, `${API_URL}/admin/experience`, `${API_URL}/experience`];
     try {
+      const formattedExperience = experience.map((exp: any) => ({
+        ...exp,
+        startDate: exp.startDate || exp.year || exp.period || new Date().toISOString(),
+        endDate: exp.endDate || null,
+      }));
       for (const url of endpoints) {
         try {
           const res = await fetch(url, {
             method: "POST",
             headers: { "Content-Type": "application/json", ...getAuthHeader() },
-            body: JSON.stringify({ experience }),
+            body: JSON.stringify({ experience: formattedExperience }),
           });
           if (res.ok) break;
         } catch {}
@@ -882,8 +893,26 @@ export default function AdminPage() {
           </button>
         </div>
 
-        {/* Tab Navigation (Scrollable & Responsive) */}
-        <div className="flex gap-2 overflow-x-auto pb-3 mb-6 scrollbar-none border-b border-white/10 shrink-0">
+        {/* Tab Navigation (Scrollable & Responsive, with drag-to-scroll) */}
+        <div
+          ref={tabsRef}
+          onMouseDown={(e) => {
+            if (!tabsRef.current) return;
+            setIsDraggingTabs(true);
+            setStartXTabs(e.pageX - tabsRef.current.offsetLeft);
+            setScrollLeftTabs(tabsRef.current.scrollLeft);
+          }}
+          onMouseLeave={() => setIsDraggingTabs(false)}
+          onMouseUp={() => setIsDraggingTabs(false)}
+          onMouseMove={(e) => {
+            if (!isDraggingTabs || !tabsRef.current) return;
+            e.preventDefault();
+            const x = e.pageX - tabsRef.current.offsetLeft;
+            const walk = (x - startXTabs) * 2;
+            tabsRef.current.scrollLeft = scrollLeftTabs - walk;
+          }}
+          className={`flex gap-2 overflow-x-auto pb-3 mb-6 scrollbar-none border-b border-white/10 shrink-0 select-none ${isDraggingTabs ? "cursor-grabbing" : "cursor-grab"}`}
+        >
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const active = activeTab === tab.id;
