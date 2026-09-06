@@ -68,7 +68,7 @@ export const ProfileCardContent = ({ settings }: { settings: any }) => {
           </div>
 
           <div className="text-center md:text-left">
-            <p className="font-display text-lg font-bold text-foreground max-w-[120px] truncate">
+            <p className="font-display text-lg font-bold text-foreground max-w-[250px] break-words whitespace-normal leading-tight">
               {td(mainStack)}
             </p>
             <p className="font-mono text-xs text-muted uppercase tracking-wider">{t("profile.mainStack")}</p>

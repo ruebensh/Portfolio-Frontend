@@ -78,10 +78,10 @@ export const ContactSection = ({ settings }: { settings: any }) => {
     </a>
   );
 
-  const telegramVal = settings?.telegram || "jaloliddin_xalimov";
-  const emailVal = settings?.email || "jaloliddinxalimov.0103@gmail.com";
+  const telegramVal = settings?.telegram;
+  const emailVal = settings?.email;
   const phoneVal = settings?.phone;
-  const githubVal = settings?.github || "https://github.com/ruebensh";
+  const githubVal = settings?.github;
   const linkedinVal = settings?.linkedin && settings.linkedin !== "none" ? settings.linkedin : null;
   const instagramVal = settings?.instagram && settings.instagram !== "none" ? settings.instagram : null;
 
