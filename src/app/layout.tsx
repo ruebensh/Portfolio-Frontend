@@ -8,9 +8,6 @@ import { LanguageProvider } from "@/context/LanguageContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { GlobalVideoBackground } from "@/components/ui/GlobalVideoBackground";
 import { GlobalPreloader } from "@/components/ui/GlobalPreloader";
-import { TourGuideProvider } from "@/context/TourGuideContext";
-import AvatarGuide from "@/components/3d/AvatarGuide";
-import ChatBubble from "@/components/3d/ChatBubble";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
@@ -46,15 +43,11 @@ export default function RootLayout({
         <GlobalPreloader />
         <ThemeProvider>
           <LanguageProvider>
-            <TourGuideProvider>
-              <SmoothScrollProvider>
-                <Navbar />
-                <div className="flex-1 relative z-10">{children}</div>
-                <Footer />
-                <AvatarGuide />
-                <ChatBubble />
-              </SmoothScrollProvider>
-            </TourGuideProvider>
+            <SmoothScrollProvider>
+              <Navbar />
+              <div className="flex-1 relative z-10">{children}</div>
+              <Footer />
+            </SmoothScrollProvider>
           </LanguageProvider>
         </ThemeProvider>
       </body>
