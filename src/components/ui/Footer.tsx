@@ -28,13 +28,6 @@ export const Footer = ({ settings }: { settings?: any }) => {
   const authorName = settings?.title || "Jaloliddin Xalimov";
   const authorRole = settings?.description || "AI/ML Student & Python Developer";
 
-  const socialLinks = [
-    { name: "GitHub",    Icon: GithubLogo,    href: settings?.github    || "https://github.com/ruebensh" },
-    { name: "LinkedIn",  Icon: LinkedinLogo,  href: settings?.linkedin  || "https://linkedin.com" },
-    { name: "Telegram",  Icon: TelegramLogo,  href: settings?.telegram ? `https://t.me/${settings.telegram.replace("@", "")}` : "https://t.me/jaloliddin_xalimov" },
-    { name: "Instagram", Icon: InstagramLogo, href: settings?.instagram || "https://instagram.com" },
-    { name: "Email",     Icon: EnvelopeSimple, href: settings?.email ? `mailto:${settings.email}` : "mailto:jaloliddinxalimov.0103@gmail.com" },
-  ];
 
   const navLinks = [
     { label: t("nav.home"),         href: "/" },
@@ -82,25 +75,8 @@ export const Footer = ({ settings }: { settings?: any }) => {
           </nav>
         </div>
 
-        {/* Bottom row: social icons + copyright */}
+        {/* Bottom row: copyright */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          {/* Social */}
-          <div className="flex items-center gap-4">
-            {socialLinks.map(({ name, Icon, href }) => (
-              <a
-                key={name}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                title={name}
-                className="w-9 h-9 border border-card-border flex items-center justify-center text-muted hover:border-accent hover:text-accent transition-colors duration-200"
-              >
-                <Icon size={16} weight="fill" />
-              </a>
-            ))}
-          </div>
-
-          {/* Copyright */}
           <div className="flex flex-col md:flex-row items-center gap-3 font-mono text-[10px] uppercase tracking-widest text-muted">
             <span>© {currentYear} {authorName}.</span>
             <span className="hidden md:inline text-card-border">|</span>

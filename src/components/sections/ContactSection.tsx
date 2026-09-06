@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { AnimatedSection, AnimatedItem } from "@/components/ui/AnimatedSection";
 import {
   TelegramLogo, PaperPlaneRight, EnvelopeSimple,
-  Phone, InstagramLogo, CheckCircle, Spinner,
+  Phone, InstagramLogo, GithubLogo, LinkedinLogo, CheckCircle, Spinner,
 } from "@phosphor-icons/react/dist/ssr";
 import { sendAIChatMessage, sendMessage } from "@/lib/api";
 
@@ -78,6 +78,13 @@ export const ContactSection = ({ settings }: { settings: any }) => {
     </a>
   );
 
+  const telegramVal = settings?.telegram || "jaloliddin_xalimov";
+  const emailVal = settings?.email || "jaloliddinxalimov.0103@gmail.com";
+  const phoneVal = settings?.phone;
+  const githubVal = settings?.github || "https://github.com/ruebensh";
+  const linkedinVal = settings?.linkedin && settings.linkedin !== "none" ? settings.linkedin : null;
+  const instagramVal = settings?.instagram && settings.instagram !== "none" ? settings.instagram : null;
+
   return (
     <section id="contact" className="px-6 py-28 md:px-8 md:py-36 bg-card-bg/60 backdrop-blur-xl border-t border-card-border/80">
       <div className="max-w-[1100px] mx-auto">
@@ -104,35 +111,51 @@ export const ContactSection = ({ settings }: { settings: any }) => {
                   {td("Aloqa manbalari")}
                 </h3>
 
-                {settings?.telegram && (
+                {telegramVal && (
                   <SocialRow
-                    href={settings.telegram.startsWith("http") ? settings.telegram : `https://t.me/${settings.telegram.replace("@", "")}`}
+                    href={telegramVal.startsWith("http") ? telegramVal : `https://t.me/${telegramVal.replace("@", "")}`}
                     label="Telegram"
-                    sub={settings.telegram}
+                    sub={telegramVal.includes("t.me") ? `@${telegramVal.split("/").pop()}` : telegramVal}
                     icon={<TelegramLogo size={18} weight="fill" />}
                   />
                 )}
-                {settings?.email && (
+                {emailVal && (
                   <SocialRow
-                    href={`mailto:${settings.email}`}
+                    href={`mailto:${emailVal}`}
                     label="Email"
-                    sub={settings.email}
+                    sub={emailVal}
                     icon={<EnvelopeSimple size={18} weight="fill" />}
                   />
                 )}
-                {settings?.phone && (
+                {phoneVal && (
                   <SocialRow
-                    href={`tel:${settings.phone.replace(/[^\d+]/g, "")}`}
+                    href={`tel:${phoneVal.replace(/[^\d+]/g, "")}`}
                     label="Telefon"
-                    sub={settings.phone}
+                    sub={phoneVal}
                     icon={<Phone size={18} weight="fill" />}
                   />
                 )}
-                {settings?.instagram && (
+                {githubVal && (
                   <SocialRow
-                    href={settings.instagram.startsWith("http") ? settings.instagram : `https://instagram.com/${settings.instagram.replace("@", "")}`}
+                    href={githubVal.startsWith("http") ? githubVal : `https://github.com/${githubVal}`}
+                    label="GitHub"
+                    sub={githubVal.replace("https://github.com/", "")}
+                    icon={<GithubLogo size={18} weight="fill" />}
+                  />
+                )}
+                {linkedinVal && (
+                  <SocialRow
+                    href={linkedinVal.startsWith("http") ? linkedinVal : `https://linkedin.com/in/${linkedinVal}`}
+                    label="LinkedIn"
+                    sub={linkedinVal.replace("https://linkedin.com/in/", "").replace("https://linkedin.com/", "")}
+                    icon={<LinkedinLogo size={18} weight="fill" />}
+                  />
+                )}
+                {instagramVal && (
+                  <SocialRow
+                    href={instagramVal.startsWith("http") ? instagramVal : `https://instagram.com/${instagramVal.replace("@", "")}`}
                     label="Instagram"
-                    sub={settings.instagram}
+                    sub={instagramVal.includes("instagram.com") ? `@${instagramVal.split("/").pop()}` : instagramVal}
                     icon={<InstagramLogo size={18} weight="fill" />}
                   />
                 )}

@@ -499,9 +499,24 @@ export default function BlogPage() {
 
   const fetchPosts = useCallback(async () => {
     try {
+      const res = await fetch(`${API_URL}/blog/posts?t=${Date.now()}`, { cache: "no-store" });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          const sorted = [...data].sort((a: any, b: any) => {
+            const timeA = a.date ? new Date(a.date).getTime() : (Number(a.id) || 0);
+            const timeB = b.date ? new Date(b.date).getTime() : (Number(b.id) || 0);
+            return timeB - timeA;
+          });
+          setPosts(sorted);
+          return;
+        }
+      }
       const data = await getBlogPosts();
       setPosts(data || []);
     } catch {
+      const data = await getBlogPosts();
+      setPosts(data || []);
     } finally {
       setLoading(false);
     }

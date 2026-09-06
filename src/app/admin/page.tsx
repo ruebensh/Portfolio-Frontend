@@ -56,6 +56,33 @@ const getAuthHeader = (): Record<string, string> => {
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
+const isTokenExpired = (token?: string | null): boolean => {
+  if (!token) return true;
+  try {
+    const base64Url = token.split(".")[1];
+    if (base64Url) {
+      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split("")
+          .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+          .join("")
+      );
+      const payload = JSON.parse(jsonPayload);
+      if (payload && typeof payload.exp === "number") {
+        if (Date.now() >= payload.exp * 1000) return true;
+      }
+    }
+  } catch {}
+
+  const tokenTime = typeof window !== "undefined" ? localStorage.getItem("admin_token_time") : null;
+  if (tokenTime) {
+    const elapsed = Date.now() - Number(tokenTime);
+    if (elapsed >= 3600 * 1000) return true; // 1 hour token limit
+  }
+  return false;
+};
+
 const inputStyle = "w-full rounded-xl border border-white/20 bg-[#0e0e18]/90 text-white placeholder:text-muted/60 p-3 text-sm outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors shadow-inner font-sans";
 const labelStyle = "text-xs font-semibold text-accent/90 mb-1.5 block uppercase tracking-wider font-mono";
 
@@ -228,13 +255,42 @@ export default function AdminPage() {
     } catch {}
   };
 
-  // Check auth token on mount
+  const handleLogout = (reason?: string | React.MouseEvent) => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("devini_admin_token");
+    localStorage.removeItem("admin_token_time");
+    setIsAuthenticated(false);
+    if (typeof reason === "string" && reason) {
+      setLoginError(reason);
+    }
+  };
+
+  // Check auth token on mount and setup auto-logout interval on 1-hour expiration
   useEffect(() => {
-    const token = localStorage.getItem("token") || localStorage.getItem("devini_admin_token");
-    if (token) {
+    const checkTokenState = () => {
+      const token = localStorage.getItem("token") || localStorage.getItem("devini_admin_token");
+      if (!token || isTokenExpired(token)) {
+        if (token || isAuthenticated) {
+          handleLogout("Sessiya vaqti tugadi (1 soat). Iltimos, qaytadan tizimga kiring.");
+        }
+        return false;
+      }
+      return true;
+    };
+
+    if (checkTokenState()) {
       setIsAuthenticated(true);
       fetchDashboardData();
     }
+
+    const interval = setInterval(() => {
+      const token = localStorage.getItem("token") || localStorage.getItem("devini_admin_token");
+      if (token && isTokenExpired(token)) {
+        handleLogout("Sessiya vaqti tugadi (1 soat). Iltimos, qaytadan tizimga kiring.");
+      }
+    }, 10000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -245,6 +301,10 @@ export default function AdminPage() {
     try {
       const data = await login(email, password);
       if (data && (data.token || data.access_token)) {
+        const token = data.token || data.access_token;
+        localStorage.setItem("token", token);
+        localStorage.setItem("devini_admin_token", token);
+        localStorage.setItem("admin_token_time", Date.now().toString());
         setIsAuthenticated(true);
         fetchDashboardData();
       } else {
@@ -255,12 +315,6 @@ export default function AdminPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("devini_admin_token");
-    setIsAuthenticated(false);
   };
 
   const fetchDashboardData = async () => {
@@ -886,7 +940,7 @@ export default function AdminPage() {
             </p>
           </div>
           <button
-            onClick={handleLogout}
+            onClick={() => handleLogout()}
             className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-mono uppercase tracking-widest hover:bg-rose-500/30 transition-all self-start sm:self-auto shadow-sm"
           >
             <SignOut size={18} /> Chiqish
