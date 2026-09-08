@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { sendAIChatMessage, getAIHistory, deleteAISession } from "@/lib/api";
 import { Plus, List, X, Trash, PaperPlaneRight, User, Robot } from "@phosphor-icons/react/dist/ssr";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface ChatSession {
   id: string;
@@ -15,6 +16,7 @@ const STORAGE_KEY = "devini_chat_sessions";
 const ACTIVE_KEY = "devini_active_session";
 
 export default function AIChatPage() {
+  const { td } = useLanguage();
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [activeSessionId, setActiveSessionId] = useState("");
   const [messages, setMessages] = useState<{ role: "user" | "ai"; text: string }[]>([]);
@@ -120,14 +122,14 @@ export default function AIChatPage() {
       <div className="p-4 border-b border-card-border">
         <button onClick={handleNewChat}
           className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-accent text-accent-foreground text-sm font-medium hover:opacity-90 transition-opacity">
-          <Plus size={16} weight="bold" /> Yangi suhbat
+          <Plus size={16} weight="bold" /> {td("Yangi suhbat")}
         </button>
       </div>
       <div className="flex-1 overflow-y-auto p-2 space-y-1">
         {sessions.map((s) => (
           <div key={s.id} onClick={() => { setActiveSessionId(s.id); setSidebarOpen(false); }}
             className={`w-full cursor-pointer text-left px-4 py-3 rounded-xl text-sm transition-all flex items-center justify-between group ${s.id === activeSessionId ? "card-surface-nested text-accent font-medium border-accent/40" : "text-foreground/80 hover:bg-white/5"}`}>
-            <span className="truncate max-w-[160px]">{s.title}</span>
+            <span className="truncate max-w-[160px]">{s.title === "Yangi suhbat" ? td("Yangi suhbat") : td(s.title)}</span>
             <button onClick={(e) => handleDeleteSession(s.id, e)}
               className="opacity-0 group-hover:opacity-100 text-muted hover:text-red-500 transition-all p-1 rounded-lg">
               <Trash size={14} />
@@ -178,7 +180,7 @@ export default function AIChatPage() {
             <List size={22} />
           </button>
           <span className="font-medium text-foreground truncate">
-            {sessions.find(s => s.id === activeSessionId)?.title || "Yangi suhbat"}
+            {td(sessions.find(s => s.id === activeSessionId)?.title || "Yangi suhbat")}
           </span>
         </div>
 
@@ -196,7 +198,7 @@ export default function AIChatPage() {
                     {msg.role === "user" ? <User size={18} weight="fill" /> : <Robot size={18} weight="fill" />}
                   </div>
                   <div className={`max-w-[80%] px-5 py-3.5 rounded-2xl text-sm leading-relaxed ${msg.role === "user" ? "bg-accent text-accent-foreground rounded-tr-sm font-medium" : "bg-[#0e0e18]/85 backdrop-blur-xl text-foreground rounded-tl-sm border border-white/15 shadow-md"}`}>
-                    {msg.text}
+                    {td(msg.text)}
                   </div>
                 </div>
               ))}
@@ -224,7 +226,7 @@ export default function AIChatPage() {
               value={input}
               onChange={autoResize}
               onKeyDown={handleKeyDown}
-              placeholder="Xabaringizni yozing... (Ctrl+Enter yuborish)"
+              placeholder={td("Xabaringizni yozing... (Ctrl+Enter yuborish)")}
               rows={1}
               className="flex-1 resize-none rounded-xl border border-card-border card-surface-nested text-foreground px-4 py-3.5 text-sm outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all min-h-[52px] max-h-[160px]"
               style={{ height: "52px" }}
@@ -234,7 +236,7 @@ export default function AIChatPage() {
               <PaperPlaneRight size={20} weight="fill" />
             </button>
           </form>
-          <p className="text-xs text-muted mt-2 text-center">Ctrl+Enter — yuborish</p>
+          <p className="text-xs text-muted mt-2 text-center">{td("Ctrl+Enter — yuborish")}</p>
         </div>
       </div>
     </div>

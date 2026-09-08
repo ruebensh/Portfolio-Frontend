@@ -14,6 +14,7 @@ import {
   FilePdf,
 } from "@phosphor-icons/react/dist/ssr";
 import Image from "next/image";
+import { useLanguage } from "@/context/LanguageContext";
 
 const resumeUrl = "/Jaloliddin_Xalimov_CV.pdf";
 const cvPreviewImage = "/cv-page-1.webp";
@@ -24,6 +25,7 @@ const slides = Array.from({ length: SLIDE_COUNT }, (_, i) => `/portfolio-slides/
 type Mode = "cv" | "portfolio";
 
 export default function ResumePage() {
+  const { td } = useLanguage();
   const [mode, setMode] = useState<Mode>("portfolio");
   const [currentSlide, setCurrentSlide] = useState(0);
   const [direction, setDirection] = useState(1);
@@ -59,9 +61,9 @@ export default function ResumePage() {
       <div className="max-w-5xl mx-auto p-4 sm:p-8 md:p-12 rounded-2xl sm:rounded-3xl border border-card-border/80 bg-card-bg/60 backdrop-blur-xl shadow-2xl">
         <AnimatedSection>
           <AnimatedItem className="mb-6 sm:mb-10">
-            <EyebrowBadge className="mb-3 sm:mb-4">Hujjatlar</EyebrowBadge>
+            <EyebrowBadge className="mb-3 sm:mb-4">{td("Hujjatlar")}</EyebrowBadge>
             <h1 className="heading-gradient-rose text-3xl sm:text-4xl md:text-6xl font-bold tracking-tighter mb-4">
-              Resume & Portfolio
+              {td("Resume & Portfolio")}
             </h1>
           </AnimatedItem>
 
@@ -167,7 +169,7 @@ export default function ResumePage() {
                     download
                     className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl bg-accent text-accent-foreground text-xs sm:text-sm font-medium hover:opacity-90 transition-opacity"
                   >
-                    <Download size={16} /> PDF Yuklab olish
+                    <Download size={16} /> {td("PDF Yuklab olish")}
                   </a>
                 </div>
 
@@ -204,14 +206,14 @@ export default function ResumePage() {
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-accent text-accent-foreground hover:opacity-90 transition-opacity font-medium text-xs shadow-sm"
                     >
-                      <ArrowSquareOut size={15} /> Ochish (To'liq PDF)
+                      <ArrowSquareOut size={15} /> {td("Ochish (To'liq PDF)")}
                     </a>
                     <a
                       href={resumeUrl}
                       download
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg card-surface-nested hover:border-accent/40 text-foreground transition-colors font-medium text-xs"
                     >
-                      <Download size={14} /> Yuklab olish
+                      <Download size={14} /> {td("Yuklab olish")}
                     </a>
                   </div>
                 </div>
@@ -234,7 +236,7 @@ export default function ResumePage() {
                     />
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
                       <span className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-accent text-accent-foreground text-xs sm:text-sm font-semibold border border-white/20 shadow-2xl">
-                        <ArrowSquareOut size={18} /> PDF Hujjatni to'liq ochish (barcha havolalar ishlaydi)
+                        <ArrowSquareOut size={18} /> {td("PDF Hujjatni to'liq ochish (barcha havolalar ishlaydi)")}
                       </span>
                     </div>
                   </a>
@@ -244,7 +246,7 @@ export default function ResumePage() {
                 <div className="p-4 sm:p-5 border-t border-card-border flex flex-wrap items-center justify-between gap-3 bg-card-bg">
                   <div className="text-xs text-muted flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span>Vektor ko'rinish va havolalar (PDF)</span>
+                    <span>{td("Vektor ko'rinish va havolalar (PDF)")}</span>
                   </div>
 
                   <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -254,14 +256,14 @@ export default function ResumePage() {
                       rel="noopener noreferrer"
                       className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-accent text-accent-foreground text-xs sm:text-sm font-medium hover:opacity-90 transition-opacity shadow-md"
                     >
-                      <ArrowSquareOut size={16} /> Ochish (Yangi Oynada)
+                      <ArrowSquareOut size={16} /> {td("Ochish (Yangi Oynada)")}
                     </a>
                     <a
                       href={resumeUrl}
                       download
                       className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl card-surface-nested hover:border-accent/40 text-foreground text-xs sm:text-sm font-medium transition-colors"
                     >
-                      <Download size={16} /> Yuklab Olish
+                      <Download size={16} /> {td("Yuklab Olish")}
                     </a>
                   </div>
                 </div>
