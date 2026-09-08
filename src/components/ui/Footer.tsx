@@ -34,7 +34,6 @@ export const Footer = ({ settings }: { settings?: any }) => {
     { label: t("nav.projects"),     href: "/projects" },
     { label: t("nav.certificates"), href: "/certificates" },
     { label: t("nav.about"),        href: "/about" },
-    { label: t("nav.blog"),         href: "/blog" },
     { label: t("nav.resume"),       href: "/resume" },
   ];
 

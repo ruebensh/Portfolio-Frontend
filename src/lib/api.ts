@@ -134,8 +134,6 @@ export const getCertificates = async () => {
   }));
 };
 
-export const getBlogPosts = () => fetchWithFallback<any[]>("/blog/posts", []);
-
 export const sendAIChatMessage = async (message: string, sessionId: string): Promise<string> => {
   try {
     const res = await fetch(`${API_URL}/ai/chat`, {

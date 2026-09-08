@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  House, Code, Certificate, FileText, Article, User, Sparkle,
+  House, Code, Certificate, FileText, User, Sparkle,
   List, X, Globe
 } from "@phosphor-icons/react/dist/ssr";
 import { useLanguage } from "@/context/LanguageContext";
@@ -25,7 +25,6 @@ export const Navbar = () => {
     { name: t("nav.projects"),     href: "/projects",     icon: Code },
     { name: t("nav.certificates"), href: "/certificates", icon: Certificate },
     { name: t("nav.resume"),       href: "/resume",       icon: FileText },
-    { name: t("nav.blog"),         href: "/blog",         icon: Article },
     { name: t("nav.about"),        href: "/about",        icon: User },
     { name: t("nav.aiChat"),       href: "/ai-chat",      icon: Sparkle },
   ];
