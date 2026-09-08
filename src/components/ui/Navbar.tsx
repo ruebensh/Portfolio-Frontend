@@ -98,11 +98,12 @@ export const Navbar = () => {
             <BackgroundMusicPlayer />
 
             {/* Language Switcher */}
-            <div className="relative">
+            <div className="relative z-50">
               <button
                 id="lang-toggle"
+                type="button"
                 onClick={() => setLangDropdownOpen(!langDropdownOpen)}
-                className="h-8 sm:h-9 px-2.5 sm:px-3 rounded-full border border-white/15 bg-white/5 text-muted font-mono text-[10px] uppercase tracking-wider flex items-center gap-1 hover:border-accent hover:text-accent transition-colors duration-200"
+                className="h-8 sm:h-9 px-2.5 sm:px-3 rounded-full border border-white/15 bg-white/5 text-muted font-mono text-[10px] uppercase tracking-wider flex items-center gap-1 hover:border-accent hover:text-accent transition-colors duration-200 touch-manipulation active:scale-95"
               >
                 <Globe size={13} />
                 <span>{language}</span>
@@ -120,13 +121,14 @@ export const Navbar = () => {
                     {languages.map((l) => (
                       <button
                         key={l.code}
+                        type="button"
                         onClick={() => {
                           setLanguage(l.code);
                           setLangDropdownOpen(false);
                         }}
-                        className={`w-full text-left px-3 py-2 rounded-xl font-mono text-[10px] uppercase tracking-wider transition-colors ${
+                        className={`w-full text-left px-3.5 py-2.5 rounded-xl font-mono text-[10px] uppercase tracking-wider transition-colors touch-manipulation active:bg-accent/30 ${
                           language === l.code
-                            ? "bg-accent/15 text-accent font-bold"
+                            ? "bg-accent/20 text-accent font-bold"
                             : "text-muted hover:text-foreground hover:bg-white/10"
                         }`}
                       >
@@ -216,11 +218,15 @@ export const Navbar = () => {
                 {languages.map((l) => (
                   <button
                     key={l.code}
-                    onClick={() => setLanguage(l.code)}
-                    className={`flex-1 py-2.5 rounded-xl font-mono text-xs uppercase tracking-wider transition-all border ${
+                    type="button"
+                    onClick={() => {
+                      setLanguage(l.code);
+                      setMobileMenuOpen(false);
+                    }}
+                    className={`flex-1 py-3 rounded-xl font-mono text-xs uppercase tracking-wider transition-all border active:scale-95 touch-manipulation ${
                       language === l.code
-                        ? "border-accent text-accent bg-accent/15 font-bold"
-                        : "border-white/10 text-muted hover:border-white/30"
+                        ? "border-accent text-accent bg-accent/20 font-bold shadow-md"
+                        : "border-white/10 text-muted hover:border-white/30 bg-white/5"
                     }`}
                   >
                     {l.label}
