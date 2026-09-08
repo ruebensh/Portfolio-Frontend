@@ -10,11 +10,7 @@ import {
   Download,
   Pause,
   Play,
-  ArrowsOut,
-  X,
   ArrowSquareOut,
-  MagnifyingGlassPlus,
-  MagnifyingGlassMinus,
   FilePdf,
 } from "@phosphor-icons/react/dist/ssr";
 import Image from "next/image";
@@ -32,8 +28,6 @@ export default function ResumePage() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [direction, setDirection] = useState(1);
   const [isPlaying, setIsPlaying] = useState(true);
-  const [isFullscreenCv, setIsFullscreenCv] = useState(false);
-  const [zoomLevel, setZoomLevel] = useState(1);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const touchStartX = useRef<number | null>(null);
 
@@ -204,27 +198,30 @@ export default function ResumePage() {
                     <span className="font-medium text-foreground">Jaloliddin_Xalimov_CV.pdf</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => setIsFullscreenCv(true)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 text-accent hover:bg-accent/20 transition-colors font-medium text-xs"
-                    >
-                      <ArrowsOut size={14} /> Kattalashtirish
-                    </button>
                     <a
                       href={resumeUrl}
                       target="_blank"
                       rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-accent text-accent-foreground hover:opacity-90 transition-opacity font-medium text-xs shadow-sm"
+                    >
+                      <ArrowSquareOut size={15} /> Ochish (To'liq PDF)
+                    </a>
+                    <a
+                      href={resumeUrl}
+                      download
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg card-surface-nested hover:border-accent/40 text-foreground transition-colors font-medium text-xs"
                     >
-                      <ArrowSquareOut size={14} /> Yangi oynada ochish
+                      <Download size={14} /> Yuklab olish
                     </a>
                   </div>
                 </div>
 
-                {/* Main Responsive CV View */}
+                {/* Main Responsive CV View - Clicking opens vector PDF in new tab with active links */}
                 <div className="relative bg-neutral-900/90 p-2 sm:p-6 md:p-8 flex justify-center items-center min-h-[450px] sm:min-h-[650px] overflow-x-auto">
-                  <div
-                    onClick={() => setIsFullscreenCv(true)}
+                  <a
+                    href={resumeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="relative cursor-pointer group max-w-full rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-white transition-transform duration-300 hover:scale-[1.005]"
                   >
                     <Image
@@ -235,117 +232,44 @@ export default function ResumePage() {
                       className="w-full h-auto max-w-full md:max-w-[850px] object-contain mx-auto"
                       priority
                     />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
-                      <span className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-black/80 text-white text-xs sm:text-sm font-medium border border-white/20 shadow-xl">
-                        <ArrowsOut size={16} /> Kattalashtirib ko'rish uchun bosing
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
+                      <span className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-accent text-accent-foreground text-xs sm:text-sm font-semibold border border-white/20 shadow-2xl">
+                        <ArrowSquareOut size={18} /> PDF Hujjatni to'liq ochish (barcha havolalar ishlaydi)
                       </span>
                     </div>
-                  </div>
+                  </a>
                 </div>
 
                 {/* Footer Toolbar */}
                 <div className="p-4 sm:p-5 border-t border-card-border flex flex-wrap items-center justify-between gap-3 bg-card-bg">
                   <div className="text-xs text-muted flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span>Hujjat responsiv tayyor (PDF)</span>
+                    <span>Vektor ko'rinish va havolalar (PDF)</span>
                   </div>
 
-                  <a
-                    href={resumeUrl}
-                    download
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-accent text-accent-foreground text-xs sm:text-sm font-medium hover:opacity-90 transition-opacity shadow-md"
-                  >
-                    <Download size={16} /> CV (PDF) Yuklab Olish
-                  </a>
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <a
+                      href={resumeUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-accent text-accent-foreground text-xs sm:text-sm font-medium hover:opacity-90 transition-opacity shadow-md"
+                    >
+                      <ArrowSquareOut size={16} /> Ochish (Yangi Oynada)
+                    </a>
+                    <a
+                      href={resumeUrl}
+                      download
+                      className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl card-surface-nested hover:border-accent/40 text-foreground text-xs sm:text-sm font-medium transition-colors"
+                    >
+                      <Download size={16} /> Yuklab Olish
+                    </a>
+                  </div>
                 </div>
               </div>
             </AnimatedItem>
           )}
         </AnimatedSection>
       </div>
-
-      {/* Lightbox / Fullscreen Modal */}
-      <AnimatePresence>
-        {isFullscreenCv && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex flex-col justify-between"
-          >
-            {/* Top Modal Bar */}
-            <div className="p-3 sm:p-4 bg-black/70 border-b border-white/10 flex items-center justify-between gap-4 z-10">
-              <div className="flex items-center gap-2 text-white text-xs sm:text-sm font-medium truncate">
-                <FilePdf size={20} className="text-rose-400 shrink-0" />
-                <span className="truncate">Jaloliddin Xalimov CV</span>
-              </div>
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <button
-                  onClick={() => setZoomLevel((z) => Math.max(0.75, z - 0.25))}
-                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white/10 text-white flex items-center justify-center hover:bg-white/20 transition-colors"
-                  title="Kichiklashtirish"
-                >
-                  <MagnifyingGlassMinus size={16} />
-                </button>
-                <span className="text-xs text-white/80 font-mono px-1">
-                  {Math.round(zoomLevel * 100)}%
-                </span>
-                <button
-                  onClick={() => setZoomLevel((z) => Math.min(2.5, z + 0.25))}
-                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white/10 text-white flex items-center justify-center hover:bg-white/20 transition-colors"
-                  title="Kattalashtirish"
-                >
-                  <MagnifyingGlassPlus size={16} />
-                </button>
-                <a
-                  href={resumeUrl}
-                  download
-                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-accent text-accent-foreground text-xs font-medium hover:opacity-90"
-                >
-                  <Download size={14} /> Yuklab olish
-                </a>
-                <button
-                  onClick={() => {
-                    setIsFullscreenCv(false);
-                    setZoomLevel(1);
-                  }}
-                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white/20 text-white flex items-center justify-center hover:bg-rose-500/80 transition-colors ml-1"
-                  title="Yopish"
-                >
-                  <X size={18} />
-                </button>
-              </div>
-            </div>
-
-            {/* Modal Image Area */}
-            <div className="flex-1 overflow-auto p-2 sm:p-4 flex items-center justify-center">
-              <div
-                style={{ transform: `scale(${zoomLevel})`, transformOrigin: "top center" }}
-                className="transition-transform duration-200 max-w-full my-auto"
-              >
-                <Image
-                  src={cvPreviewImage}
-                  alt="Full CV"
-                  width={1819}
-                  height={2573}
-                  className="max-w-full h-auto rounded-lg shadow-2xl border border-white/20 object-contain mx-auto"
-                />
-              </div>
-            </div>
-
-            {/* Bottom Modal Bar */}
-            <div className="p-3 bg-black/80 border-t border-white/10 flex items-center justify-center gap-3">
-              <a
-                href={resumeUrl}
-                download
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent text-accent-foreground text-xs sm:text-sm font-medium hover:opacity-90 transition-opacity"
-              >
-                <Download size={16} /> CV (PDF) Yuklab Olish
-              </a>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </main>
   );
 }
