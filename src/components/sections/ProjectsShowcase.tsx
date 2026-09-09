@@ -65,38 +65,38 @@ const ProjectAnnotationCard = ({ project, index, onSelect }: { project: Project;
   return (
     <div
       onClick={() => onSelect(project)}
-      className="card-surface p-6 rounded-3xl border border-accent/40 bg-card-bg/85 backdrop-blur-2xl transition-all duration-300 cursor-pointer hover:border-accent"
+      className="card-surface p-7 md:p-8 rounded-3xl border border-accent/40 bg-card-bg/90 backdrop-blur-2xl transition-all duration-300 cursor-pointer hover:border-accent hover:scale-[1.02]"
       style={{
-        width: "min(390px, 90vw)",
-        boxShadow: "0 25px 70px -10px rgba(244, 201, 93, 0.35), 0 0 50px rgba(0,0,0,0.95)",
+        width: "min(490px, 92vw)",
+        boxShadow: "0 30px 90px -10px rgba(244, 201, 93, 0.45), 0 0 60px rgba(0,0,0,0.95)",
       }}
     >
       <div className="flex items-center justify-between mb-4">
-        <span className="font-mono text-[10px] text-accent uppercase tracking-widest bg-accent/10 border border-accent/20 px-2.5 py-1 rounded-full">
+        <span className="font-mono text-xs text-accent uppercase tracking-widest bg-accent/10 border border-accent/20 px-3 py-1 rounded-full font-semibold">
           0{index + 1} • {td(project.category)}
         </span>
-        <span className={`font-mono text-[10px] px-3 py-1 rounded-full border uppercase tracking-widest ${statusClass}`}>
+        <span className={`font-mono text-xs px-3.5 py-1 rounded-full border uppercase tracking-widest font-semibold ${statusClass}`}>
           {td(status)}
         </span>
       </div>
 
       {project.imageUrl ? (
-        <div className="relative w-full h-40 mb-4 overflow-hidden rounded-2xl border border-white/10 card-surface-nested">
+        <div className="relative w-full h-52 md:h-60 mb-5 overflow-hidden rounded-2xl border border-white/10 card-surface-nested">
           <img src={resolveUrl(project.imageUrl)} alt={project.title} className="w-full h-full object-cover opacity-90 hover:scale-105 transition-transform duration-500" />
         </div>
       ) : (
-        <div className="w-full h-40 mb-4 card-surface-nested border border-white/10 rounded-2xl flex items-center justify-center">
-          <span className="font-display text-3xl font-bold text-accent/30">{project.title[0]}</span>
+        <div className="w-full h-52 md:h-60 mb-5 card-surface-nested border border-white/10 rounded-2xl flex items-center justify-center">
+          <span className="font-display text-4xl font-bold text-accent/30">{project.title[0]}</span>
         </div>
       )}
 
-      <h3 className="font-display text-xl font-bold text-foreground mb-1 leading-tight">{td(project.title)}</h3>
-      <p className="text-muted text-xs leading-relaxed line-clamp-2 mb-4 font-sans">{td(project.description)}</p>
+      <h3 className="font-display text-2xl md:text-3xl font-extrabold text-foreground mb-2 leading-tight">{td(project.title)}</h3>
+      <p className="text-muted text-sm leading-relaxed line-clamp-3 mb-5 font-sans">{td(project.description)}</p>
 
       {project.technologies && project.technologies.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mb-5">
+        <div className="flex flex-wrap gap-2 mb-6">
           {project.technologies.slice(0, 4).map((t) => (
-            <span key={t} className="px-2.5 py-1 bg-white/5 border border-white/10 rounded-full font-mono text-[9px] text-foreground/70 uppercase">
+            <span key={t} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full font-mono text-[10px] text-foreground/80 uppercase font-semibold">
               {t}
             </span>
           ))}
@@ -104,7 +104,7 @@ const ProjectAnnotationCard = ({ project, index, onSelect }: { project: Project;
       )}
 
       <div className="flex gap-2">
-        <span className="flex-1 py-2.5 text-center font-mono text-[10px] uppercase tracking-widest bg-accent text-accent-foreground font-bold rounded-xl shadow-[0_0_15px_rgba(244,201,93,0.4)]">
+        <span className="flex-1 py-3 text-center font-mono text-xs uppercase tracking-widest bg-accent text-accent-foreground font-extrabold rounded-xl shadow-[0_0_20px_rgba(244,201,93,0.45)]">
           {td("BATAFSIL KO'RISH →")}
         </span>
       </div>
@@ -375,10 +375,12 @@ export const ProjectsShowcase = ({ projects = [] }: { projects?: any[] }) => {
         }
 
         op = Math.max(0, Math.min(1, op));
-        const sideOffset = (idx % 2 === 0 ? -1 : 1) * (1 - op) * 50;
+        const sideOffset = (idx % 2 === 0 ? -1 : 1) * (1 - op) * 140;
+        const rotateY = (idx % 2 === 0 ? -1 : 1) * (1 - op) * 28;
+        const scale = 0.7 + op * 0.3;
 
         el.style.opacity = op.toString();
-        el.style.transform = `translateX(${sideOffset}px)`;
+        el.style.transform = `translateX(${sideOffset}px) rotateY(${rotateY}deg) scale(${scale})`;
       });
     }
   }, [displayProjects.length]);

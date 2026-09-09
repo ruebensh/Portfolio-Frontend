@@ -66,15 +66,18 @@ export const Navbar = () => {
             {navLinks.map((link) => {
               const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
               const Icon = link.icon;
+              const isResume = link.href === "/resume";
 
               return (
                 <Link
                   key={link.name}
                   href={link.href}
-                  className={`relative flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors duration-200 select-none ${
+                  className={`relative flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-300 select-none ${
                     isActive
                       ? "text-accent-foreground font-semibold"
-                      : "text-muted hover:text-foreground"
+                      : isResume
+                      ? "text-accent font-bold bg-accent/15 border border-accent/60 resume-glow-effect"
+                      : "hover:opacity-100"
                   }`}
                 >
                   {isActive && (
@@ -85,8 +88,20 @@ export const Navbar = () => {
                     />
                   )}
                   <span className="relative z-10 flex items-center gap-1.5">
-                    <Icon size={15} weight={isActive ? "fill" : "regular"} />
-                    <span className="font-sans">{link.name}</span>
+                    <Icon
+                      size={15}
+                      weight={isActive || isResume ? "fill" : "regular"}
+                      className={
+                        isResume && !isActive
+                          ? "text-accent drop-shadow-[0_0_8px_rgba(244,201,93,0.9)]"
+                          : !isActive
+                          ? "text-accent/90 drop-shadow-[0_0_6px_rgba(244,201,93,0.35)]"
+                          : ""
+                      }
+                    />
+                    <span className={!isActive && !isResume ? "text-shimmer font-semibold font-sans" : "font-sans"}>
+                      {link.name}
+                    </span>
                   </span>
                 </Link>
               );
@@ -184,6 +199,7 @@ export const Navbar = () => {
               {navLinks.map((link, i) => {
                 const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
                 const Icon = link.icon;
+                const isResume = link.href === "/resume";
 
                 return (
                   <motion.div
@@ -198,12 +214,26 @@ export const Navbar = () => {
                       className={`flex items-center justify-between px-5 py-3.5 rounded-2xl border transition-all ${
                         isActive
                           ? "bg-accent text-accent-foreground border-accent font-bold shadow-lg"
-                          : "border-white/10 bg-white/5 text-foreground hover:border-accent/40"
+                          : isResume
+                          ? "border-accent/70 bg-accent/15 text-accent font-bold resume-glow-effect"
+                          : "border-white/10 bg-white/5 hover:border-accent/40"
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <Icon size={20} weight={isActive ? "fill" : "regular"} />
-                        <span className="font-display text-base tracking-tight">{link.name}</span>
+                        <Icon
+                          size={20}
+                          weight={isActive || isResume ? "fill" : "regular"}
+                          className={
+                            isResume && !isActive
+                              ? "text-accent drop-shadow-[0_0_8px_rgba(244,201,93,0.9)]"
+                              : !isActive
+                              ? "text-accent/90 drop-shadow-[0_0_6px_rgba(244,201,93,0.35)]"
+                              : ""
+                          }
+                        />
+                        <span className={`font-display text-base tracking-tight ${!isActive && !isResume ? "text-shimmer font-semibold" : ""}`}>
+                          {link.name}
+                        </span>
                       </div>
                       <span className="font-mono text-xs text-muted">→</span>
                     </Link>

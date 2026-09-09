@@ -26,7 +26,7 @@ type Mode = "cv" | "portfolio";
 
 export default function ResumePage() {
   const { td } = useLanguage();
-  const [mode, setMode] = useState<Mode>("portfolio");
+  const [mode, setMode] = useState<Mode>("cv");
   const [currentSlide, setCurrentSlide] = useState(0);
   const [direction, setDirection] = useState(1);
   const [isPlaying, setIsPlaying] = useState(true);
@@ -71,16 +71,6 @@ export default function ResumePage() {
           <AnimatedItem className="mb-6 sm:mb-10">
             <div className="flex flex-wrap gap-2.5 sm:gap-3">
               <button
-                onClick={() => setMode("portfolio")}
-                className={`flex-1 sm:flex-initial px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all border text-center ${
-                  mode === "portfolio"
-                    ? "bg-accent text-accent-foreground border-accent shadow-sm"
-                    : "card-surface-nested text-muted hover:border-accent/40"
-                }`}
-              >
-                Portfolio Slides
-              </button>
-              <button
                 onClick={() => setMode("cv")}
                 className={`flex-1 sm:flex-initial px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all border text-center ${
                   mode === "cv"
@@ -90,10 +80,99 @@ export default function ResumePage() {
               >
                 CV (PDF)
               </button>
+              <button
+                onClick={() => setMode("portfolio")}
+                className={`flex-1 sm:flex-initial px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all border text-center ${
+                  mode === "portfolio"
+                    ? "bg-accent text-accent-foreground border-accent shadow-sm"
+                    : "card-surface-nested text-muted hover:border-accent/40"
+                }`}
+              >
+                Portfolio Slides
+              </button>
             </div>
           </AnimatedItem>
 
-          {mode === "portfolio" ? (
+          {mode === "cv" ? (
+            <AnimatedItem>
+              <div className="card-surface overflow-hidden rounded-xl sm:rounded-2xl">
+                {/* Document Top Bar */}
+                <div className="p-3 sm:p-4 bg-card-surface-nested border-b border-card-border flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm text-muted">
+                  <div className="flex items-center gap-2">
+                    <FilePdf size={18} className="text-accent" />
+                    <span className="font-medium text-foreground">Jaloliddin_Xalimov_CV.pdf</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={resumeUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-accent text-accent-foreground hover:opacity-90 transition-opacity font-medium text-xs shadow-sm"
+                    >
+                      <ArrowSquareOut size={15} /> {td("Ochish (To'liq PDF)")}
+                    </a>
+                    <a
+                      href={resumeUrl}
+                      download
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg card-surface-nested hover:border-accent/40 text-foreground transition-colors font-medium text-xs"
+                    >
+                      <Download size={14} /> {td("Yuklab olish")}
+                    </a>
+                  </div>
+                </div>
+
+                {/* Main Responsive CV View - Clicking opens vector PDF in new tab with active links */}
+                <div className="relative bg-neutral-900/90 p-2 sm:p-6 md:p-8 flex justify-center items-center min-h-[450px] sm:min-h-[650px] overflow-x-auto">
+                  <a
+                    href={resumeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="relative cursor-pointer group max-w-full rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-white transition-transform duration-300 hover:scale-[1.005]"
+                  >
+                    <Image
+                      src={cvPreviewImage}
+                      alt="Jaloliddin Xalimov CV Document Preview"
+                      width={1819}
+                      height={2573}
+                      className="w-full h-auto max-w-full md:max-w-[850px] object-contain mx-auto"
+                      priority
+                    />
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
+                      <span className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-accent text-accent-foreground text-xs sm:text-sm font-semibold border border-white/20 shadow-2xl">
+                        <ArrowSquareOut size={18} /> {td("PDF Hujjatni to'liq ochish (barcha havolalar ishlaydi)")}
+                      </span>
+                    </div>
+                  </a>
+                </div>
+
+                {/* Footer Toolbar */}
+                <div className="p-4 sm:p-5 border-t border-card-border flex flex-wrap items-center justify-between gap-3 bg-card-bg">
+                  <div className="text-xs text-muted flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>{td("Vektor ko'rinish va havolalar (PDF)")}</span>
+                  </div>
+
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <a
+                      href={resumeUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-accent text-accent-foreground text-xs sm:text-sm font-medium hover:opacity-90 transition-opacity shadow-md"
+                    >
+                      <ArrowSquareOut size={16} /> {td("Ochish (Yangi Oynada)")}
+                    </a>
+                    <a
+                      href={resumeUrl}
+                      download
+                      className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl card-surface-nested hover:border-accent/40 text-foreground text-xs sm:text-sm font-medium transition-colors"
+                    >
+                      <Download size={16} /> {td("Yuklab Olish")}
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </AnimatedItem>
+          ) : (
             <AnimatedItem>
               <div className="card-surface overflow-hidden rounded-xl sm:rounded-2xl">
                 {/* Slide viewer */}
@@ -187,85 +266,6 @@ export default function ResumePage() {
                       }`}
                     />
                   ))}
-                </div>
-              </div>
-            </AnimatedItem>
-          ) : (
-            <AnimatedItem>
-              <div className="card-surface overflow-hidden rounded-xl sm:rounded-2xl">
-                {/* Document Top Bar */}
-                <div className="p-3 sm:p-4 bg-card-surface-nested border-b border-card-border flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm text-muted">
-                  <div className="flex items-center gap-2">
-                    <FilePdf size={18} className="text-accent" />
-                    <span className="font-medium text-foreground">Jaloliddin_Xalimov_CV.pdf</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <a
-                      href={resumeUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-accent text-accent-foreground hover:opacity-90 transition-opacity font-medium text-xs shadow-sm"
-                    >
-                      <ArrowSquareOut size={15} /> {td("Ochish (To'liq PDF)")}
-                    </a>
-                    <a
-                      href={resumeUrl}
-                      download
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg card-surface-nested hover:border-accent/40 text-foreground transition-colors font-medium text-xs"
-                    >
-                      <Download size={14} /> {td("Yuklab olish")}
-                    </a>
-                  </div>
-                </div>
-
-                {/* Main Responsive CV View - Clicking opens vector PDF in new tab with active links */}
-                <div className="relative bg-neutral-900/90 p-2 sm:p-6 md:p-8 flex justify-center items-center min-h-[450px] sm:min-h-[650px] overflow-x-auto">
-                  <a
-                    href={resumeUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="relative cursor-pointer group max-w-full rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-white transition-transform duration-300 hover:scale-[1.005]"
-                  >
-                    <Image
-                      src={cvPreviewImage}
-                      alt="Jaloliddin Xalimov CV Document Preview"
-                      width={1819}
-                      height={2573}
-                      className="w-full h-auto max-w-full md:max-w-[850px] object-contain mx-auto"
-                      priority
-                    />
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
-                      <span className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-accent text-accent-foreground text-xs sm:text-sm font-semibold border border-white/20 shadow-2xl">
-                        <ArrowSquareOut size={18} /> {td("PDF Hujjatni to'liq ochish (barcha havolalar ishlaydi)")}
-                      </span>
-                    </div>
-                  </a>
-                </div>
-
-                {/* Footer Toolbar */}
-                <div className="p-4 sm:p-5 border-t border-card-border flex flex-wrap items-center justify-between gap-3 bg-card-bg">
-                  <div className="text-xs text-muted flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span>{td("Vektor ko'rinish va havolalar (PDF)")}</span>
-                  </div>
-
-                  <div className="flex items-center gap-2 w-full sm:w-auto">
-                    <a
-                      href={resumeUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-accent text-accent-foreground text-xs sm:text-sm font-medium hover:opacity-90 transition-opacity shadow-md"
-                    >
-                      <ArrowSquareOut size={16} /> {td("Ochish (Yangi Oynada)")}
-                    </a>
-                    <a
-                      href={resumeUrl}
-                      download
-                      className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl card-surface-nested hover:border-accent/40 text-foreground text-xs sm:text-sm font-medium transition-colors"
-                    >
-                      <Download size={16} /> {td("Yuklab Olish")}
-                    </a>
-                  </div>
                 </div>
               </div>
             </AnimatedItem>

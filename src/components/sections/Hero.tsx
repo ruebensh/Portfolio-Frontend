@@ -14,34 +14,34 @@ const FRAME_START = 1;
 const FRAME_END = 300;
 const FRAME_COUNT = FRAME_END - FRAME_START + 1;
 
-// ── Timelines for the 3 distinct info cards ──────────────────────────────
+// ── Timelines for the 3 distinct info cards with dramatic 3D X-Y-Z rotations & scale ──
 const card1Timeline: ChoreoTimeline = {
   id: "card1",
   keyframes: [
-    { progress: 0.12, opacity: 0, transform: { x: 320, y: 80,  z: -500, rx: 0.3, ry: 0.8, rz: 0.15, angle: -140, scale: 0.3 } },
-    { progress: 0.28, opacity: 1, transform: { x: -160, y: -40, z: -30,  rx: 0.1, ry: 0.4, rz: 0.08, angle: 14,   scale: 0.95 } },
-    { progress: 0.40, opacity: 1, transform: { x: -180, y: -60, z: 0,    rx: 0.1, ry: 0.4, rz: 0.08, angle: 18,   scale: 1.0 } },
-    { progress: 0.52, opacity: 0, transform: { x: -420, y: -180, z: 200, rx: 0,   ry: 0.8, rz: 0.4,  angle: 100,  scale: 0.45 } },
+    { progress: 0.10, opacity: 0, transform: { x: 550, y: 220,  z: -900, rx: 1.5, ry: 2.2, rz: 0.8, angle: -320, scale: 0.25 } },
+    { progress: 0.26, opacity: 1, transform: { x: -180, y: -40, z: -20,  rx: 0.2, ry: 0.5, rz: 0.12, angle: 16,   scale: 1.25 } },
+    { progress: 0.40, opacity: 1, transform: { x: -200, y: -60, z: 10,   rx: 0.2, ry: 0.5, rz: 0.12, angle: 22,   scale: 1.30 } },
+    { progress: 0.54, opacity: 0, transform: { x: -750, y: -380, z: 500, rx: -1.2, ry: 2.8, rz: 1.2, angle: 360,  scale: 0.35 } },
   ],
 };
 
 const card2Timeline: ChoreoTimeline = {
   id: "card2",
   keyframes: [
-    { progress: 0.38, opacity: 0, transform: { x: -320, y: -60, z: -500, rx: 0.8, ry: 0.3, rz: 0, angle: 140, scale: 0.3 } },
-    { progress: 0.54, opacity: 1, transform: { x: 160,  y: 40,  z: -20,  rx: 0.4, ry: 0.08, rz: 0, angle: -12, scale: 0.95 } },
-    { progress: 0.66, opacity: 1, transform: { x: 180,  y: 60,  z: 0,    rx: 0.4, ry: 0.08, rz: 0, angle: -16, scale: 1.0 } },
-    { progress: 0.78, opacity: 0, transform: { x: 420,  y: 180, z: 200,  rx: 0.8, ry: 0.5,  rz: 0, angle: -100, scale: 0.45 } },
+    { progress: 0.36, opacity: 0, transform: { x: -550, y: -220, z: -900, rx: 2.2, ry: 1.5, rz: -0.8, angle: 320, scale: 0.25 } },
+    { progress: 0.52, opacity: 1, transform: { x: 180,  y: 40,  z: -20,  rx: 0.5, ry: 0.2, rz: -0.12, angle: -16, scale: 1.25 } },
+    { progress: 0.66, opacity: 1, transform: { x: 200,  y: 60,  z: 10,   rx: 0.5, ry: 0.2, rz: -0.12, angle: -22, scale: 1.30 } },
+    { progress: 0.80, opacity: 0, transform: { x: 750,  y: 380, z: 500,  rx: 1.2, ry: -2.8, rz: -1.2, angle: -360, scale: 0.35 } },
   ],
 };
 
 const card3Timeline: ChoreoTimeline = {
   id: "card3",
   keyframes: [
-    { progress: 0.62, opacity: 0, transform: { x: 0, y: 280,  z: -600, rx: 0.04, ry: 0.04, rz: 0.6, angle: -60, scale: 0.3 } },
-    { progress: 0.76, opacity: 1, transform: { x: 0, y: 0,    z: 0,    rx: 0.03, ry: 0.03, rz: 0.05, angle: 0,   scale: 1.0 } },
-    { progress: 0.88, opacity: 1, transform: { x: 0, y: -15,  z: 15,   rx: 0.03, ry: 0.03, rz: 0.05, angle: 4,   scale: 1.02 } },
-    { progress: 0.98, opacity: 0, transform: { x: 0, y: -350, z: 200,  rx: 0,    ry: 0,    rz: 0.6, angle: 50,  scale: 0.4 } },
+    { progress: 0.60, opacity: 0, transform: { x: 0, y: 550,  z: -1000, rx: 2.5, ry: 1.8, rz: 1.5, angle: -360, scale: 0.25 } },
+    { progress: 0.74, opacity: 1, transform: { x: 0, y: 0,    z: 0,     rx: 0.08, ry: 0.08, rz: 0.1, angle: 0,   scale: 1.30 } },
+    { progress: 0.88, opacity: 1, transform: { x: 0, y: -20,  z: 20,    rx: 0.08, ry: 0.08, rz: 0.1, angle: 8,   scale: 1.35 } },
+    { progress: 0.98, opacity: 0, transform: { x: 0, y: -650, z: 600,   rx: -1.8, ry: 2.5, rz: -1.8, angle: 420,  scale: 0.35 } },
   ],
 };
 
@@ -180,26 +180,26 @@ export const Hero = ({ settings }: { settings?: any }) => {
           </div>
 
           {!isReduced && (
-            <div className="absolute inset-0 pointer-events-none" style={{ perspective: "1000px", perspectiveOrigin: "50% 50%" }}>
+            <div className="absolute inset-0 pointer-events-none" style={{ perspective: "1200px", perspectiveOrigin: "50% 50%" }}>
               <FloatingSceneCard ref={card1Ref} id="hero-card-values">
-                <div className="card-surface p-7 md:p-8 border border-accent/40 bg-card-bg/75 backdrop-blur-xl shadow-[0_25px_70px_-10px_rgba(244,201,93,0.4),0_0_35px_rgba(244,201,93,0.25)] rounded-3xl" style={{ width: "min(440px, 90vw)" }}>
+                <div className="card-surface p-8 md:p-9 border border-accent/40 bg-card-bg/85 backdrop-blur-2xl shadow-[0_30px_90px_-10px_rgba(244,201,93,0.45),0_0_40px_rgba(244,201,93,0.3)] rounded-3xl" style={{ width: "min(500px, 92vw)" }}>
                   <div className="flex items-center gap-3.5 mb-5">
-                    <div className="w-11 h-11 rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-400 flex items-center justify-center">
-                      <Heart size={22} weight="fill" />
+                    <div className="w-12 h-12 rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-400 flex items-center justify-center">
+                      <Heart size={24} weight="fill" />
                     </div>
-                    <h3 className="font-display text-lg md:text-xl font-bold text-foreground">{td("Qadriyatlar & Tamoyillar")}</h3>
+                    <h3 className="font-display text-xl md:text-2xl font-bold text-foreground">{td("Qadriyatlar & Tamoyillar")}</h3>
                   </div>
-                  <ul className="space-y-3 font-sans text-sm text-foreground/90 leading-relaxed font-medium">
+                  <ul className="space-y-3 font-sans text-sm md:text-base text-foreground/90 leading-relaxed font-medium">
                     <li className="flex items-start gap-2.5">
-                      <span className="w-2 h-2 rounded-full bg-accent mt-1.5 flex-shrink-0 shadow-[0_0_8px_rgba(244,201,93,0.8)]" />
+                      <span className="w-2 h-2 rounded-full bg-accent mt-2 flex-shrink-0 shadow-[0_0_8px_rgba(244,201,93,0.8)]" />
                       <span>{td("Doimiy o'rganish va amaliyot orqali yangi texnologiyalarni egallash")}</span>
                     </li>
                     <li className="flex items-start gap-2.5">
-                      <span className="w-2 h-2 rounded-full bg-accent mt-1.5 flex-shrink-0 shadow-[0_0_8px_rgba(244,201,93,0.8)]" />
+                      <span className="w-2 h-2 rounded-full bg-accent mt-2 flex-shrink-0 shadow-[0_0_8px_rgba(244,201,93,0.8)]" />
                       <span>{td("Toza, o'qilishi oson va masshtablanuvchi kod yozish madaniyati")}</span>
                     </li>
                     <li className="flex items-start gap-2.5">
-                      <span className="w-2 h-2 rounded-full bg-accent mt-1.5 flex-shrink-0 shadow-[0_0_8px_rgba(244,201,93,0.8)]" />
+                      <span className="w-2 h-2 rounded-full bg-accent mt-2 flex-shrink-0 shadow-[0_0_8px_rgba(244,201,93,0.8)]" />
                       <span>{td("Muammolarga innovatsion va AI yechimlar topish")}</span>
                     </li>
                   </ul>
@@ -207,24 +207,24 @@ export const Hero = ({ settings }: { settings?: any }) => {
               </FloatingSceneCard>
 
               <FloatingSceneCard ref={card2Ref} id="hero-card-learning">
-                <div className="card-surface p-7 md:p-8 border border-emerald-500/40 bg-card-bg/75 backdrop-blur-xl shadow-[0_25px_70px_-10px_rgba(52,211,153,0.3),0_0_35px_rgba(244,201,93,0.2)] rounded-3xl" style={{ width: "min(430px, 90vw)" }}>
+                <div className="card-surface p-8 md:p-9 border border-emerald-500/40 bg-card-bg/85 backdrop-blur-2xl shadow-[0_30px_90px_-10px_rgba(52,211,153,0.35),0_0_40px_rgba(244,201,93,0.25)] rounded-3xl" style={{ width: "min(490px, 92vw)" }}>
                   <div className="flex items-center gap-3.5 mb-5">
-                    <div className="w-11 h-11 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center">
-                      <BookOpen size={22} weight="fill" />
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center">
+                      <BookOpen size={24} weight="fill" />
                     </div>
-                    <h3 className="font-display text-lg md:text-xl font-bold text-foreground">{td("Hozir O'rganayotganlar")}</h3>
+                    <h3 className="font-display text-xl md:text-2xl font-bold text-foreground">{td("Hozir O'rganayotganlar")}</h3>
                   </div>
-                  <ul className="space-y-3 font-sans text-sm text-foreground/90 leading-relaxed font-medium">
+                  <ul className="space-y-3 font-sans text-sm md:text-base text-foreground/90 leading-relaxed font-medium">
                     <li className="flex items-start gap-2.5">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 mt-1.5 flex-shrink-0 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 mt-2 flex-shrink-0 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
                       <span>Deep Learning & PyTorch Architecture</span>
                     </li>
                     <li className="flex items-start gap-2.5">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 mt-1.5 flex-shrink-0 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 mt-2 flex-shrink-0 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
                       <span>Large Language Models (LLM) & RAG Systems</span>
                     </li>
                     <li className="flex items-start gap-2.5">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 mt-1.5 flex-shrink-0 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 mt-2 flex-shrink-0 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
                       <span>High-Performance Async Backend Systems</span>
                     </li>
                   </ul>
@@ -232,12 +232,12 @@ export const Hero = ({ settings }: { settings?: any }) => {
               </FloatingSceneCard>
 
               <FloatingSceneCard ref={card3Ref} id="hero-card-working">
-                <div className="card-surface p-7 md:p-8 border border-indigo-500/40 bg-card-bg/75 backdrop-blur-xl shadow-[0_25px_70px_-10px_rgba(129,140,248,0.3),0_0_35px_rgba(244,201,93,0.2)] rounded-3xl" style={{ width: "min(420px, 90vw)" }}>
+                <div className="card-surface p-8 md:p-9 border border-indigo-500/40 bg-card-bg/85 backdrop-blur-2xl shadow-[0_30px_90px_-10px_rgba(129,140,248,0.35),0_0_40px_rgba(244,201,93,0.25)] rounded-3xl" style={{ width: "min(480px, 92vw)" }}>
                   <div className="flex items-center gap-3.5 mb-5">
-                    <div className="w-11 h-11 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-400 flex items-center justify-center">
-                      <Code size={22} weight="fill" />
+                    <div className="w-12 h-12 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-400 flex items-center justify-center">
+                      <Code size={24} weight="fill" />
                     </div>
-                    <h3 className="font-display text-lg md:text-xl font-bold text-foreground">{td("Hozir Ishlayotganlar")}</h3>
+                    <h3 className="font-display text-xl md:text-2xl font-bold text-foreground">{td("Hozir Ishlayotganlar")}</h3>
                   </div>
                   <ul className="space-y-3 font-sans text-sm text-foreground/90 leading-relaxed font-medium">
                     <li className="flex items-start gap-2.5">
