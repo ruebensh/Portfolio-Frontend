@@ -260,43 +260,53 @@ export const Hero = ({ settings }: { settings?: any }) => {
         </ScrollScene>
       </div>
 
-      {/* ── Mobile Sleek & Minimal Hero (MD down) ─────────────────────────── */}
-      <section className="block md:hidden pt-28 pb-12 px-5 bg-transparent text-center min-h-[90vh] flex flex-col justify-center items-center">
-        {/* Avatar */}
-        <div className="relative w-20 h-20 mb-5 rounded-full border-2 border-accent/40 bg-black/60 overflow-hidden shadow-[0_0_30px_rgba(244,201,93,0.25)]">
-          <Image
-            src={settings?.avatarUrl || "/jaloliddin_profile.png"}
-            alt={settings?.name || settings?.author || ""}
-            fill
-            sizes="160px"
-            className="object-cover"
-            priority
-          />
+      {/* ── Mobile Rich Hero (MD down) ─────────────────────────────────────── */}
+      <section className="block md:hidden pt-24 pb-14 px-5 bg-transparent text-center min-h-[100svh] flex flex-col justify-center items-center relative overflow-hidden">
+        {/* Ambient background glows */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-72 h-72 rounded-full bg-accent/8 blur-[100px] pointer-events-none" />
+        <div className="absolute bottom-1/3 left-1/4 w-48 h-48 rounded-full bg-purple-600/10 blur-[80px] pointer-events-none" />
+
+        {/* Avatar — bigger with glow ring */}
+        <div className="relative w-28 h-28 mb-5 flex-shrink-0">
+          <div className="w-full h-full rounded-full p-[3px] bg-gradient-to-br from-accent via-accent/60 to-transparent shadow-[0_0_40px_rgba(244,201,93,0.35)]">
+            <div className="w-full h-full rounded-full overflow-hidden bg-black/80">
+              <Image
+                src={settings?.avatarUrl || "/jaloliddin_profile.png"}
+                alt={settings?.name || settings?.author || ""}
+                fill
+                sizes="224px"
+                className="object-cover rounded-full"
+                priority
+              />
+            </div>
+          </div>
+          {/* Online dot */}
+          <span className="absolute bottom-2 right-2 w-4 h-4 rounded-full bg-emerald-400 border-2 border-black shadow-[0_0_12px_rgba(52,211,153,0.9)] animate-pulse" />
         </div>
 
         {/* Status badge */}
-        <span className="inline-flex items-center gap-2 border border-accent/30 bg-accent/10 px-3.5 py-1 font-mono text-[9px] tracking-widest text-accent rounded-full uppercase mb-4">
+        <span className="inline-flex items-center gap-2 border border-accent/30 bg-accent/10 px-3.5 py-1 font-mono text-[9px] tracking-widest text-accent rounded-full uppercase mb-5">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
           {td("Ruebensh")}
         </span>
 
-        {/* Name */}
-        <h1 className="font-display font-extrabold text-3xl sm:text-4xl text-white tracking-tight leading-tight mb-3">
+        {/* Name — shimmer like desktop */}
+        <h1 className="text-shimmer font-display font-extrabold text-[2rem] sm:text-4xl tracking-tight leading-tight mb-3 px-2">
           {td(settings?.author || settings?.title)}
         </h1>
 
-        {/* Role */}
-        <p className="font-mono text-xs text-accent font-semibold uppercase tracking-wider mb-4">
+        {/* Role — accent shimmer */}
+        <p className="text-shimmer-accent font-mono text-[11px] font-bold uppercase tracking-widest mb-4">
           {td(settings?.mainStack)}
         </p>
 
         {/* Description */}
-        <p className="text-xs text-foreground/80 font-sans leading-relaxed max-w-sm mb-6">
+        <p className="text-[13px] text-foreground/75 font-sans leading-relaxed max-w-[320px] mb-7">
           {td(settings?.description)}
         </p>
 
         {/* Action Buttons */}
-        <div className="flex flex-col gap-2.5 w-full max-w-xs mb-8">
+        <div className="flex flex-col gap-3 w-full max-w-xs mb-8">
           <Button href="https://t.me/jaloliddin_xalimov" showArrow className="w-full">
             {td("Bog'lanish")}
           </Button>
@@ -305,22 +315,94 @@ export const Hero = ({ settings }: { settings?: any }) => {
           </Button>
         </div>
 
-        {/* Compact Values card on mobile */}
-        <div className="w-full max-w-xs p-5 rounded-2xl border border-white/10 bg-[#0f0f1b]/90 backdrop-blur-xl text-left shadow-lg">
-          <div className="flex items-center gap-2.5 mb-3">
-            <Heart size={18} className="text-rose-400" weight="fill" />
-            <h3 className="font-display text-xs font-bold text-white uppercase tracking-wider">{td("Qadriyatlar & Tamoyillar")}</h3>
+        {/* Swipeable 3 info cards */}
+        <div className="w-full max-w-sm">
+          <p className="font-mono text-[9px] uppercase tracking-widest text-muted mb-3 text-center">
+            ← {td("Suring")} →
+          </p>
+          <div
+            className="flex gap-3 overflow-x-auto pb-3 snap-x snap-mandatory scrollbar-none"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          >
+            {/* Card 1 — Values */}
+            <div className="flex-shrink-0 w-[82vw] max-w-[300px] snap-center p-5 rounded-2xl border border-rose-500/30 bg-[#0f0a10]/90 backdrop-blur-xl shadow-[0_8px_32px_-4px_rgba(244,63,94,0.2)] text-left">
+              <div className="flex items-center gap-2.5 mb-4">
+                <div className="w-9 h-9 rounded-xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center">
+                  <Heart size={17} className="text-rose-400" weight="fill" />
+                </div>
+                <h3 className="font-display text-sm font-bold text-white">{td("Qadriyatlar")}</h3>
+              </div>
+              <ul className="space-y-2.5 text-[12px] text-foreground/80 font-sans">
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent mt-1.5 flex-shrink-0 shadow-[0_0_6px_rgba(244,201,93,0.8)]" />
+                  <span>{td("Doimiy o'rganish va yangi texnologiyalarni egallash")}</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent mt-1.5 flex-shrink-0 shadow-[0_0_6px_rgba(244,201,93,0.8)]" />
+                  <span>{td("Toza va masshtablanuvchi kod yozish madaniyati")}</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent mt-1.5 flex-shrink-0 shadow-[0_0_6px_rgba(244,201,93,0.8)]" />
+                  <span>{td("Muammolarga innovatsion AI yechimlar topish")}</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Card 2 — Learning */}
+            <div className="flex-shrink-0 w-[82vw] max-w-[300px] snap-center p-5 rounded-2xl border border-emerald-500/30 bg-[#091510]/90 backdrop-blur-xl shadow-[0_8px_32px_-4px_rgba(52,211,153,0.2)] text-left">
+              <div className="flex items-center gap-2.5 mb-4">
+                <div className="w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center">
+                  <BookOpen size={17} className="text-emerald-400" weight="fill" />
+                </div>
+                <h3 className="font-display text-sm font-bold text-white">{td("O'rganayotganlar")}</h3>
+              </div>
+              <ul className="space-y-2.5 text-[12px] text-foreground/80 font-sans">
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 flex-shrink-0 shadow-[0_0_6px_rgba(52,211,153,0.8)]" />
+                  <span>Deep Learning & PyTorch Architecture</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 flex-shrink-0 shadow-[0_0_6px_rgba(52,211,153,0.8)]" />
+                  <span>Large Language Models & RAG Systems</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 flex-shrink-0 shadow-[0_0_6px_rgba(52,211,153,0.8)]" />
+                  <span>High-Performance Async Backend</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Card 3 — Working on */}
+            <div className="flex-shrink-0 w-[82vw] max-w-[300px] snap-center p-5 rounded-2xl border border-indigo-500/30 bg-[#0b0a16]/90 backdrop-blur-xl shadow-[0_8px_32px_-4px_rgba(129,140,248,0.2)] text-left">
+              <div className="flex items-center gap-2.5 mb-4">
+                <div className="w-9 h-9 rounded-xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center">
+                  <Code size={17} className="text-indigo-400" weight="fill" />
+                </div>
+                <h3 className="font-display text-sm font-bold text-white">{td("Ishlayotganlar")}</h3>
+              </div>
+              <ul className="space-y-2.5 text-[12px] text-foreground/80 font-sans">
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 mt-1.5 flex-shrink-0 shadow-[0_0_6px_rgba(129,140,248,0.8)]" />
+                  <span>AI Portfolio & Interactive Web Platform</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 mt-1.5 flex-shrink-0 shadow-[0_0_6px_rgba(129,140,248,0.8)]" />
+                  <span>Custom ML Pipeline & Data Analytics</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 mt-1.5 flex-shrink-0 shadow-[0_0_6px_rgba(129,140,248,0.8)]" />
+                  <span>Ruebensh AI Assistant Integration</span>
+                </li>
+              </ul>
+            </div>
           </div>
-          <ul className="space-y-2 text-[11px] text-foreground/80 font-sans">
-            <li className="flex items-start gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-accent mt-1 flex-shrink-0" />
-              <span>{td("Doimiy o'rganish va amaliyot orqali yangi texnologiyalarni egallash")}</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-accent mt-1 flex-shrink-0" />
-              <span>{td("Toza, o'qilishi oson va masshtablanuvchi kod yozish madaniyati")}</span>
-            </li>
-          </ul>
+
+          {/* Scroll indicator dots */}
+          <div className="flex justify-center gap-1.5 mt-3">
+            {[0,1,2].map((i) => (
+              <span key={i} className={`w-1.5 h-1.5 rounded-full ${i === 0 ? "bg-accent" : "bg-white/20"}`} />
+            ))}
+          </div>
         </div>
       </section>
     </>
