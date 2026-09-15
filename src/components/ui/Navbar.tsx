@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
@@ -17,6 +17,7 @@ export const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const { language, setLanguage, t } = useLanguage();
 
@@ -40,6 +41,22 @@ export const Navbar = () => {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent | TouchEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setLangDropdownOpen(false);
+      }
+    };
+    if (langDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("touchstart", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, [langDropdownOpen]);
 
   return (
     <>
@@ -113,21 +130,18 @@ export const Navbar = () => {
             <BackgroundMusicPlayer />
 
             {/* Language Switcher */}
-            <div className="relative z-50">
+            <div className="relative z-50" ref={dropdownRef}>
               <button
                 id="lang-toggle"
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
-                  setLangDropdownOpen(!langDropdownOpen);
-                }}
-                onPointerDown={(e) => {
-                  e.stopPropagation();
+                  setLangDropdownOpen((prev) => !prev);
                 }}
                 className="h-8 sm:h-9 px-2.5 sm:px-3 rounded-full border border-white/15 bg-white/5 text-muted font-mono text-[10px] uppercase tracking-wider flex items-center gap-1 hover:border-accent hover:text-accent transition-colors duration-200 touch-manipulation active:scale-95 cursor-pointer"
               >
                 <Globe size={13} />
-                <span>{language}</span>
+                <span suppressHydrationWarning>{language}</span>
               </button>
 
               <AnimatePresence>
@@ -153,7 +167,7 @@ export const Navbar = () => {
                           setLanguage(l.code);
                           setLangDropdownOpen(false);
                         }}
-                        className={`w-full text-left px-3.5 py-2.5 rounded-xl font-mono text-[10px] uppercase tracking-wider transition-colors touch-manipulation cursor-pointer active:bg-accent/30 ${
+                        className={`w-full text-left px-3.5 py-2.5 rounded-xl font-mono text-[10px] uppercase tracking-wider transition-colors touch-manipulation cursor-pointer select-none active:bg-accent/30 ${
                           language === l.code
                             ? "bg-accent/20 text-accent font-bold"
                             : "text-muted hover:text-foreground hover:bg-white/10"
