@@ -203,9 +203,43 @@ export function addTranslationListener(fn: () => void): () => void {
   return () => { listeners.delete(fn); };
 }
 
+function isTechStackString(text: string): boolean {
+  if (!text || !text.trim()) return false;
+  const lower = text.toLowerCase();
+  return (
+    lower.includes("python") ||
+    lower.includes("pytorch") ||
+    lower.includes("scikit") ||
+    lower.includes("fastapi") ||
+    lower.includes("next.js") ||
+    lower.includes("django") ||
+    lower.includes("tensorflow") ||
+    lower.includes("keras") ||
+    lower.includes("docker") ||
+    lower.includes("kubernetes") ||
+    lower.includes("postgresql")
+  );
+}
+
+function isInvalidTranslation(text: string): boolean {
+  if (!text) return true;
+  const upper = text.toUpperCase();
+  const lower = text.toLowerCase();
+  return (
+    upper.includes("MYMEMORY") ||
+    upper.includes("FREE TRANSLATIONS") ||
+    upper.includes("PLEASE SELECT ANOTHER LANGUAGE") ||
+    lower.includes("boshqa tilni tanlang") ||
+    lower.includes("boshqa til") ||
+    upper.includes("HTTP ERROR") ||
+    upper.includes("QUERY LENGTH LIMIT")
+  );
+}
+
 function isProperNoun(text: string): boolean {
   if (!text || !text.trim()) return false;
   const trimmed = text.trim();
+  if (isTechStackString(trimmed)) return true;
   // Paragraphs or sentences over 40 characters or 4 words are NOT proper nouns!
   if (trimmed.length > 40 || trimmed.split(/\s+/).length > 4) return false;
   const lower = trimmed.toLowerCase();
@@ -216,7 +250,7 @@ export async function translateTextAsync(text: string, targetLang: Language): Pr
   if (!text || !text.trim()) return text;
   const trimmed = text.trim();
 
-  if (isProperNoun(trimmed)) return text; // Never translate proper nouns
+  if (isProperNoun(trimmed)) return text; // Never translate proper nouns or tech stacks
   if (shouldSkipTranslation(trimmed)) return text;
 
   // Dictionary hit — instant return
@@ -229,14 +263,22 @@ export async function translateTextAsync(text: string, targetLang: Language): Pr
   }
 
   const key = `tr_v3_${targetLang}_${trimmed}`;
-  if (MEMORY_CACHE.has(key)) return MEMORY_CACHE.get(key)!;
+  if (MEMORY_CACHE.has(key)) {
+    const cached = MEMORY_CACHE.get(key)!;
+    if (!isInvalidTranslation(cached)) return cached;
+    MEMORY_CACHE.delete(key);
+  }
 
   if (typeof window !== "undefined") {
     try {
       const saved = localStorage.getItem(key);
       if (saved) {
-        MEMORY_CACHE.set(key, saved);
-        return saved;
+        if (!isInvalidTranslation(saved)) {
+          MEMORY_CACHE.set(key, saved);
+          return saved;
+        } else {
+          localStorage.removeItem(key);
+        }
       }
     } catch {}
   }
@@ -249,6 +291,9 @@ export async function translateTextAsync(text: string, targetLang: Language): Pr
     const data = await res.json();
     if (data && data.translatedText) {
       const translated = data.translatedText;
+      if (isInvalidTranslation(translated)) {
+        return text;
+      }
       MEMORY_CACHE.set(key, translated);
       if (typeof window !== "undefined") {
         try { localStorage.setItem(key, translated); } catch {}
@@ -267,7 +312,7 @@ export function translateDynamicText(text: string | null | undefined, targetLang
   if (!text || !text.trim()) return "";
   const trimmed = text.trim();
 
-  if (isProperNoun(trimmed)) return text; // Protect proper nouns
+  if (isProperNoun(trimmed)) return text; // Protect proper nouns & tech stacks
   if (shouldSkipTranslation(trimmed)) return text;
 
   // Dictionary hit — instant return
@@ -280,12 +325,22 @@ export function translateDynamicText(text: string | null | undefined, targetLang
   }
 
   const key = `tr_v3_${targetLang}_${trimmed}`;
-  if (MEMORY_CACHE.has(key)) return MEMORY_CACHE.get(key)!;
+  if (MEMORY_CACHE.has(key)) {
+    const cached = MEMORY_CACHE.get(key)!;
+    if (!isInvalidTranslation(cached)) return cached;
+    MEMORY_CACHE.delete(key);
+  }
 
   if (typeof window !== "undefined") {
     try {
       const saved = localStorage.getItem(key);
-      if (saved) return saved;
+      if (saved) {
+        if (!isInvalidTranslation(saved)) {
+          return saved;
+        } else {
+          localStorage.removeItem(key);
+        }
+      }
     } catch {}
   }
 

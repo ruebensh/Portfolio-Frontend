@@ -117,8 +117,14 @@ export const Navbar = () => {
               <button
                 id="lang-toggle"
                 type="button"
-                onClick={() => setLangDropdownOpen(!langDropdownOpen)}
-                className="h-8 sm:h-9 px-2.5 sm:px-3 rounded-full border border-white/15 bg-white/5 text-muted font-mono text-[10px] uppercase tracking-wider flex items-center gap-1 hover:border-accent hover:text-accent transition-colors duration-200 touch-manipulation active:scale-95"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLangDropdownOpen(!langDropdownOpen);
+                }}
+                onPointerDown={(e) => {
+                  e.stopPropagation();
+                }}
+                className="h-8 sm:h-9 px-2.5 sm:px-3 rounded-full border border-white/15 bg-white/5 text-muted font-mono text-[10px] uppercase tracking-wider flex items-center gap-1 hover:border-accent hover:text-accent transition-colors duration-200 touch-manipulation active:scale-95 cursor-pointer"
               >
                 <Globe size={13} />
                 <span>{language}</span>
@@ -131,17 +137,23 @@ export const Navbar = () => {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 8, scale: 0.95 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute right-0 top-11 w-36 bg-[#0c0c16]/95 backdrop-blur-2xl border border-white/15 shadow-2xl rounded-2xl p-1 z-50 overflow-hidden"
+                    className="absolute right-0 top-11 w-36 bg-[#0c0c16]/95 backdrop-blur-2xl border border-white/15 shadow-2xl rounded-2xl p-1.5 z-50 overflow-hidden pointer-events-auto"
                   >
                     {languages.map((l) => (
                       <button
                         key={l.code}
                         type="button"
-                        onClick={() => {
+                        onPointerDown={(e) => {
+                          e.stopPropagation();
                           setLanguage(l.code);
                           setLangDropdownOpen(false);
                         }}
-                        className={`w-full text-left px-3.5 py-2.5 rounded-xl font-mono text-[10px] uppercase tracking-wider transition-colors touch-manipulation active:bg-accent/30 ${
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setLanguage(l.code);
+                          setLangDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-3.5 py-2.5 rounded-xl font-mono text-[10px] uppercase tracking-wider transition-colors touch-manipulation cursor-pointer active:bg-accent/30 ${
                           language === l.code
                             ? "bg-accent/20 text-accent font-bold"
                             : "text-muted hover:text-foreground hover:bg-white/10"
@@ -243,17 +255,23 @@ export const Navbar = () => {
             </nav>
 
             {/* Drawer Footer Languages */}
-            <div className="w-full max-w-md mx-auto border-t border-white/10 pt-5 flex flex-col items-center gap-4">
+            <div className="w-full max-w-md mx-auto border-t border-white/10 pt-5 flex flex-col items-center gap-4 relative z-50 pointer-events-auto">
               <div className="flex gap-2 w-full">
                 {languages.map((l) => (
                   <button
                     key={l.code}
                     type="button"
-                    onClick={() => {
+                    onPointerDown={(e) => {
+                      e.stopPropagation();
                       setLanguage(l.code);
                       setMobileMenuOpen(false);
                     }}
-                    className={`flex-1 py-3 rounded-xl font-mono text-xs uppercase tracking-wider transition-all border active:scale-95 touch-manipulation ${
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setLanguage(l.code);
+                      setMobileMenuOpen(false);
+                    }}
+                    className={`flex-1 py-3.5 rounded-xl font-mono text-xs uppercase tracking-wider transition-all border active:scale-95 touch-manipulation cursor-pointer relative z-50 ${
                       language === l.code
                         ? "border-accent text-accent bg-accent/20 font-bold shadow-md"
                         : "border-white/10 text-muted hover:border-white/30 bg-white/5"
