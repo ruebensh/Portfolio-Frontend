@@ -323,10 +323,10 @@ export const ExperienceSection = ({ experience = [] }: { experience?: Experience
         </h2>
       </div>
 
-      {/* 3D Cylinder Carousel Container */}
+      {/* 3D Cylinder Carousel Container (Desktop only) */}
       <div
         ref={containerRef}
-        className="relative w-full h-[640px] sm:h-[720px] text-white flex items-center justify-center overflow-hidden select-none"
+        className="hidden md:flex relative w-full h-[640px] sm:h-[720px] text-white items-center justify-center overflow-hidden select-none"
       >
         {/* 3D perspective camera space */}
         <div
@@ -514,6 +514,63 @@ export const ExperienceSection = ({ experience = [] }: { experience?: Experience
               );
             })}
           </div>
+        </div>
+      </div>
+
+      {/* ── Mobile Vertical Timeline (MD down) ── */}
+      <div className="block md:hidden px-4 py-8 max-w-md mx-auto relative">
+        {/* Continuous timeline line */}
+        <div className="absolute left-7 top-10 bottom-10 w-[2px] bg-gradient-to-b from-accent via-accent/40 to-transparent pointer-events-none" />
+
+        <div className="space-y-5">
+          {Array.from({ length: cardCount }).map((_, i) => {
+            const expItem = getItemDetails(i);
+            return (
+              <div key={i} className="relative pl-9">
+                {/* Timeline node dot with glow */}
+                <div className="absolute left-[3px] top-4 w-4 h-4 rounded-full bg-[#0d0d18] border-2 border-accent flex items-center justify-center shadow-[0_0_10px_rgba(244,201,93,0.6)] z-10">
+                  <div className="w-1.5 h-1.5 rounded-full bg-accent" />
+                </div>
+
+                {/* Timeline Card */}
+                <div className="p-4 sm:p-5 rounded-2xl border border-white/15 bg-[#0f0f1b]/95 backdrop-blur-xl shadow-lg relative overflow-hidden">
+                  {/* Subtle ambient accent glow */}
+                  <div className="absolute -top-12 -right-12 w-28 h-28 rounded-full bg-accent/10 blur-2xl pointer-events-none" />
+
+                  {/* Top row: Year badge + Company */}
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <span className="font-mono text-[9px] uppercase tracking-wider text-accent font-bold bg-accent/10 border border-accent/25 px-2.5 py-0.5 rounded-full shadow-sm">
+                      {expItem.year}
+                    </span>
+                    <span className="font-mono text-[10px] text-accent/80 font-bold uppercase tracking-widest truncate max-w-[60%]">
+                      {td(expItem.company)}
+                    </span>
+                  </div>
+
+                  {/* Role Title */}
+                  <h3 className="font-display text-base font-bold text-white mb-2 leading-snug">
+                    {td(expItem.role)}
+                  </h3>
+
+                  {/* Description */}
+                  <p className="font-sans text-xs text-foreground/85 leading-relaxed mb-3">
+                    {td(expItem.description)}
+                  </p>
+
+                  {/* Tech stack row */}
+                  <div className="pt-2.5 border-t border-white/10 flex items-center justify-between">
+                    <span className="font-mono text-[10px] text-gray-300 tracking-wide font-medium">
+                      {expItem.stack}
+                    </span>
+                    <div className="flex -space-x-1.5 items-center opacity-80 shrink-0 ml-2">
+                      <div className="w-3.5 h-3.5 rounded-full bg-accent/40 border border-accent/50" />
+                      <div className="w-3.5 h-3.5 rounded-full bg-accent/80 border border-accent/80" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

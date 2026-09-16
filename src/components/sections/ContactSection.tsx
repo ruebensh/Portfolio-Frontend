@@ -7,6 +7,7 @@ import {
   Phone, InstagramLogo, GithubLogo, LinkedinLogo, CheckCircle, Spinner,
 } from "@phosphor-icons/react/dist/ssr";
 import { sendAIChatMessage, sendMessage } from "@/lib/api";
+import { useLanguage } from "@/context/LanguageContext";
 
 // ── Input base style ───────────────────────────────────────────────────────────
 const inputCls =
@@ -18,10 +19,9 @@ const textareaCls =
   "w-full resize-none border border-card-border bg-card-bg/60 backdrop-blur-md text-foreground font-sans text-sm " +
   "px-4 py-3 outline-none focus:border-accent transition-colors placeholder:text-muted rounded-xl";
 
-import { useLanguage } from "@/context/LanguageContext";
-
 export const ContactSection = ({ settings }: { settings: any }) => {
   const { td } = useLanguage();
+  const [activeTab,  setActiveTab]  = useState<"links" | "form" | "ai">("links");
   const [form,       setForm]       = useState({ name: "", email: "", message: "" });
   const [submitting, setSubmitting] = useState(false);
   const [submitted,  setSubmitted]  = useState(false);
@@ -85,12 +85,178 @@ export const ContactSection = ({ settings }: { settings: any }) => {
   const linkedinVal = settings?.linkedin && settings.linkedin !== "none" ? settings.linkedin : null;
   const instagramVal = settings?.instagram && settings.instagram !== "none" ? settings.instagram : null;
 
+  const renderLinks = () => (
+    <>
+      <h3 className="font-display text-lg font-bold text-foreground mb-2">
+        {td("Aloqa manbalari")}
+      </h3>
+
+      {telegramVal && (
+        <SocialRow
+          href={telegramVal.startsWith("http") ? telegramVal : `https://t.me/${telegramVal.replace("@", "")}`}
+          label="Telegram"
+          sub={telegramVal.includes("t.me") ? `@${telegramVal.split("/").pop()}` : telegramVal}
+          icon={<TelegramLogo size={18} weight="fill" />}
+        />
+      )}
+      {emailVal && (
+        <SocialRow
+          href={`mailto:${emailVal}`}
+          label="Email"
+          sub={emailVal}
+          icon={<EnvelopeSimple size={18} weight="fill" />}
+        />
+      )}
+      {phoneVal && (
+        <SocialRow
+          href={`tel:${phoneVal.replace(/[^\d+]/g, "")}`}
+          label="Telefon"
+          sub={phoneVal}
+          icon={<Phone size={18} weight="fill" />}
+        />
+      )}
+      {githubVal && (
+        <SocialRow
+          href={githubVal.startsWith("http") ? githubVal : `https://github.com/${githubVal}`}
+          label="GitHub"
+          sub={githubVal.replace("https://github.com/", "")}
+          icon={<GithubLogo size={18} weight="fill" />}
+        />
+      )}
+      {linkedinVal && (
+        <SocialRow
+          href={linkedinVal.startsWith("http") ? linkedinVal : `https://linkedin.com/in/${linkedinVal}`}
+          label="LinkedIn"
+          sub={linkedinVal.replace("https://linkedin.com/in/", "").replace("https://linkedin.com/", "")}
+          icon={<LinkedinLogo size={18} weight="fill" />}
+        />
+      )}
+      {instagramVal && (
+        <SocialRow
+          href={instagramVal.startsWith("http") ? instagramVal : `https://instagram.com/${instagramVal.replace("@", "")}`}
+          label="Instagram"
+          sub={instagramVal.includes("instagram.com") ? `@${instagramVal.split("/").pop()}` : instagramVal}
+          icon={<InstagramLogo size={18} weight="fill" />}
+        />
+      )}
+    </>
+  );
+
+  const renderForm = () => (
+    <>
+      <h3 className="font-display text-lg font-bold text-foreground mb-1">
+        {td("Xabar qoldirish")}
+      </h3>
+      <p className="font-mono text-[10px] text-muted mb-6 uppercase tracking-widest">
+        {td("Forma orqali to'g'ridan-to'g'ri yetib boradi")}
+      </p>
+
+      {submitted ? (
+        <div className="flex-1 flex flex-col items-center justify-center text-center py-8">
+          <CheckCircle size={40} weight="fill" className="text-accent mb-3" />
+          <h4 className="font-display font-bold text-foreground mb-1">{td("Xabar yuborildi!")}</h4>
+          <p className="font-mono text-[10px] text-muted mb-4 uppercase tracking-widest">
+            {td("Tez orada bog'lanaman.")}
+          </p>
+          <button
+            onClick={() => setSubmitted(false)}
+            className="font-mono text-[10px] uppercase tracking-widest text-accent border border-accent/20 px-4 py-2 hover:bg-accent/10 transition-colors"
+          >
+            {td("Yangi xabar →")}
+          </button>
+        </div>
+      ) : (
+        <form onSubmit={handleFormSubmit} className="flex-1 flex flex-col gap-3">
+          <input
+            type="text" required
+            placeholder={td("Ismingiz")}
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            className={inputCls}
+          />
+          <input
+            type="email" required
+            placeholder={td("Email manzilingiz")}
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+            className={inputCls}
+          />
+          <textarea
+            required rows={4}
+            placeholder={td("Xabaringiz...")}
+            value={form.message}
+            onChange={(e) => setForm({ ...form, message: e.target.value })}
+            className={textareaCls}
+          />
+          {formError && (
+            <p className="font-mono text-[10px] text-rose-400">{td(formError)}</p>
+          )}
+          <button
+            type="submit"
+            disabled={submitting}
+            className="mt-auto w-full bg-accent text-accent-foreground font-mono text-[10px] uppercase tracking-widest py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-accent/90 disabled:opacity-50 transition-colors font-bold"
+          >
+            {submitting
+              ? <Spinner size={14} className="animate-spin" />
+              : <PaperPlaneRight size={14} weight="fill" />}
+            {td("Yuborish")}
+          </button>
+        </form>
+      )}
+    </>
+  );
+
+  const renderAi = () => (
+    <>
+      <div className="flex items-center gap-3 mb-1">
+        <span className="font-mono text-[10px] text-accent border border-accent/20 px-2 py-0.5 rounded-md uppercase tracking-widest">AI</span>
+        <h3 className="font-display text-lg font-bold text-foreground">{td("Ruebensh AI dan so'rang")}</h3>
+      </div>
+      <p className="font-mono text-[10px] text-muted mb-6 uppercase tracking-widest">
+        {td("Tajriba va loyihalar haqida tezkor savol")}
+      </p>
+
+      <div className="flex-1 flex flex-col">
+        <div className="flex-1 mb-4 p-4 border border-card-border bg-card-bg/60 backdrop-blur-md rounded-xl min-h-[100px] flex items-start">
+          {aiResponse ? (
+            <p className="text-sm text-foreground/80 font-sans italic leading-relaxed">
+              "{td(aiResponse)}"
+            </p>
+          ) : (
+            <p className="font-mono text-[10px] text-muted uppercase tracking-widest">
+              {td("Savol bering — AI javob beradi...")}
+            </p>
+          )}
+        </div>
+
+        <form onSubmit={handleAsk} className="flex gap-2">
+          <input
+            type="text"
+            value={aiInput}
+            onChange={(e) => setAiInput(e.target.value)}
+            placeholder={td("Savolingiz...")}
+            className={`${inputCls} flex-1`}
+          />
+          <button
+            type="submit"
+            disabled={!aiInput.trim() || aiLoading}
+            className="bg-accent text-accent-foreground px-4 rounded-xl flex items-center justify-center hover:bg-accent/90 disabled:opacity-40 transition-colors"
+          >
+            {aiLoading
+              ? <Spinner size={14} className="animate-spin" />
+              : <PaperPlaneRight size={14} weight="fill" />}
+          </button>
+        </form>
+      </div>
+    </>
+  );
+
   return (
     <section id="contact" className="px-6 py-28 md:px-8 md:py-36 bg-card-bg/60 backdrop-blur-xl border-t border-card-border/80">
       <div className="max-w-[1100px] mx-auto">
         <AnimatedSection>
           {/* Header */}
-          <AnimatedItem className="mb-20">
+          <AnimatedItem className="mb-14 md:mb-20">
             <span className="font-mono text-[10px] uppercase tracking-widest text-accent border border-accent/20 px-3 py-1 inline-block mb-6 rounded-full">
               {td("Aloqa")}
             </span>
@@ -102,177 +268,70 @@ export const ContactSection = ({ settings }: { settings: any }) => {
             </p>
           </AnimatedItem>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+          {/* ── Mobile Tab Switcher + Card (LG down) ── */}
+          <div className="block lg:hidden">
+            <div className="flex rounded-2xl p-1 bg-white/5 border border-white/10 gap-1.5 mb-5 backdrop-blur-md">
+              <button
+                type="button"
+                onClick={() => setActiveTab("links")}
+                className={`flex-1 py-2.5 rounded-xl font-mono text-[11px] font-bold uppercase tracking-wider transition-all duration-200 touch-manipulation active:scale-95 ${
+                  activeTab === "links"
+                    ? "bg-accent text-accent-foreground shadow-[0_0_12px_rgba(244,201,93,0.35)]"
+                    : "text-muted hover:text-white"
+                }`}
+              >
+                {td("Aloqa")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("form")}
+                className={`flex-1 py-2.5 rounded-xl font-mono text-[11px] font-bold uppercase tracking-wider transition-all duration-200 touch-manipulation active:scale-95 ${
+                  activeTab === "form"
+                    ? "bg-accent text-accent-foreground shadow-[0_0_12px_rgba(244,201,93,0.35)]"
+                    : "text-muted hover:text-white"
+                }`}
+              >
+                {td("Xabar")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("ai")}
+                className={`flex-1 py-2.5 rounded-xl font-mono text-[11px] font-bold uppercase tracking-wider transition-all duration-200 touch-manipulation active:scale-95 ${
+                  activeTab === "ai"
+                    ? "bg-accent text-accent-foreground shadow-[0_0_12px_rgba(244,201,93,0.35)]"
+                    : "text-muted hover:text-white"
+                }`}
+              >
+                {td("AI")}
+              </button>
+            </div>
 
-            {/* ── Column 1: Direct links ──────────────────────────────────── */}
+            <div className="card-surface p-5 rounded-2xl border border-white/15 bg-[#0f0f1b]/95 backdrop-blur-xl min-h-[360px] flex flex-col shadow-xl">
+              {activeTab === "links" && <div className="flex flex-col gap-3">{renderLinks()}</div>}
+              {activeTab === "form" && <div className="flex-1 flex flex-col">{renderForm()}</div>}
+              {activeTab === "ai" && <div className="flex-1 flex flex-col">{renderAi()}</div>}
+            </div>
+          </div>
+
+          {/* ── Desktop 3-Column Grid (LG up) ── */}
+          <div className="hidden lg:grid grid-cols-3 gap-6">
             <AnimatedItem>
-              <div className="card-surface p-5 sm:p-6 md:p-8 h-full flex flex-col gap-3 sm:gap-4">
-                <h3 className="font-display text-lg font-bold text-foreground mb-2">
-                  {td("Aloqa manbalari")}
-                </h3>
-
-                {telegramVal && (
-                  <SocialRow
-                    href={telegramVal.startsWith("http") ? telegramVal : `https://t.me/${telegramVal.replace("@", "")}`}
-                    label="Telegram"
-                    sub={telegramVal.includes("t.me") ? `@${telegramVal.split("/").pop()}` : telegramVal}
-                    icon={<TelegramLogo size={18} weight="fill" />}
-                  />
-                )}
-                {emailVal && (
-                  <SocialRow
-                    href={`mailto:${emailVal}`}
-                    label="Email"
-                    sub={emailVal}
-                    icon={<EnvelopeSimple size={18} weight="fill" />}
-                  />
-                )}
-                {phoneVal && (
-                  <SocialRow
-                    href={`tel:${phoneVal.replace(/[^\d+]/g, "")}`}
-                    label="Telefon"
-                    sub={phoneVal}
-                    icon={<Phone size={18} weight="fill" />}
-                  />
-                )}
-                {githubVal && (
-                  <SocialRow
-                    href={githubVal.startsWith("http") ? githubVal : `https://github.com/${githubVal}`}
-                    label="GitHub"
-                    sub={githubVal.replace("https://github.com/", "")}
-                    icon={<GithubLogo size={18} weight="fill" />}
-                  />
-                )}
-                {linkedinVal && (
-                  <SocialRow
-                    href={linkedinVal.startsWith("http") ? linkedinVal : `https://linkedin.com/in/${linkedinVal}`}
-                    label="LinkedIn"
-                    sub={linkedinVal.replace("https://linkedin.com/in/", "").replace("https://linkedin.com/", "")}
-                    icon={<LinkedinLogo size={18} weight="fill" />}
-                  />
-                )}
-                {instagramVal && (
-                  <SocialRow
-                    href={instagramVal.startsWith("http") ? instagramVal : `https://instagram.com/${instagramVal.replace("@", "")}`}
-                    label="Instagram"
-                    sub={instagramVal.includes("instagram.com") ? `@${instagramVal.split("/").pop()}` : instagramVal}
-                    icon={<InstagramLogo size={18} weight="fill" />}
-                  />
-                )}
+              <div className="card-surface p-6 md:p-8 h-full flex flex-col gap-4">
+                {renderLinks()}
               </div>
             </AnimatedItem>
 
-            {/* ── Column 2: Contact form ──────────────────────────────────── */}
             <AnimatedItem>
-              <div className="card-surface p-5 sm:p-6 md:p-8 h-full flex flex-col">
-                <h3 className="font-display text-lg font-bold text-foreground mb-1">
-                  {td("Xabar qoldirish")}
-                </h3>
-                <p className="font-mono text-[10px] text-muted mb-6 uppercase tracking-widest">
-                  {td("Forma orqali to'g'ridan-to'g'ri yetib boradi")}
-                </p>
-
-                {submitted ? (
-                  <div className="flex-1 flex flex-col items-center justify-center text-center py-8">
-                    <CheckCircle size={40} weight="fill" className="text-accent mb-3" />
-                    <h4 className="font-display font-bold text-foreground mb-1">{td("Xabar yuborildi!")}</h4>
-                    <p className="font-mono text-[10px] text-muted mb-4 uppercase tracking-widest">
-                      {td("Tez orada bog'lanaman.")}
-                    </p>
-                    <button
-                      onClick={() => setSubmitted(false)}
-                      className="font-mono text-[10px] uppercase tracking-widest text-accent border border-accent/20 px-4 py-2 hover:bg-accent/10 transition-colors"
-                    >
-                      {td("Yangi xabar →")}
-                    </button>
-                  </div>
-                ) : (
-                  <form onSubmit={handleFormSubmit} className="flex-1 flex flex-col gap-3">
-                    <input
-                      type="text" required
-                      placeholder={td("Ismingiz")}
-                      value={form.name}
-                      onChange={(e) => setForm({ ...form, name: e.target.value })}
-                      className={inputCls}
-                    />
-                    <input
-                      type="email" required
-                      placeholder={td("Email manzilingiz")}
-                      value={form.email}
-                      onChange={(e) => setForm({ ...form, email: e.target.value })}
-                      className={inputCls}
-                    />
-                    <textarea
-                      required rows={4}
-                      placeholder={td("Xabaringiz...")}
-                      value={form.message}
-                      onChange={(e) => setForm({ ...form, message: e.target.value })}
-                      className={textareaCls}
-                    />
-                    {formError && (
-                      <p className="font-mono text-[10px] text-rose-400">{td(formError)}</p>
-                    )}
-                    <button
-                      type="submit"
-                      disabled={submitting}
-                      className="mt-auto w-full bg-accent text-accent-foreground font-mono text-[10px] uppercase tracking-widest py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-accent/90 disabled:opacity-50 transition-colors font-bold"
-                    >
-                      {submitting
-                        ? <Spinner size={14} className="animate-spin" />
-                        : <PaperPlaneRight size={14} weight="fill" />}
-                      {td("Yuborish")}
-                    </button>
-                  </form>
-                )}
+              <div className="card-surface p-6 md:p-8 h-full flex flex-col">
+                {renderForm()}
               </div>
             </AnimatedItem>
 
-            {/* ── Column 3: AI widget ─────────────────────────────────────── */}
             <AnimatedItem>
-              <div className="card-surface p-5 sm:p-6 md:p-8 h-full flex flex-col">
-                <div className="flex items-center gap-3 mb-1">
-                  <span className="font-mono text-[10px] text-accent border border-accent/20 px-2 py-0.5 rounded-md uppercase tracking-widest">AI</span>
-                  <h3 className="font-display text-lg font-bold text-foreground">{td("Ruebensh AI dan so'rang")}</h3>
-                </div>
-                <p className="font-mono text-[10px] text-muted mb-6 uppercase tracking-widest">
-                  {td("Tajriba va loyihalar haqida tezkor savol")}
-                </p>
-
-                <div className="flex-1 flex flex-col">
-                  <div className="flex-1 mb-4 p-4 border border-card-border bg-card-bg/60 backdrop-blur-md rounded-xl min-h-[100px] flex items-start">
-                    {aiResponse ? (
-                      <p className="text-sm text-foreground/80 font-sans italic leading-relaxed">
-                        "{td(aiResponse)}"
-                      </p>
-                    ) : (
-                      <p className="font-mono text-[10px] text-muted uppercase tracking-widest">
-                        {td("Savol bering — AI javob beradi...")}
-                      </p>
-                    )}
-                  </div>
-
-                  <form onSubmit={handleAsk} className="flex gap-2">
-                    <input
-                      type="text"
-                      value={aiInput}
-                      onChange={(e) => setAiInput(e.target.value)}
-                      placeholder={td("Savolingiz...")}
-                      className={`${inputCls} flex-1`}
-                    />
-                    <button
-                      type="submit"
-                      disabled={!aiInput.trim() || aiLoading}
-                      className="bg-accent text-accent-foreground px-4 rounded-xl flex items-center justify-center hover:bg-accent/90 disabled:opacity-40 transition-colors"
-                    >
-                      {aiLoading
-                        ? <Spinner size={14} className="animate-spin" />
-                        : <PaperPlaneRight size={14} weight="fill" />}
-                    </button>
-                  </form>
-                </div>
+              <div className="card-surface p-6 md:p-8 h-full flex flex-col">
+                {renderAi()}
               </div>
             </AnimatedItem>
-
           </div>
         </AnimatedSection>
       </div>

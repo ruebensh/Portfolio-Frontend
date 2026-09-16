@@ -8,6 +8,7 @@ import { LanguageProvider } from "@/context/LanguageContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { GlobalVideoBackground } from "@/components/ui/GlobalVideoBackground";
 import { GlobalPreloader } from "@/components/ui/GlobalPreloader";
+import { MobileScrollProgress } from "@/components/ui/MobileScrollProgress";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
@@ -41,6 +42,7 @@ export default function RootLayout({
         {/* Global fixed video background — sits behind ALL content */}
         <GlobalVideoBackground />
         <GlobalPreloader />
+        <MobileScrollProgress />
         <ThemeProvider>
           <LanguageProvider>
             <SmoothScrollProvider>

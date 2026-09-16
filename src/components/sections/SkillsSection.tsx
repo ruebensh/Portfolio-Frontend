@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useCallback } from "react";
+import React, { useRef, useCallback, useState, useEffect } from "react";
 import { ScrollScene } from "../core/ScrollScene";
 import { FrameSequenceCanvas, FrameSequenceCanvasRef } from "../core/FrameSequenceCanvas";
 import { EyebrowBadge } from "@/components/ui/EyebrowBadge";
@@ -91,6 +91,44 @@ const DEFAULT_CATEGORIES = [
   },
 ];
 
+// ── Mobile animated bar component using IntersectionObserver ──────────────────
+function AnimatedBar({ level }: { level: number }) {
+  const barRef = useRef<HTMLDivElement>(null);
+  const [filled, setFilled] = useState(false);
+
+  useEffect(() => {
+    const el = barRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setFilled(true);
+          obs.disconnect();
+        }
+      },
+      { threshold: 0.3 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={barRef}
+      className="relative h-2 w-full rounded-full overflow-hidden bg-white/10"
+    >
+      <div
+        className="h-full rounded-full transition-all duration-700 ease-out"
+        style={{
+          width: filled ? `${level}%` : "0%",
+          background: "linear-gradient(90deg, #7c3aed 0%, #a855f7 50%, #f4c95d 100%)",
+          boxShadow: filled ? "0 0 8px rgba(168,85,247,0.7)" : "none",
+        }}
+      />
+    </div>
+  );
+}
+
 export const SkillsSection = ({ skills = [] }: { skills?: any[] }) => {
   const { td } = useLanguage();
   const canvasRef  = useRef<FrameSequenceCanvasRef>(null);
@@ -99,6 +137,9 @@ export const SkillsSection = ({ skills = [] }: { skills?: any[] }) => {
 
   const normalized = normalizeSkillCategories(skills);
   const displayCats = normalized.length > 0 ? normalized : DEFAULT_CATEGORIES;
+
+  // Mobile tab state
+  const [activeTab, setActiveTab] = useState(0);
 
   const handleProgress = useCallback((progress: number) => {
     if (canvasRef.current) {
@@ -111,7 +152,6 @@ export const SkillsSection = ({ skills = [] }: { skills?: any[] }) => {
     displayCats.forEach((cat, catIdx) => {
       const cardEl = catCardRefs.current[catIdx];
       
-      // Calculate start and end threshold for each category card sequence
       const startThreshold = (catIdx / catCount) * 0.75;
       const endThreshold   = startThreshold + 0.25;
 
@@ -125,7 +165,6 @@ export const SkillsSection = ({ skills = [] }: { skills?: any[] }) => {
         cardEl.style.transform = `translateY(${(1 - cardOpacity) * 35}px) scale(${0.94 + 0.06 * cardOpacity})`;
       }
 
-      // Animate progress bars for items in this category
       cat.items.forEach((item: any, itemIdx: number) => {
         const barKey = `${catIdx}-${itemIdx}`;
         const barEl  = barRefs.current[barKey];
@@ -233,9 +272,10 @@ export const SkillsSection = ({ skills = [] }: { skills?: any[] }) => {
         </ScrollScene>
       </div>
 
-      {/* Mobile Sleek Static Skills Grid (MD down) */}
-      <section className="block md:hidden py-16 px-5 bg-transparent">
+      {/* ── Mobile Skills with Tabs + Animated Bars ── */}
+      <section className="block md:hidden py-14 px-5 bg-transparent">
         <div className="max-w-md mx-auto">
+          {/* Header */}
           <div className="text-center mb-8">
             <EyebrowBadge className="mb-2">{td("TEXNIK ARSENALIM")}</EyebrowBadge>
             <h2 className="font-display text-2xl font-bold text-white mb-2">
@@ -246,57 +286,66 @@ export const SkillsSection = ({ skills = [] }: { skills?: any[] }) => {
             </p>
           </div>
 
-          <div className="space-y-5">
-            {displayCats.map((cat, catIdx) => {
-              const items = cat.items || [];
-              return (
-                <div
-                  key={cat.id || catIdx}
-                  className="card-surface p-5 rounded-2xl border border-white/15 bg-[#0f0f1b]/90 backdrop-blur-xl"
-                >
-                  <div className="flex items-center justify-between mb-4 border-b border-white/10 pb-2.5">
-                    <h3 className="font-display text-base font-bold text-white tracking-wide">
-                      {cat.title}
-                    </h3>
-                    <span className="font-mono text-[9px] text-accent font-bold bg-accent/10 border border-accent/20 px-2 py-0.5 rounded-md uppercase">
-                      0{catIdx + 1}
-                    </span>
-                  </div>
-
-                  <div className="space-y-3">
-                    {items.map((item: any, itemIdx: number) => {
-                      const itemName = typeof item === "string" ? item : (item.name || item.title || "");
-                      const level = typeof item === "object" ? (item.level ?? 80) : 80;
-
-                      return (
-                        <div key={item.id || itemIdx} className="space-y-1">
-                          <div className="flex items-center justify-between text-[11px]">
-                            <span className="font-mono text-white/90 font-medium truncate max-w-[75%]">
-                              {itemName}
-                            </span>
-                            <span className="font-mono text-accent font-bold text-[10px]">
-                              {level}%
-                            </span>
-                          </div>
-
-                          <div className="relative h-2 w-full rounded-full overflow-hidden bg-white/10">
-                            <div
-                              className="h-full rounded-full"
-                              style={{
-                                width: `${level}%`,
-                                background: "linear-gradient(90deg, #7c3aed 0%, #a855f7 50%, #f4c95d 100%)",
-                                boxShadow: "0 0 8px rgba(168,85,247,0.7)",
-                              }}
-                            />
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })}
+          {/* Tabs */}
+          <div className="flex gap-1.5 mb-5 overflow-x-auto pb-1 scrollbar-none snap-x"
+               style={{ scrollbarWidth: "none" }}>
+            {displayCats.map((cat, idx) => (
+              <button
+                key={cat.id || idx}
+                type="button"
+                onClick={() => setActiveTab(idx)}
+                className={`flex-shrink-0 snap-start px-3.5 py-2 rounded-full font-mono text-[10px] uppercase tracking-wider border transition-all duration-200 touch-manipulation active:scale-95 ${
+                  activeTab === idx
+                    ? "bg-accent text-accent-foreground border-accent font-bold shadow-[0_0_12px_rgba(244,201,93,0.4)]"
+                    : "border-white/15 text-muted bg-white/5 hover:border-accent/40"
+                }`}
+              >
+                {cat.title}
+              </button>
+            ))}
           </div>
+
+          {/* Active tab content */}
+          {displayCats.map((cat, catIdx) => {
+            if (catIdx !== activeTab) return null;
+            const items = cat.items || [];
+            return (
+              <div
+                key={cat.id || catIdx}
+                className="p-5 rounded-2xl border border-white/15 bg-[#0f0f1b]/90 backdrop-blur-xl"
+              >
+                <div className="flex items-center justify-between mb-5 border-b border-white/10 pb-3">
+                  <h3 className="font-display text-base font-bold text-white tracking-wide">
+                    {cat.title}
+                  </h3>
+                  <span className="font-mono text-[9px] text-accent font-bold bg-accent/10 border border-accent/20 px-2 py-0.5 rounded-md uppercase">
+                    0{catIdx + 1}
+                  </span>
+                </div>
+
+                <div className="space-y-4">
+                  {items.map((item: any, itemIdx: number) => {
+                    const itemName = typeof item === "string" ? item : (item.name || item.title || "");
+                    const level = typeof item === "object" ? (item.level ?? 80) : 80;
+
+                    return (
+                      <div key={item.id || itemIdx} className="space-y-1.5">
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="font-mono text-white/90 font-medium truncate max-w-[75%]">
+                            {itemName}
+                          </span>
+                          <span className="font-mono text-accent font-bold text-[10px]">
+                            {level}%
+                          </span>
+                        </div>
+                        <AnimatedBar level={level} />
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </section>
     </>
