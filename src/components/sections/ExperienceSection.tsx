@@ -78,7 +78,13 @@ import { useLanguage } from "@/context/LanguageContext";
 export const ExperienceSection = ({ experience = [] }: { experience?: ExperienceItem[] }) => {
   const { td } = useLanguage();
   const items = experience && experience.length > 0 ? experience : MOCK_EXPERIENCE;
-  const cardCount = items.length;
+  // If only 1 or 2 items exist, duplicate them to 4 so the 3D cylinder has 4 full rotating cards and is never empty!
+  const displayItems = items.length === 1
+    ? [items[0], items[0], items[0], items[0]]
+    : items.length === 2
+      ? [items[0], items[1], items[0], items[1]]
+      : items;
+  const cardCount = displayItems.length;
   const cardsRefs = useRef<(HTMLDivElement | null)[]>([]);
   const frameId = useRef<number>(0);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -294,7 +300,7 @@ export const ExperienceSection = ({ experience = [] }: { experience?: Experience
 
   // Dynamically resolve backend experience or fallback to MOCK_EXPERIENCE
   const getItemDetails = (idx: number): ExperienceItem => {
-    const rawItem = items[idx % items.length];
+    const rawItem = displayItems[idx % displayItems.length];
     const fallback = MOCK_EXPERIENCE[idx % MOCK_EXPERIENCE.length];
 
     let yearFormatted = rawItem.year;
@@ -321,6 +327,7 @@ export const ExperienceSection = ({ experience = [] }: { experience?: Experience
       company: rawItem.company || fallback.company,
       year: yearFormatted,
       description: description,
+      impacts: rawItem.impacts || fallback.impacts || [],
       stack: stack,
       cardNumber: rawItem.cardNumber || fallback.cardNumber,
       cvv: rawItem.cvv || fallback.cvv,
@@ -447,13 +454,28 @@ export const ExperienceSection = ({ experience = [] }: { experience?: Experience
                             </div>
 
                             {/* Middle: Role Title & Company Name */}
-                            <div className="my-auto pt-2">
+                            <div className="my-auto pt-1">
                               <p className="font-mono text-[10px] uppercase tracking-widest text-accent/90 mb-0.5 font-bold">
                                 {td(expItem.company)}
                               </p>
-                              <h3 className="font-display text-base sm:text-lg font-bold text-white leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
+                              <h3 className="font-display text-base sm:text-lg font-bold text-white leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] mb-1.5">
                                 {td(expItem.role)}
                               </h3>
+
+                              {/* Impacts / Achievements on Front of Card */}
+                              {expItem.impacts && expItem.impacts.length > 0 && (
+                                <div className="space-y-1 my-1 border-t border-white/10 pt-1.5">
+                                  {expItem.impacts.slice(0, 2).map((imp: any, impIdx: number) => {
+                                    const textStr = typeof imp === "string" ? imp : imp.text || "";
+                                    return (
+                                      <div key={impIdx} className="flex items-center gap-1.5 text-[10px] sm:text-[11px] text-white/90 font-sans">
+                                        <span className="text-accent text-[8px] shrink-0">✦</span>
+                                        <span className="truncate font-medium">{td(textStr)}</span>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
                             </div>
 
                             {/* Bottom row: Tech Stack & Brand circles */}
@@ -495,14 +517,28 @@ export const ExperienceSection = ({ experience = [] }: { experience?: Experience
 
                           {/* Content Container */}
                           <div className="absolute inset-0 pt-12 p-4 sm:p-5 flex flex-col justify-between z-20 text-left bg-black/70 backdrop-blur-md">
-                            {/* Description text */}
-                            <div>
-                              <p className="font-mono text-[9px] uppercase tracking-widest text-accent mb-1">
+                            {/* Description / All Impacts */}
+                            <div className="overflow-y-auto max-h-[110px] scrollbar-none pr-1">
+                              <p className="font-mono text-[9px] uppercase tracking-widest text-accent mb-1 font-bold">
                                 {td("Vazifalar & Yutuqlar")}
                               </p>
-                              <p className="font-sans text-xs sm:text-xs text-foreground/90 leading-snug line-clamp-3 font-medium">
-                                {td(expItem.description)}
-                              </p>
+                              {expItem.impacts && expItem.impacts.length > 0 ? (
+                                <div className="space-y-1">
+                                  {expItem.impacts.map((imp: any, impIdx: number) => {
+                                    const textStr = typeof imp === "string" ? imp : imp.text || "";
+                                    return (
+                                      <div key={impIdx} className="flex items-start gap-1.5 text-[10px] text-white/90 font-sans leading-snug">
+                                        <span className="text-accent text-[7px] shrink-0 mt-1">◆</span>
+                                        <span>{td(textStr)}</span>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              ) : (
+                                <p className="font-sans text-xs text-foreground/90 leading-snug">
+                                  {td(expItem.description)}
+                                </p>
+                              )}
                             </div>
 
                             {/* Cardholder info at bottom */}

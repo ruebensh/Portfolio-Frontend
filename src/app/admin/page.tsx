@@ -156,7 +156,7 @@ export default function AdminPage() {
   const [uploadingProjectImg, setUploadingProjectImg] = useState(false);
   const [uploadingCertFile, setUploadingCertFile] = useState(false);
   // Experience modal state
-  const [expFormData, setExpFormData] = useState<any>({ role: "", company: "", year: "", impacts: [] });
+  const [expFormData, setExpFormData] = useState<any>({ role: "", company: "", year: "", stack: "", impacts: [] });
   const [expEditIndex, setExpEditIndex] = useState<number | null>(null);
   const [expImpactInput, setExpImpactInput] = useState("");
   // Skill inline add state
@@ -506,6 +506,8 @@ export default function AdminPage() {
           logo: exp.logo || (exp.company ? exp.company.charAt(0).toUpperCase() : "E"),
           startDate: typeof rawDate === "string" ? rawDate : new Date().toISOString(),
           endDate: exp.endDate ? String(exp.endDate) : null,
+          stack: exp.stack || null,
+          description: exp.description || (Array.isArray(exp.impacts) ? exp.impacts.map((i: any) => typeof i === "string" ? i : i.text || "").filter(Boolean).join(". ") : null),
           impacts: Array.isArray(exp.impacts)
             ? exp.impacts.map((i: any) => (typeof i === "string" ? i : i.text || "")).filter(Boolean)
             : [],
@@ -541,7 +543,7 @@ export default function AdminPage() {
   };
 
   const handleOpenAddExperience = () => {
-    setExpFormData({ role: "", company: "", year: "", impacts: [] });
+    setExpFormData({ role: "", company: "", year: "", stack: "", impacts: [] });
     setExpEditIndex(null);
     setExpImpactInput("");
     setModalType("experience");
@@ -553,6 +555,7 @@ export default function AdminPage() {
       role: exp.role || exp.title || "",
       company: exp.company || "",
       year: exp.year || exp.period || exp.startDate || "",
+      stack: exp.stack || "",
       impacts: Array.isArray(exp.impacts) ? exp.impacts.map((i: any) => typeof i === "string" ? i : i.text) : [],
     });
     setExpEditIndex(idx);
@@ -1423,7 +1426,7 @@ export default function AdminPage() {
                       <div className="flex justify-between items-start mb-3">
                         <div>
                           <h3 className="font-bold text-lg text-white font-display">{exp.role || exp.title}</h3>
-                          <p className="text-accent font-mono text-xs uppercase tracking-wider">{exp.company} {exp.year && <span className="text-muted">• {exp.year}</span>}</p>
+                          <p className="text-accent font-mono text-xs uppercase tracking-wider">{exp.company} {exp.year && <span className="text-muted">• {exp.year}</span>} {exp.stack && <span className="text-accent/80">• {exp.stack}</span>}</p>
                         </div>
                         <div className="flex items-center gap-2">
                           <button
@@ -1948,6 +1951,11 @@ export default function AdminPage() {
                 <div>
                   <label className={labelStyle}>Davr / Vaqt</label>
                   <input type="text" placeholder="Masalan: 2023 — Hozir" value={expFormData.year || ""} onChange={e => setExpFormData({ ...expFormData, year: e.target.value })} className={inputStyle} />
+                </div>
+
+                <div>
+                  <label className={labelStyle}>Texnologiyalar / Stack</label>
+                  <input type="text" placeholder="Masalan: Python • PyTorch • Scikit-learn • Pandas" value={expFormData.stack || ""} onChange={e => setExpFormData({ ...expFormData, stack: e.target.value })} className={inputStyle} />
                 </div>
 
                 <div>

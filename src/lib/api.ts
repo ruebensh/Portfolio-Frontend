@@ -114,6 +114,8 @@ export const getExperience = async () => {
       title: exp.role || exp.title,
       company: exp.company,
       year: yearText || "2024 — Hozir",
+      stack: exp.stack || null,
+      description: exp.description || null,
       impacts: Array.isArray(exp.impacts) ? exp.impacts.map((i: any) => (typeof i === "string" ? i : i.text)) : [],
     };
   });
