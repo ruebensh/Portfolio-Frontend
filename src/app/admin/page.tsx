@@ -495,31 +495,48 @@ export default function AdminPage() {
     }
   };
 
-  // SAVE EXPERIENCE
-  const handleSaveExperience = async () => {
+  const saveExperienceList = async (listToSave: any[]) => {
     setSaveLoading(true);
-    const endpoints = [`${API_URL}/experience/admin`, `${API_URL}/admin/experience`, `${API_URL}/experience`];
     try {
-      const formattedExperience = experience.map((exp: any) => ({
-        ...exp,
-        startDate: exp.startDate || exp.year || exp.period || new Date().toISOString(),
-        endDate: exp.endDate || null,
-      }));
-      for (const url of endpoints) {
-        try {
-          const res = await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json", ...getAuthHeader() },
-            body: JSON.stringify({ experience: formattedExperience }),
-          });
-          if (res.ok) break;
-        } catch {}
+      const formattedExperience = listToSave.map((exp: any) => {
+        const rawDate = exp.startDate || exp.year || new Date().toISOString();
+        return {
+          role: exp.role || exp.title || "No Role",
+          company: exp.company || "No Company",
+          logo: exp.logo || (exp.company ? exp.company.charAt(0).toUpperCase() : "E"),
+          startDate: typeof rawDate === "string" ? rawDate : new Date().toISOString(),
+          endDate: exp.endDate ? String(exp.endDate) : null,
+          impacts: Array.isArray(exp.impacts)
+            ? exp.impacts.map((i: any) => (typeof i === "string" ? i : i.text || "")).filter(Boolean)
+            : [],
+        };
+      });
+
+      const res = await fetch(`${API_URL}/experience/admin`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...getAuthHeader() },
+        body: JSON.stringify({ experience: formattedExperience }),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.message || `Server xatosi: ${res.status}`);
       }
-      alert("Tajriba ma'lumotlari saqlandi!");
-    } catch {
-      alert("Saqlashda xatolik");
+      return true;
+    } catch (err: any) {
+      console.error("Tajriba saqlashda xatolik:", err);
+      alert("Saqlashda xatolik yuz berdi: " + (err.message || "Server bilan aloqa yo'q"));
+      return false;
     } finally {
       setSaveLoading(false);
+    }
+  };
+
+  // SAVE EXPERIENCE
+  const handleSaveExperience = async () => {
+    const ok = await saveExperienceList(experience);
+    if (ok) {
+      alert("Tajriba ma'lumotlari muvaffaqiyatli saqlandi! ✅");
     }
   };
 
@@ -535,7 +552,7 @@ export default function AdminPage() {
     setExpFormData({
       role: exp.role || exp.title || "",
       company: exp.company || "",
-      year: exp.year || exp.period || "",
+      year: exp.year || exp.period || exp.startDate || "",
       impacts: Array.isArray(exp.impacts) ? exp.impacts.map((i: any) => typeof i === "string" ? i : i.text) : [],
     });
     setExpEditIndex(idx);
@@ -544,10 +561,15 @@ export default function AdminPage() {
     setModalOpen(true);
   };
 
-  const handleSaveExperienceForm = () => {
+  const handleSaveExperienceForm = async () => {
     if (!expFormData.role || !expFormData.company) return;
+    const finalImpacts = [...(expFormData.impacts || [])];
+    if (expImpactInput.trim()) {
+      finalImpacts.push(expImpactInput.trim());
+      setExpImpactInput("");
+    }
     const updated = [...experience];
-    const item = { ...expFormData };
+    const item = { ...expFormData, impacts: finalImpacts };
     if (expEditIndex !== null) {
       updated[expEditIndex] = item;
     } else {
@@ -555,6 +577,22 @@ export default function AdminPage() {
     }
     setExperience(updated);
     setModalOpen(false);
+
+    // Avtomatik ravishda serverga ham saqlaymiz!
+    const ok = await saveExperienceList(updated);
+    if (ok) {
+      alert("Tajriba muvaffaqiyatli saqlandi! ✅");
+    }
+  };
+
+  const handleDeleteExperience = async (idx: number) => {
+    if (!confirm("Haqiqatan ham bu tajribani o'chirmoqchimisiz?")) return;
+    const updated = experience.filter((_, i) => i !== idx);
+    setExperience(updated);
+    const ok = await saveExperienceList(updated);
+    if (ok) {
+      alert("Tajriba muvaffaqiyatli o'chirildi! ✅");
+    }
   };
 
   // Keep addImpactToExperience for inline use
@@ -1394,7 +1432,7 @@ export default function AdminPage() {
                           >
                             <PencilSimple size={13} /> Tahrirlash
                           </button>
-                          <button onClick={() => setExperience(experience.filter((_, i) => i !== idx))} className="text-rose-400 hover:bg-rose-500/20 p-1.5 rounded-lg transition-all">
+                          <button onClick={() => handleDeleteExperience(idx)} className="text-rose-400 hover:bg-rose-500/20 p-1.5 rounded-lg transition-all">
                             <Trash size={16} />
                           </button>
                         </div>
@@ -1965,7 +2003,7 @@ export default function AdminPage() {
               </motion.div>
             )}
 
-            {modalType === "project" ? (
+            {modalType === "project" && (
               <motion.form onSubmit={handleSaveProjectForm} initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }} className="card-surface w-full max-w-lg p-6 sm:p-8 rounded-3xl border border-accent/40 bg-[#0a0a14]/95 backdrop-blur-2xl shadow-2xl relative space-y-4 max-h-[90vh] overflow-y-auto">
                 <button type="button" onClick={() => setModalOpen(false)} className="absolute top-5 right-5 p-2 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-all">
                   <X size={16} />
@@ -2090,7 +2128,9 @@ export default function AdminPage() {
                   {saveLoading ? <Spinner size={18} className="animate-spin mx-auto" /> : (formData.id ? "O'zgarishlarni Saqlash 💾" : "Loyihani Yaratish 🚀")}
                 </button>
               </motion.form>
-            ) : (
+            )}
+
+            {modalType === "certificate" && (
               /* CERTIFICATE ADD MODAL WITH LOCAL FILE UPLOAD */
               <motion.form onSubmit={handleSaveCertificateForm} initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }} className="card-surface w-full max-w-lg p-8 rounded-3xl border border-accent/40 bg-[#0a0a14]/95 backdrop-blur-2xl shadow-2xl relative space-y-4">
                 <button type="button" onClick={() => setModalOpen(false)} className="absolute top-5 right-5 p-2 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-all">

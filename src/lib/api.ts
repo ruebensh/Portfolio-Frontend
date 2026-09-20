@@ -97,13 +97,26 @@ export const getSkills = async () => {
 
 export const getExperience = async () => {
   const data = await fetchWithFallback<any[]>("/experience", []);
-  return (data || []).map((exp: any) => ({
-    ...exp,
-    title: exp.role || exp.title,
-    company: exp.company,
-    year: exp.year || `${exp.startDate || ""} ${exp.endDate ? "– " + exp.endDate : "– Hozir"}`,
-    impacts: Array.isArray(exp.impacts) ? exp.impacts.map((i: any) => (typeof i === "string" ? i : i.text)) : [],
-  }));
+  return (data || []).map((exp: any) => {
+    let yearText = exp.year;
+    if (!yearText && exp.startDate) {
+      const parsedStart = new Date(exp.startDate);
+      const startStr = !isNaN(parsedStart.getFullYear()) ? parsedStart.getFullYear() : exp.startDate;
+      let endStr = "Hozir";
+      if (exp.endDate) {
+        const parsedEnd = new Date(exp.endDate);
+        endStr = !isNaN(parsedEnd.getFullYear()) ? parsedEnd.getFullYear() : exp.endDate;
+      }
+      yearText = `${startStr} — ${endStr}`;
+    }
+    return {
+      ...exp,
+      title: exp.role || exp.title,
+      company: exp.company,
+      year: yearText || "2024 — Hozir",
+      impacts: Array.isArray(exp.impacts) ? exp.impacts.map((i: any) => (typeof i === "string" ? i : i.text)) : [],
+    };
+  });
 };
 
 export const getAbout = async () => {

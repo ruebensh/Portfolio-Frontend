@@ -19,6 +19,7 @@ export interface ExperienceItem {
   startDate?: string;
   endDate?: string;
   description?: string;
+  impacts?: any[];
   stack?: string;
   cardNumber?: string;
   cvv?: string;
@@ -296,16 +297,31 @@ export const ExperienceSection = ({ experience = [] }: { experience?: Experience
     const rawItem = items[idx % items.length];
     const fallback = MOCK_EXPERIENCE[idx % MOCK_EXPERIENCE.length];
 
-    const yearFormatted = rawItem.year || (rawItem.startDate
-      ? `${new Date(rawItem.startDate).getFullYear()} — ${rawItem.endDate ? new Date(rawItem.endDate).getFullYear() : "Hozir"}`
-      : fallback.year);
+    let yearFormatted = rawItem.year;
+    if (!yearFormatted && rawItem.startDate) {
+      const parsedYear = new Date(rawItem.startDate).getFullYear();
+      if (!isNaN(parsedYear)) {
+        yearFormatted = `${parsedYear} — ${rawItem.endDate && !isNaN(new Date(rawItem.endDate).getFullYear()) ? new Date(rawItem.endDate).getFullYear() : "Hozir"}`;
+      } else {
+        yearFormatted = rawItem.startDate;
+      }
+    }
+    if (!yearFormatted) yearFormatted = fallback.year;
+
+    const description = rawItem.description || (
+      Array.isArray(rawItem.impacts) && rawItem.impacts.length > 0
+        ? rawItem.impacts.map((i: any) => typeof i === "string" ? i : i.text).filter(Boolean).join(". ")
+        : fallback.description
+    );
+
+    const stack = rawItem.stack || fallback.stack;
 
     return {
       role: rawItem.role || rawItem.title || fallback.role,
       company: rawItem.company || fallback.company,
       year: yearFormatted,
-      description: rawItem.description || fallback.description,
-      stack: rawItem.stack || fallback.stack,
+      description: description,
+      stack: stack,
       cardNumber: rawItem.cardNumber || fallback.cardNumber,
       cvv: rawItem.cvv || fallback.cvv,
     };
