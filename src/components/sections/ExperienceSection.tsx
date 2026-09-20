@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 
 const CARD_GRADIENTS = [
   "linear-gradient(135deg, #18150c 0%, #090a10 50%, #221b0e 100%)",
@@ -89,6 +89,10 @@ export const ExperienceSection = ({ experience = [] }: { experience?: Experience
   const frameId = useRef<number>(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Modal state — null means closed
+  const [selectedExp, setSelectedExp] = useState<ExperienceItem | null>(null);
+  const isPaused = useRef(false);
+
   // Continuous scroll progress
   const progress = useRef<number>(0);
 
@@ -145,20 +149,72 @@ export const ExperienceSection = ({ experience = [] }: { experience?: Experience
   // Target progress for smooth click navigation
   const targetProgress = useRef<number | null>(null);
 
+  // Dynamically resolve backend experience or fallback to MOCK_EXPERIENCE
+  const getItemDetails = (idx: number): ExperienceItem => {
+    const rawItem = displayItems[idx % displayItems.length];
+    const fallback = MOCK_EXPERIENCE[idx % MOCK_EXPERIENCE.length];
+
+    let yearFormatted = rawItem.year;
+    if (!yearFormatted && rawItem.startDate) {
+      const parsedYear = new Date(rawItem.startDate).getFullYear();
+      if (!isNaN(parsedYear)) {
+        yearFormatted = `${parsedYear} — ${rawItem.endDate && !isNaN(new Date(rawItem.endDate).getFullYear()) ? new Date(rawItem.endDate).getFullYear() : "Hozir"}`;
+      } else {
+        yearFormatted = rawItem.startDate;
+      }
+    }
+    if (!yearFormatted) yearFormatted = fallback.year;
+
+    const description = rawItem.description || (
+      Array.isArray(rawItem.impacts) && rawItem.impacts.length > 0
+        ? rawItem.impacts.map((i: any) => typeof i === "string" ? i : i.text).filter(Boolean).join(". ")
+        : fallback.description
+    );
+
+    const stack = rawItem.stack || fallback.stack;
+
+    return {
+      role: rawItem.role || rawItem.title || fallback.role,
+      company: rawItem.company || fallback.company,
+      year: yearFormatted,
+      description: description,
+      impacts: rawItem.impacts || fallback.impacts || [],
+      stack: stack,
+      cardNumber: rawItem.cardNumber || fallback.cardNumber,
+      cvv: rawItem.cvv || fallback.cvv,
+    };
+  };
+
   const handleCardClick = (cardIdx: number) => {
     const currentP = progress.current;
     const currentBase = Math.round(currentP);
+    const currentVisible = ((currentBase % cardCount + cardCount) % cardCount);
 
-    let diff = cardIdx - ((currentBase % cardCount + cardCount) % cardCount);
+    let diff = cardIdx - currentVisible;
     const half = cardCount / 2;
     while (diff > half) diff -= cardCount;
     while (diff < -half) diff += cardCount;
 
-    targetProgress.current = currentBase + diff;
+    // If card is already centered (within 0.4), open the modal
+    if (Math.abs(diff) < 0.4) {
+      const expItem = getItemDetails(cardIdx);
+      setSelectedExp(expItem);
+      isPaused.current = true;
+    } else {
+      // Otherwise navigate to that card first
+      targetProgress.current = currentBase + diff;
+    }
   };
+
+  const closeModal = useCallback(() => {
+    setSelectedExp(null);
+    isPaused.current = false;
+  }, []);
 
   // Compute positions, rotations, and visual rules at 60-120fps
   const renderLoop = () => {
+    if (isPaused.current) return;
+
     if (targetProgress.current !== null) {
       const diff = targetProgress.current - progress.current;
       if (Math.abs(diff) > 0.002) {
@@ -268,6 +324,15 @@ export const ExperienceSection = ({ experience = [] }: { experience?: Experience
     }
   };
 
+  // Close modal on Escape key
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeModal();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [closeModal]);
+
   useEffect(() => {
     let isVisible = true;
 
@@ -298,44 +363,138 @@ export const ExperienceSection = ({ experience = [] }: { experience?: Experience
 
   const thicknessLayers = [-1.47, -0.73, 0, 0.73, 1.47];
 
-  // Dynamically resolve backend experience or fallback to MOCK_EXPERIENCE
-  const getItemDetails = (idx: number): ExperienceItem => {
-    const rawItem = displayItems[idx % displayItems.length];
-    const fallback = MOCK_EXPERIENCE[idx % MOCK_EXPERIENCE.length];
-
-    let yearFormatted = rawItem.year;
-    if (!yearFormatted && rawItem.startDate) {
-      const parsedYear = new Date(rawItem.startDate).getFullYear();
-      if (!isNaN(parsedYear)) {
-        yearFormatted = `${parsedYear} — ${rawItem.endDate && !isNaN(new Date(rawItem.endDate).getFullYear()) ? new Date(rawItem.endDate).getFullYear() : "Hozir"}`;
-      } else {
-        yearFormatted = rawItem.startDate;
-      }
-    }
-    if (!yearFormatted) yearFormatted = fallback.year;
-
-    const description = rawItem.description || (
-      Array.isArray(rawItem.impacts) && rawItem.impacts.length > 0
-        ? rawItem.impacts.map((i: any) => typeof i === "string" ? i : i.text).filter(Boolean).join(". ")
-        : fallback.description
-    );
-
-    const stack = rawItem.stack || fallback.stack;
-
-    return {
-      role: rawItem.role || rawItem.title || fallback.role,
-      company: rawItem.company || fallback.company,
-      year: yearFormatted,
-      description: description,
-      impacts: rawItem.impacts || fallback.impacts || [],
-      stack: stack,
-      cardNumber: rawItem.cardNumber || fallback.cardNumber,
-      cvv: rawItem.cvv || fallback.cvv,
-    };
-  };
-
   return (
     <section id="experience" className="relative w-full border-t border-card-border overflow-hidden">
+
+      {/* ─── Experience Detail Modal ─── */}
+      {selectedExp && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-8"
+          style={{ backgroundColor: "rgba(0,0,0,0.85)", backdropFilter: "blur(18px)" }}
+          onClick={closeModal}
+        >
+          <div
+            className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl border border-white/20 shadow-2xl"
+            style={{
+              background: "linear-gradient(135deg, #0d0d12 0%, #111118 60%, #0a0a10 100%)",
+              boxShadow: "0 0 80px rgba(244,201,93,0.12), 0 40px 100px rgba(0,0,0,0.9)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Glow Ambient */}
+            <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-accent/10 blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-accent/5 blur-3xl pointer-events-none" />
+
+            {/* Header */}
+            <div className="relative p-6 sm:p-8 pb-4 border-b border-white/10">
+              {/* Close button */}
+              <button
+                onClick={closeModal}
+                className="absolute top-4 right-4 sm:top-6 sm:right-6 w-9 h-9 rounded-full border border-white/20 bg-white/5 hover:bg-white/15 transition-colors duration-200 flex items-center justify-center text-white/60 hover:text-white text-lg"
+                aria-label="Close"
+              >
+                ✕
+              </button>
+
+              {/* Year Badge */}
+              <span className="inline-block font-mono text-[11px] font-bold tracking-widest text-accent border border-accent/40 bg-black/60 px-4 py-1 rounded-full mb-4 shadow-[0_0_12px_rgba(244,201,93,0.3)]">
+                {selectedExp.year}
+              </span>
+
+              {/* Company */}
+              <p className="font-mono text-xs uppercase tracking-[0.25em] text-accent/80 font-bold mb-1">
+                {td(selectedExp.company)}
+              </p>
+
+              {/* Role */}
+              <h2 className="font-display text-2xl sm:text-3xl font-bold text-white leading-tight">
+                {td(selectedExp.role)}
+              </h2>
+            </div>
+
+            {/* Body */}
+            <div className="p-6 sm:p-8 space-y-6">
+
+              {/* Description */}
+              {selectedExp.description && (
+                <div>
+                  <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-accent/70 font-bold mb-2">
+                    ── Tavsif
+                  </p>
+                  <p className="text-sm text-white/80 font-sans leading-relaxed">
+                    {td(selectedExp.description)}
+                  </p>
+                </div>
+              )}
+
+              {/* Impacts */}
+              {selectedExp.impacts && selectedExp.impacts.length > 0 && (
+                <div>
+                  <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-accent/70 font-bold mb-3">
+                    ── Vazifalar &amp; Yutuqlar
+                  </p>
+                  <div className="space-y-2.5">
+                    {selectedExp.impacts.map((imp: any, idx: number) => {
+                      const textStr = typeof imp === "string" ? imp : imp.text || "";
+                      return (
+                        <div key={idx} className="flex items-start gap-3 group">
+                          <span className="text-accent text-[10px] shrink-0 mt-1">◆</span>
+                          <span className="text-sm text-white/85 font-sans leading-snug group-hover:text-white transition-colors duration-150">
+                            {td(textStr)}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Tech Stack */}
+              {selectedExp.stack && (
+                <div>
+                  <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-accent/70 font-bold mb-3">
+                    ── Texnologiyalar
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedExp.stack.split(/[•,·]/).map((tech, tIdx) => {
+                      const t = tech.trim();
+                      if (!t) return null;
+                      return (
+                        <span
+                          key={tIdx}
+                          className="font-mono text-[11px] text-accent border border-accent/30 bg-accent/[0.08] px-3 py-1 rounded-full tracking-wide hover:bg-accent/15 transition-colors duration-150"
+                        >
+                          {t}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Divider & Card Metadata */}
+              <div className="border-t border-white/10 pt-4 flex items-center justify-between font-mono">
+                <div>
+                  <p className="text-[11px] font-bold text-white/60 uppercase tracking-widest">
+                    JALOLIDDIN XALIMOV
+                  </p>
+                  {selectedExp.cardNumber && (
+                    <p className="text-[10px] text-accent/50 tracking-widest mt-0.5">
+                      {selectedExp.cardNumber}
+                    </p>
+                  )}
+                </div>
+                {selectedExp.cvv && (
+                  <span className="text-[10px] text-white/40 bg-white/5 px-3 py-1 rounded border border-white/10">
+                    CVV {selectedExp.cvv}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="relative z-20 text-center pt-16 pb-4 px-6 pointer-events-none">
         <span className="font-mono text-xs uppercase tracking-[0.3em] text-accent border border-accent/40 px-5 py-1.5 rounded-full bg-card-bg/75 backdrop-blur-xl shadow-sm">
@@ -345,6 +504,11 @@ export const ExperienceSection = ({ experience = [] }: { experience?: Experience
           {td("Tajriba va Amaliyot")}
         </h2>
       </div>
+
+      {/* Hint text */}
+      <p className="text-center font-mono text-[10px] tracking-widest text-white/30 pb-2 pointer-events-none">
+        ↑ Markaziy kartani bosib batafsil ko'ring
+      </p>
 
       {/* 3D Cylinder Carousel Container */}
       <div
@@ -373,6 +537,7 @@ export const ExperienceSection = ({ experience = [] }: { experience?: Experience
                   key={i}
                   ref={(el) => { cardsRefs.current[i] = el; }}
                   onClick={() => handleCardClick(i)}
+                  title="Batafsil ko'rish uchun bosing"
                   className="absolute inset-0 cursor-pointer pointer-events-auto hover:brightness-115 transition-[filter] duration-300"
                   style={{
                     width: `${metrics.cardW}px`,
@@ -386,7 +551,6 @@ export const ExperienceSection = ({ experience = [] }: { experience?: Experience
                   {thicknessLayers.map((zOffset, layerIdx) => {
                     const isFrontFace = layerIdx === thicknessLayers.length - 1;
                     const isBackFace = layerIdx === 0;
-                    const baseBgColor = "#0f0f0f";
 
                     // Middle structural slice
                     if (!isFrontFace && !isBackFace) {
