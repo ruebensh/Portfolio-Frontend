@@ -12,8 +12,8 @@ interface ChatSession {
   createdAt: string;
 }
 
-const STORAGE_KEY = "devini_chat_sessions";
-const ACTIVE_KEY = "devini_active_session";
+const STORAGE_KEY = "ruebensh_chat_sessions";
+const ACTIVE_KEY = "ruebensh_active_session";
 
 export default function AIChatPage() {
   const { td } = useLanguage();

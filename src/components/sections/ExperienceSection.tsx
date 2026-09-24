@@ -28,7 +28,7 @@ export interface ExperienceItem {
 const MOCK_EXPERIENCE: ExperienceItem[] = [
   {
     role: "Senior AI / ML Engineer",
-    company: "Devini AI Platform",
+    company: "Ruebensh AI Platform",
     year: "2024 — Hozir",
     description: "Sun'iy intellekt va LLM model arxitekturalari, CUDA optimallashtirish va asinxron Python backend.",
     stack: "Python • PyTorch • FastAPI • CUDA",

@@ -17,7 +17,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("devini_theme") as Theme;
+      const saved = localStorage.getItem("ruebensh_theme") as Theme;
       const initialTheme = (saved && (saved === "light" || saved === "dark")) ? saved : "dark";
       setThemeState(initialTheme);
       if (initialTheme === "dark") {
@@ -33,7 +33,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
     if (typeof window !== "undefined") {
-      localStorage.setItem("devini_theme", newTheme);
+      localStorage.setItem("ruebensh_theme", newTheme);
       if (newTheme === "dark") {
         document.documentElement.classList.add("dark");
       } else {

@@ -22,7 +22,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   useEffect(() => {
     setMounted(true);
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("devini_lang") as Language;
+      const saved = localStorage.getItem("ruebensh_lang") as Language;
       if (saved && ["uz", "en", "ru"].includes(saved)) {
         setLanguageState(saved);
       }
@@ -38,7 +38,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
     if (typeof window !== "undefined") {
-      localStorage.setItem("devini_lang", lang);
+      localStorage.setItem("ruebensh_lang", lang);
     }
   };
 

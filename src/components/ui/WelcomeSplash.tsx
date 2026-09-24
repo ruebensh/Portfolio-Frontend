@@ -11,10 +11,10 @@ export const WelcomeSplash = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const hasSeen = sessionStorage.getItem("devini_welcome_seen");
+      const hasSeen = sessionStorage.getItem("ruebensh_welcome_seen");
       if (!hasSeen) {
         setShowSplash(true);
-        sessionStorage.setItem("devini_welcome_seen", "true");
+        sessionStorage.setItem("ruebensh_welcome_seen", "true");
       }
 
       const updateFontSize = () => {

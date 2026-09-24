@@ -51,7 +51,7 @@ export const FrameSequenceCanvas = forwardRef<
     if (typeof window === "undefined") return 5;
     const mobile = window.innerWidth <= 768;
     const slowCpu = typeof navigator !== "undefined" && navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4;
-    return mobile || slowCpu ? 3 : 6;
+    return mobile || slowCpu ? 4 : 8;
   };
 
   const getNearestLoadedImage = (index: number) => {
@@ -113,12 +113,39 @@ export const FrameSequenceCanvas = forwardRef<
     canvas.height = window.innerHeight * dpr;
     const last = currentIdxRef.current;
     currentIdxRef.current = -1;
-    if (last >= 0) drawFrameIndexFn.current(last);
+    if (last >= 0) {
+      drawFrameIndexFn.current(last);
+    } else if (framesRef.current[0]) {
+      drawFrameIndexFn.current(0);
+    }
   });
 
   const loadSingleFrame = useRef((idx: number) => {
     if (idx < 0 || idx >= frameCountRef.current) return;
     if (framesRef.current[idx] || loadingRefs.current.has(idx)) return;
+
+    const url = framePathRef.current(idx + 1);
+
+    // Fast path: Check global preloader cache first
+    if (typeof window !== "undefined" && (window as any).__RUEBENSH_FRAME_CACHE__?.[url]) {
+      const cached = (window as any).__RUEBENSH_FRAME_CACHE__[url];
+      if (cached && (cached.complete || cached.naturalWidth > 0)) {
+        framesRef.current[idx] = cached;
+        loadedCountRef.current = framesRef.current.filter(Boolean).length;
+        const progress = loadedCountRef.current / frameCountRef.current;
+        onLoadProgressRef.current?.(progress);
+
+        if (idx === currentIdxRef.current || Math.abs(idx - (currentIdxRef.current >= 0 ? currentIdxRef.current : 0)) <= 1) {
+          drawFrameIndexFn.current(currentIdxRef.current >= 0 ? currentIdxRef.current : 0);
+        }
+
+        if (loadedCountRef.current >= frameCountRef.current && !loadedState) {
+          setLoadedState(true);
+          onLoadedRef.current?.();
+        }
+        return;
+      }
+    }
 
     loadingRefs.current.add(idx);
     const img = new window.Image();
@@ -163,7 +190,7 @@ export const FrameSequenceCanvas = forwardRef<
       }
     };
 
-    img.src = framePathRef.current(idx + 1);
+    img.src = url;
   });
 
   const ensureFrameWindow = useRef((targetIndex: number) => {
@@ -192,11 +219,11 @@ export const FrameSequenceCanvas = forwardRef<
     uniqueLoads.forEach((index, offset) => {
       window.setTimeout(() => {
         loadSingleFrame.current(index);
-      }, offset * 18);
+      }, offset * 14);
     });
   });
 
-  // ── Smart Frame Loader with narrow preloading window ───────────────────────
+  // ── Smart Frame Loader with preloading cache sync ───────────────────────
   useEffect(() => {
     let cancelled = false;
     const total = frameCount;
@@ -210,7 +237,28 @@ export const FrameSequenceCanvas = forwardRef<
     loadedCountRef.current = 0;
     setLoadedState(false);
 
-    const initialWindow = slowDeviceRef.current ? 2 : 3;
+    // Sync from global preloader cache immediately
+    if (typeof window !== "undefined" && (window as any).__RUEBENSH_FRAME_CACHE__) {
+      for (let i = 0; i < total; i++) {
+        const u = framePathRef.current(i + 1);
+        const cached = (window as any).__RUEBENSH_FRAME_CACHE__[u];
+        if (cached && (cached.complete || cached.naturalWidth > 0)) {
+          framesRef.current[i] = cached;
+        }
+      }
+      loadedCountRef.current = framesRef.current.filter(Boolean).length;
+      if (loadedCountRef.current >= total) {
+        setLoadedState(true);
+        onLoadedRef.current?.();
+      }
+    }
+
+    // Draw initial frame immediately if available in cache
+    if (framesRef.current[0]) {
+      drawFrameIndexFn.current(0);
+    }
+
+    const initialWindow = slowDeviceRef.current ? 3 : 6;
     const tailWindow = Math.min(24, Math.max(12, Math.ceil(total * 0.2)));
     const initialLoads = Array.from(
       new Set([
@@ -224,7 +272,7 @@ export const FrameSequenceCanvas = forwardRef<
         if (!cancelled) {
           loadSingleFrame.current(index);
         }
-      }, offset * 25);
+      }, offset * 18);
     });
 
     const fallbackTimer = window.setTimeout(() => {
@@ -269,6 +317,8 @@ export const FrameSequenceCanvas = forwardRef<
       );
       if (framesRef.current[fallbackIndex]) {
         drawFrameIndexFn.current(fallbackIndex);
+      } else if (framesRef.current[0]) {
+        drawFrameIndexFn.current(0);
       }
     };
 

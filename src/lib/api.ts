@@ -11,7 +11,7 @@ export function resolveUrl(url?: string): string {
 // Helper for auth headers
 export const getAuthHeader = (): Record<string, string> => {
   if (typeof window === "undefined") return {};
-  const token = localStorage.getItem("token") || localStorage.getItem("devini_admin_token");
+  const token = localStorage.getItem("token") || localStorage.getItem("ruebensh_admin_token");
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
@@ -209,7 +209,7 @@ export const login = async (email: string, password: string) => {
         const token = data.access_token || data.token;
         if (token) {
           localStorage.setItem("token", token);
-          localStorage.setItem("devini_admin_token", token);
+          localStorage.setItem("ruebensh_admin_token", token);
         }
         return { token, ...data };
       }

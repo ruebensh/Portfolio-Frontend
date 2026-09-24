@@ -52,7 +52,7 @@ type Tab = "ai_boss" | "ai_monitoring" | "ai_chats" | "settings" | "projects" | 
 
 const getAuthHeader = (): Record<string, string> => {
   if (typeof window === "undefined") return {};
-  const token = localStorage.getItem("token") || localStorage.getItem("devini_admin_token");
+  const token = localStorage.getItem("token") || localStorage.getItem("ruebensh_admin_token");
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
@@ -257,7 +257,7 @@ export default function AdminPage() {
 
   const handleLogout = (reason?: string | React.MouseEvent) => {
     localStorage.removeItem("token");
-    localStorage.removeItem("devini_admin_token");
+    localStorage.removeItem("ruebensh_admin_token");
     localStorage.removeItem("admin_token_time");
     setIsAuthenticated(false);
     if (typeof reason === "string" && reason) {
@@ -268,7 +268,7 @@ export default function AdminPage() {
   // Check auth token on mount and setup auto-logout interval on 1-hour expiration
   useEffect(() => {
     const checkTokenState = () => {
-      const token = localStorage.getItem("token") || localStorage.getItem("devini_admin_token");
+      const token = localStorage.getItem("token") || localStorage.getItem("ruebensh_admin_token");
       if (!token || isTokenExpired(token)) {
         if (token || isAuthenticated) {
           handleLogout("Sessiya vaqti tugadi (1 soat). Iltimos, qaytadan tizimga kiring.");
@@ -284,7 +284,7 @@ export default function AdminPage() {
     }
 
     const interval = setInterval(() => {
-      const token = localStorage.getItem("token") || localStorage.getItem("devini_admin_token");
+      const token = localStorage.getItem("token") || localStorage.getItem("ruebensh_admin_token");
       if (token && isTokenExpired(token)) {
         handleLogout("Sessiya vaqti tugadi (1 soat). Iltimos, qaytadan tizimga kiring.");
       }
@@ -303,7 +303,7 @@ export default function AdminPage() {
       if (data && (data.token || data.access_token)) {
         const token = data.token || data.access_token;
         localStorage.setItem("token", token);
-        localStorage.setItem("devini_admin_token", token);
+        localStorage.setItem("ruebensh_admin_token", token);
         localStorage.setItem("admin_token_time", Date.now().toString());
         setIsAuthenticated(true);
         fetchDashboardData();
@@ -864,10 +864,10 @@ export default function AdminPage() {
         alert("Javob xabari muvaffaqiyatli yuborildi! 🚀");
         setMessages(prev => prev.map(m => String(m.id) === String(id) ? { ...m, read: true } : m));
       } else {
-        window.location.href = `mailto:${email}?subject=Javob:%20Devini.io%20portfoliodan&body=${encodeURIComponent(text)}`;
+        window.location.href = `mailto:${email}?subject=Javob:%20Ruebensh.io%20portfoliodan&body=${encodeURIComponent(text)}`;
       }
     } catch {
-      window.location.href = `mailto:${email}?subject=Javob:%20Devini.io%20portfoliodan&body=${encodeURIComponent(text)}`;
+      window.location.href = `mailto:${email}?subject=Javob:%20Ruebensh.io%20portfoliodan&body=${encodeURIComponent(text)}`;
     } finally {
       setReplyLoadingId(null);
     }
@@ -1902,7 +1902,7 @@ export default function AdminPage() {
                               {replyLoadingId === m.id ? <Spinner size={14} className="animate-spin" /> : "📧"} Javob Xati Yuborish
                             </button>
                             <a
-                              href={`mailto:${m.email}?subject=Javob:%20Devini.io%20portfoliodan`}
+                              href={`mailto:${m.email}?subject=Javob:%20Ruebensh.io%20portfoliodan`}
                               className="px-4 py-2 rounded-xl border border-white/20 bg-white/10 text-white font-mono text-xs uppercase tracking-widest hover:bg-white/20 transition-all"
                             >
                               Pochta Ilovasida Ochish ↗

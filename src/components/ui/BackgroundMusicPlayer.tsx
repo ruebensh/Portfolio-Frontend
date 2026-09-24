@@ -29,7 +29,7 @@ export const BackgroundMusicPlayer = () => {
     const audio = globalAudio;
 
     // Sync saved preference with audio element
-    const savedPref = localStorage.getItem("devini_bg_music_muted");
+    const savedPref = localStorage.getItem("ruebensh_bg_music_muted");
     const userWantsMute = savedPref === "true";
 
     audio.muted = userWantsMute;
@@ -71,7 +71,7 @@ export const BackgroundMusicPlayer = () => {
     ];
 
     const handleUserGesture = () => {
-      const isCurrentlyMuted = localStorage.getItem("devini_bg_music_muted") === "true";
+      const isCurrentlyMuted = localStorage.getItem("ruebensh_bg_music_muted") === "true";
       if (!isCurrentlyMuted && audio.paused) {
         playAudio();
       }
@@ -106,12 +106,12 @@ export const BackgroundMusicPlayer = () => {
       audio.pause();
       setIsMuted(true);
       setIsPlaying(false);
-      localStorage.setItem("devini_bg_music_muted", "true");
+      localStorage.setItem("ruebensh_bg_music_muted", "true");
     } else {
       // User clicks to UNMUTE / TURN ON
       audio.muted = false;
       setIsMuted(false);
-      localStorage.setItem("devini_bg_music_muted", "false");
+      localStorage.setItem("ruebensh_bg_music_muted", "false");
 
       if (globalAudioCtx && globalAudioCtx.state === "suspended") {
         globalAudioCtx.resume().catch(() => {});
