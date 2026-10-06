@@ -31,6 +31,24 @@ export const metadata: Metadata = {
   description: "Jaloliddin Xalimovning shaxsiy portfoliosi va 3D raqamli taqdimoti.",
 };
 
+// Google knowledge graph uchun: shaxs ↔ TopHand entity bog'lanishi (teskari havola).
+const personJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Jaloliddin Xalimov",
+  "alternateName": ["Жалолиддин Халимов", "Jaloliddin Khalimov"],
+  "jobTitle": "Co-Founder & Co-CEO",
+  "url": "https://jaloliddin-xalimov.uz",
+  "sameAs": [
+    "https://tophand.uz",
+    "https://github.com/ruebensh",
+    "https://xalimov.vercel.app",
+  ],
+  "worksFor": { "@type": "Organization", "name": "TopHand", "url": "https://tophand.uz" },
+  "description":
+    "TopHand — O'zbekistondagi ko'p tarmoqli onlayn bozorni yaratgan jamoa a'zosi (Co-Founder & Co-CEO).",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -39,6 +57,10 @@ export default function RootLayout({
   return (
     <html lang="uz" className={`${spaceGrotesk.variable} ${dmSans.variable} ${ibmPlexMono.variable}`}>
       <body className="antialiased text-foreground transition-colors duration-300 min-h-screen flex flex-col justify-between" style={{ backgroundColor: "#050505" }}>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
+        />
         {/* Global fixed video background — sits behind ALL content */}
         <GlobalVideoBackground />
         <GlobalPreloader />
