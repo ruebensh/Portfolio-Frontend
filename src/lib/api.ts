@@ -1,4 +1,4 @@
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://129.146.44.92:3000";
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://129.146.44.92.nip.io";
 
 // Helper to format full URL for image/file assets served from NestJS /uploads/
 export function resolveUrl(url?: string): string {
