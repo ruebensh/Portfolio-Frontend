@@ -184,7 +184,7 @@ export const SkillsSection = ({ skills = [] }: { skills?: any[] }) => {
     <>
       {/* Desktop 3D Frame Sequence (MD and up) */}
       <div className="hidden md:block">
-        <ScrollScene height="450vh" onProgress={handleProgress} id="skills" className="bg-[#050505] text-white">
+        <ScrollScene height="800vh" onProgress={handleProgress} id="skills" className="bg-[#050505] text-white">
           <FrameSequenceCanvas
             ref={canvasRef}
             frameCount={SKILL_FRAME_COUNT}

@@ -389,7 +389,7 @@ export const ProjectsShowcase = ({ projects = [] }: { projects?: any[] }) => {
     <>
       {/* Desktop 3D Tunnel Sequence (MD and up) */}
       <div className="hidden md:block">
-        <ScrollScene height="700vh" onProgress={handleProgress} id="projects" className="bg-[#050505] text-white">
+        <ScrollScene height="1200vh" onProgress={handleProgress} id="projects" className="bg-[#050505] text-white">
           {!isLoaded && (
             <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#050505] gap-3">
               <span className="font-mono text-[10px] uppercase tracking-widest text-muted">

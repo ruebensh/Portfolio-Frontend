@@ -105,7 +105,7 @@ export const Hero = ({ settings }: { settings?: any }) => {
     <>
       {/* ── Desktop Cinematic 3D Canvas Hero (MD and up) ──────────────────── */}
       <div className="hidden md:block">
-        <ScrollScene height="500vh" onProgress={handleProgress} id="hero-3d" style={{ backgroundColor: "#050505" }}>
+        <ScrollScene height="900vh" onProgress={handleProgress} id="hero-3d" style={{ backgroundColor: "#050505" }}>
           <div className="absolute inset-0 bg-[#050505] z-0" />
 
           {!isReduced ? (
