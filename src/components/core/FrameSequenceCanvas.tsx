@@ -121,6 +121,7 @@ export const FrameSequenceCanvas = forwardRef<
   });
 
   const loadSingleFrame = useRef((idx: number) => {
+    if (typeof window !== "undefined" && window.innerWidth < 768) return;
     if (idx < 0 || idx >= frameCountRef.current) return;
     if (framesRef.current[idx] || loadingRefs.current.has(idx)) return;
 
@@ -229,7 +230,11 @@ export const FrameSequenceCanvas = forwardRef<
     const total = frameCount;
     const hasLowCoreCount = typeof navigator !== "undefined" && !!navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4;
     const isSlow = typeof window !== "undefined" && (window.innerWidth <= 768 || hasLowCoreCount);
-    slowDeviceRef.current = Boolean(isSlow);
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      setLoadedState(true);
+      onLoadedRef.current?.();
+      return;
+    }
 
     framesRef.current = new Array(total).fill(null);
     currentIdxRef.current = -1;

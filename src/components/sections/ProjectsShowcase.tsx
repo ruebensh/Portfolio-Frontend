@@ -10,7 +10,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Globe, GithubLogo } from "@phosphor-icons/react/dist/ssr";
 
 const TUNNEL_FRAME_START = 1;
-const TUNNEL_FRAME_END = 97;
+const TUNNEL_FRAME_END = 263;
 const TUNNEL_FRAME_COUNT = TUNNEL_FRAME_END - TUNNEL_FRAME_START + 1;
 
 interface Project {

@@ -6,8 +6,8 @@ import { FrameSequenceCanvas, FrameSequenceCanvasRef } from "../core/FrameSequen
 import { EyebrowBadge } from "@/components/ui/EyebrowBadge";
 import { useLanguage } from "@/context/LanguageContext";
 
-const SKILL_FRAME_START = 24;
-const SKILL_FRAME_END = 212;
+const SKILL_FRAME_START = 1;
+const SKILL_FRAME_END = 300;
 const SKILL_FRAME_COUNT = SKILL_FRAME_END - SKILL_FRAME_START + 1;
 
 function normalizeSkillCategories(skills: any[]) {
@@ -189,12 +189,7 @@ export const SkillsSection = ({ skills = [] }: { skills?: any[] }) => {
             ref={canvasRef}
             frameCount={SKILL_FRAME_COUNT}
             framePath={(idx) => {
-              const normalized = Math.max(1, Math.min(SKILL_FRAME_COUNT, idx));
-              const frameNum = Math.round(
-                SKILL_FRAME_START +
-                  ((normalized - 1) / Math.max(1, SKILL_FRAME_COUNT - 1)) *
-                  (SKILL_FRAME_END - SKILL_FRAME_START)
-              );
+              const frameNum = Math.min(SKILL_FRAME_END, Math.max(SKILL_FRAME_START, idx));
               return `/skill-frames/frame_${String(frameNum).padStart(4, "0")}.jpg`;
             }}
             className="opacity-50"

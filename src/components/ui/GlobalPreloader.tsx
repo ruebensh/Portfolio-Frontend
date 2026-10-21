@@ -28,19 +28,16 @@ export function GlobalPreloader() {
     const mobileCheck = typeof window !== "undefined" && window.innerWidth < 768;
     setIsMobile(mobileCheck);
 
-    // Build frame URL lists for preloading
-    const frameUrls: string[] = [];
-
+    // On mobile / smartphones: No preloading needed, complete immediately with zero frame downloads
     if (mobileCheck) {
-      // Mobile: lighter preload to save bandwidth (initial hero frames + teaser)
-      for (let i = 1; i <= 40; i += 2) {
-        frameUrls.push(`/frames/frame_${String(i).padStart(4, "0")}.jpg`);
-      }
-    } else {
-      // Desktop: All 300 Hero Frames for smooth 60 FPS cinematic playback
-      for (let i = 1; i <= 300; i++) {
-        frameUrls.push(`/frames/frame_${String(i).padStart(4, "0")}.jpg`);
-      }
+      setIsCompleted(true);
+      return;
+    }
+
+    // Build frame URL lists for preloading (Desktop only)
+    const frameUrls: string[] = [];
+    for (let i = 1; i <= 300; i++) {
+      frameUrls.push(`/frames/frame_${String(i).padStart(4, "0")}.jpg`);
     }
 
     const totalAssets = frameUrls.length;
@@ -147,7 +144,7 @@ export function GlobalPreloader() {
         initial={{ opacity: 1 }}
         exit={{ opacity: 0, scale: 1.05, filter: "blur(12px)" }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#040409] text-white p-6 select-none overflow-hidden"
+        className="fixed inset-0 z-[9999] hidden md:flex flex-col items-center justify-center bg-[#040409] text-white p-6 select-none overflow-hidden"
       >
         {/* Background Ambient Glows */}
         <div className="absolute top-1/4 left-1/3 w-96 h-96 rounded-full bg-accent/15 blur-[120px] pointer-events-none animate-pulse" />
